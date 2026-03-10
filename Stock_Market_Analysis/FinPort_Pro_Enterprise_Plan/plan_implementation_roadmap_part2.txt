@@ -1,0 +1,375 @@
+================================================================================
+  IMPLEMENTATION ROADMAP — PART 2 (Phases 5-8, Sprints 9-16)
+  Tactical Financial Portfolio Management Platform
+  Version: 1.0 | Date: March 2026
+  Companion: plan_implementation_roadmap.txt (Phases 1-4)
+================================================================================
+
+================================================================================
+ 1. PHASE BREAKDOWN (CONTINUED)
+================================================================================
+
+--------------------------------------------------------------------
+PHASE 5: AI INTEGRATION & ADVANCED ANALYTICS (Weeks 17-20)
+--------------------------------------------------------------------
+Objective:
+  Augment the platform with intelligence. Classify stocks, generate
+  scenarios, and provide rich analytics via the Analytics Service.
+
+Key Deliverables:
+  - AI Service: LLM integration (OpenAI/Gemini) operational
+  - Stock Classification engine (Defensive/Cyclical/etc.)
+  - Analytics Service: Materialized views for sector/risk exposure
+  - Scenario Generation (Bull/Bear/Neutral cases)
+
+Exit Criteria:
+  - User can request AI analysis for any plan
+  - Analysis results render in the "AI Insights" panel
+  - Sector exposure and risk distribution charts show real-time data
+  - 30-day performance history viewable in UI
+
+--------------------------------------------------------------------
+PHASE 6: HARDENING & PRODUCTION TESTING (Weeks 21-24)
+--------------------------------------------------------------------
+Objective:
+  Transition from feature development to stability. Intensive
+  automated testing, performance tuning, and security audits.
+
+Key Deliverables:
+  - Full automated integration test suite green
+  - Load testing (k6/JMeter) benchmarks established
+  - Vulnerability scan (OWASP) complete
+  - Chaos testing (service failure recovery) results
+
+Exit Criteria:
+  - 85%+ code coverage across all business logic
+  - Latency < 200ms for p95 API requests
+  - Zero critical/high security vulnerabilities
+  - System survives 100 concurrent users without degradation
+
+--------------------------------------------------------------------
+PHASE 7: STABILIZATION & MANUAL DEPLOYMENT (Weeks 25-28)
+--------------------------------------------------------------------
+Objective:
+  Manual deployment to a stable staging environment. Refinement of
+  deployment guides and operational playbooks.
+
+Key Deliverables:
+  - Manual Deployment Runbook (bare-metal/VM)
+  - Disaster Recovery Plan finalized
+  - Data Migration scripts from legacy Excel complete
+  - User Acceptance Testing (UAT) feedback loop active
+
+Exit Criteria:
+  - System successfully deployed and stable in Staging environment
+  - All existing Excel data migrated with 100% accuracy
+  - UAT sign-off from primary stakeholders
+
+--------------------------------------------------------------------
+PHASE 8: ENTERPRISE AUTOMATION & CI/CD (Weeks 29-32)
+--------------------------------------------------------------------
+Objective: [USER REQUESTED]
+  Finalize the enterprise infrastructure. Containerize all services,
+  set up Kubernetes orchestration, and automate the CI/CD pipelines.
+
+Key Deliverables:
+  - Docker images for all 10 microservices + Angular UI
+  - Kubernetes (K8s) configuration (Deployments, Services, HPA)
+  - Fully automated GitHub Actions CI/CD pipelines
+  - Centralized Logging (ELK) & Monitoring (Prometheus/Grafana)
+
+Exit Criteria:
+  - CI/CD pipeline deploys to Prod on merge to main
+  - Auto-scaling (HPA) verified in Kubernetes
+  - Centralized dashboard shows all service health and logs
+  - One-click rollback capability verified
+
+
+================================================================================
+ 2. SPRINT-LEVEL BREAKDOWN (CONTINUED)
+================================================================================
+
+====================================================================
+ SPRINT 9 — AI SERVICE INTEGRATION (Weeks 17-18)
+====================================================================
+
+Sprint Goal:
+  Implement AI Service with LLM client, prompt builder, and result
+  persistence. Integrate "AI Insights" panel in the UI.
+
+--------------------------------------------------------------------
+EPIC 9.1: AI Service Core
+--------------------------------------------------------------------
+
+Story 9.1.1: LLM Client & Prompt Builder
+  Tasks:
+    [T] LlmClient adapter (OpenAI/Gemini) with retry logic
+    [T] PromptBuilder: build system prompt + holding context
+    [T] SystemPromptTemplate for "Senior Portfolio Architect" persona
+  Deliverable: Service can talk to LLM and get structured reasoning
+  Acceptance: LLM returns JSON matching expected schema
+
+Story 9.1.2: AI Analysis Pipeline
+  Tasks:
+    [T] HoldingEnricher: add market sentiment + sector news
+    [T] AiAnalysisController: trigger analysis via REST
+    [T] Persist results in ai_schema.analysis_snapshots
+    [T] AiAnalysisPublisher: notify UI via Kafka
+  Deliverable: End-to-end AI analysis flow
+  Acceptance: Analysis success event received by UI
+
+--------------------------------------------------------------------
+EPIC 9.2: AI Insights UI
+--------------------------------------------------------------------
+
+Story 9.2.1: AI Insights Panel
+  Tasks:
+    [T] AiInsightsComponent: expandible side panel on Dashboard
+    [T] Markdown renderer for AI reasoning text
+    [T] Severity badges for AI-identified risks
+    [T] Action Matrix table (Add/Hold/Exit recommendations)
+  Deliverable: User sees AI insights in UI
+  Acceptance: Clicking "AI Analyze" updates the dashboard panel
+
+--------------------------------------------------------------------
+Testing Tasks (Sprint 9):
+  [T] LlmClient unit test (mock API)
+  [T] PromptBuilder unit test (verify context injection)
+  [T] AiResponseParserTest (verify JSON extraction)
+  Coverage Target: 80% AI Service
+--------------------------------------------------------------------
+
+
+====================================================================
+ SPRINT 10 — ADVANCED ANALYTICS (Weeks 19-20)
+====================================================================
+
+Sprint Goal:
+  Refine Analytics Service with denormalized views and performance
+  histories. Build rich charts in UI.
+
+--------------------------------------------------------------------
+EPIC 10.1: Analytics Service Refinement
+--------------------------------------------------------------------
+
+Story 10.1.1: Denormalized KPI Views
+  Tasks:
+    [T] Consumer: RiskRecalculated → Update portfolio_kpis
+    [T] Consumer: PortfolioUpdated → Update sector_exposure
+    [T] Materialized views for complex aggregations
+  Deliverable: Pre-aggregated data for dashboard
+  Acceptance: GET /api/analytics/... returns in < 100ms
+
+Story 10.1.2: Performance Snapshots
+  Tasks:
+    [T] DailySnapshotJob: Capture EOD portfolio value
+    [T] PerformanceQueryService: aggregate 1W/1M/3M trends
+  Deliverable: Historical performance data
+  Acceptance: Query returns daily P&L values for the last month
+
+--------------------------------------------------------------------
+EPIC 10.2: Advanced Visualization UI
+--------------------------------------------------------------------
+
+Story 10.2.1: Analytics View
+  Tasks:
+    [T] PerformanceLineChart: Portfolio value vs Nifty benchmark
+    [T] SectorExposureChart: TreeMap or Sunburst view
+    [T] RiskDistributionChart: Radar chart for risk dimensions
+  Deliverable: Dedicated Analytics page
+  Acceptance: Interactive charts with drill-down capability
+
+--------------------------------------------------------------------
+Testing Tasks (Sprint 10):
+  [T] AnalyticsAggregatorTest
+  [T] MaterializedViewRefresherTest
+  Coverage Target: 85% Analytics Service
+--------------------------------------------------------------------
+
+
+====================================================================
+ SPRINT 11 & 12 — HARDENING & PERFORMANCE (Weeks 21-24)
+====================================================================
+
+Sprint Goal:
+  Achieve high test coverage, fix all bugs, tune performance,
+  and perform security hardening.
+
+Tasks:
+  [T] Increase unit test coverage (target: 85% overall)
+  [T] Implement missing edge-case validations
+  [T] Optimize slow SQL queries (Indexes/Vaccum)
+  [T] Redis cache tuning (TTL & eviction policies)
+  [T] Load testing with k6: simulate 100 concurrent users
+  [T] Static code analysis (SonarQube) cleanup
+  [T] Vulnerability scanning (Snyk/OWASP)
+
+Deliverables:
+  - "Green" status across all quality gates
+  - Performance benchmark report
+  - Security audit report
+
+--------------------------------------------------------------------
+Testing Tasks (Sprint 11-12):
+  [T] Full regression test suite
+  [T] Performance stress tests
+  [T] Security penetration tests (manual)
+--------------------------------------------------------------------
+
+
+====================================================================
+ SPRINT 13 & 14 — STABILIZATION & MANUAL DEPLOY (Weeks 25-28)
+====================================================================
+
+Sprint Goal:
+  Successful manual deployment in a production-like environment.
+  Finalize data migration and documentation.
+
+Tasks:
+  [T] Finalize Deployment Runbook (manual VM setup)
+  [T] Execute Production-level manual deployment (Staging)
+  [T] Data Migration: Import real historical data from Excel
+  [T] Finalize User Documentation / Wiki
+  [T] UAT sessions with 5-10 pilot users
+
+Deliverables:
+  - Deployed Staging environment
+  - Migrated production database
+  - Signed-off UAT reports
+
+--------------------------------------------------------------------
+Testing Tasks (Sprint 13-14):
+  [T] UAT feedback collection
+  [T] Data integrity validation (migration audit)
+--------------------------------------------------------------------
+
+
+====================================================================
+ SPRINT 15 & 16 — ENTERPRISE AUTOMATION [DOCKER/CICD] (Weeks 29-32)
+====================================================================
+
+Sprint Goal:
+  Full containerization and CI/CD automation. Transition to Kubernetes.
+  Final enterprise hand-off.
+
+--------------------------------------------------------------------
+EPIC 15.1: Containerization & Orchestration
+--------------------------------------------------------------------
+
+Story 15.1.1: Dockerize All Components
+  Tasks:
+    [T] Finalize multi-stage Dockerfiles for 10 Spring Boot services
+    [T] Dockerize Angular UI with specialized Nginx configuration
+    [T] Build and push all images to Private Registry (ECR/GHCR)
+  Deliverable: Production-ready Docker images for all components
+
+Story 15.1.2: Kubernetes (K8s) Implementation
+  Tasks:
+    [T] Write Kubernetes Manifests: Deployment, Service, ConfigMap
+    [T] Set up HPA (Horizontal Pod Autoscaler) per service
+    [T] Configure K8s Ingress Controller (Entry via Gateway)
+    [T] K8s Secrets for sensitive DB/API credentials
+  Deliverable: Orcrestrated production environment
+  Acceptance: System runs on K8s cluster; pods auto-scale on load
+
+--------------------------------------------------------------------
+EPIC 16.1: CI/CD Pipeline Automation
+--------------------------------------------------------------------
+
+Story 16.1.1: Full Automation Pipeline
+  Tasks:
+    [T] GitHub Actions: Build → Test → Docker Build → Push
+    [T] Automated Deployment to K8s (via Helm or ArgoCD)
+    [T] Multi-environment support (Dev -> Staging -> Prod)
+    [T] Rollback trigger automation on failed health checks
+  Deliverable: Zero-touch deployment pipeline
+  Acceptance: Push to main branch deploys to Prod automatically
+
+--------------------------------------------------------------------
+EPIC 16.2: Enterprise Monitoring & Observability
+--------------------------------------------------------------------
+
+Story 16.2.1: ELK + Prometheus/Grafana
+  Tasks:
+    [T] Centralized log collection (Logstash -> Elasticsearch)
+    [T] Prometheus scraping of Spring Actuator metrics
+    [T] Grafana Dashboards for: KPI health, Kafka lag, DB latency
+    [T] Alerting rules set up in Alertmanager
+  Deliverable: Full observability stack operational
+  Acceptance: Visual dashboard shows status of all microservices
+
+--------------------------------------------------------------------
+Testing Tasks (Sprint 15-16):
+  [T] CI/CD pipeline verification
+  [T] Ks8 failover testing (node failure scenario)
+  [T] Blue/Green or Canary deployment test
+--------------------------------------------------------------------
+
+
+================================================================================
+ 3. UNIT & TEST STRATEGY
+================================================================================
+
+- Unit Testing: JUnit 5 + Mockito (Target: 80% line coverage)
+- Integration Testing: Testcontainers for PG/Redis/Kafka
+- Contract Testing: Spring Cloud Contract (Events & APIs)
+- UI Testing: Cypress/Playwright for E2E critical paths
+- Load Testing: k6 (Benchmarking: 50 req/sec, p95 < 200ms)
+- Static Analysis: SonarCloud quality gates
+
+
+================================================================================
+ 4. CI/CD & DEVOPS PLAN (FINAL)
+================================================================================
+
+- Branching: Gitflow (feature -> develop -> main)
+- Environments: Dev (Local), Staging (Manual/VM), Prod (K8s/Automated)
+- Automation: GitHub Actions + ArgoCD integration in final month
+- Registry: GHCR or ECR for versioned Docker images
+- Rollback: `git revert` on main triggers auto-rollback via CI/CD
+
+
+================================================================================
+ 5. SECURITY & COMPLIANCE
+================================================================================
+
+- JWT: RS256 asymmetric keys (periodically rotated)
+- RBAC: Role-based Access Control (Admin vs User)
+- Rate Limiting: Redis-backed token bucket (100 req/min)
+- Secure Scraping: Static proxy rotation + non-identifiable UA strings
+- Encryption: TLS 1.3 in transit; AES-256 for DB-at-rest
+
+
+================================================================================
+ 6. TEAM STRUCTURE & RESOURCE PLAN
+================================================================================
+
+Required Team (10 FTE):
+  - 1 Lead Enterprise Architect (Part-time / Oversight)
+  - 4 Backend Engineers (Spring Boot / Kafka / PG)
+  - 2 Frontend Engineers (Angular / NgRx / ECharts)
+  - 1 QA Engineer (SDET - Automation focus)
+  - 1 DevOps Engineer (Infra / K8s / CI-CD)
+  - 1 Product Owner (Business Logic / Requirements)
+
+Timeline Distribution:
+  - Months 1-6: Heavy BE/FE development
+  - Months 7-10: Quality, Security, and Final Enterprise Automation
+
+
+================================================================================
+ 7. PRODUCTION READINESS CHECKLIST
+================================================================================
+
+[ ] Load Testing Complete (Simulate 100+ concurrent users)
+[ ] Security Audit Complete (Zero critical vulnerabilities)
+[ ] Full E2E Automated Suite Green
+[ ] Data Migration Verified with 100% Accuracy
+[ ] Failover/Resilience Tested (K8s pod restarts)
+[ ] Centralized Logging & Alerting Verified
+[ ] Disaster Recovery Playbook Signed-off
+[ ] CI/CD Pipeline One-Click Deploy/Rollback Tested
+
+================================================================================
+ END OF IMPLEMENTATION ROADMAP
+================================================================================

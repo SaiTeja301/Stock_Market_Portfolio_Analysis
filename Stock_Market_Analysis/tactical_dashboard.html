@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Tactical Portfolio Dashboard — 2026-03-04</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0D1117;--bg2:#161B22;--bg3:#1C2128;--b:#30363D;
+  --blue:#58A6FF;--green:#3FB950;--red:#F85149;--gold:#E3B341;--purp:#BC8CFF;
+  --text:#F0F6FC;--muted:#8B949E;--r:10px;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(88,166,255,.03)1px,transparent 1px),linear-gradient(90deg,rgba(88,166,255,.03)1px,transparent 1px);
+  background-size:40px 40px}
+.wrap{max-width:1500px;margin:0 auto;padding:20px 22px;position:relative;z-index:1}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:22px 28px;
+  background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);margin-bottom:20px}
+.hdr h1{font-size:20px;font-weight:800;background:linear-gradient(90deg,var(--blue),var(--purp));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hdr p{font-size:12px;color:var(--muted);margin-top:4px;font-family:'JetBrains Mono',monospace}
+.badges{display:flex;gap:8px;flex-wrap:wrap}
+.badge{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.4px}
+.b-blue{background:rgba(88,166,255,.15);color:var(--blue);border:1px solid rgba(88,166,255,.3)}
+.b-green{background:rgba(63,185,80,.15);color:var(--green);border:1px solid rgba(63,185,80,.3)}
+.b-gold{background:rgba(227,179,65,.15);color:var(--gold);border:1px solid rgba(227,179,65,.3)}
+.b-red{background:rgba(248,81,73,.2);color:var(--red);border:1px solid rgba(248,81,73,.4)}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:20px}
+.kpi{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:18px;position:relative;overflow:hidden;transition:transform .2s}
+.kpi:hover{transform:translateY(-2px)}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.kpi.ck-blue::before{background:var(--blue)} .kpi.ck-green::before{background:var(--green)}
+.kpi.ck-red::before{background:var(--red)} .kpi.ck-gold::before{background:var(--gold)}
+.kpi.ck-purp::before{background:var(--purp)}
+.kpi-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.kpi-val{font-size:20px;font-weight:800;font-family:'JetBrains Mono',monospace}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:5px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+.grid2{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px}
+.panel{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:20px}
+.panel-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.panel-title{font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.panel-sub{font-size:11px;color:var(--muted)}
+.tbl-wrap{overflow-x:auto;border-radius:6px}
+.tbl-h{max-height:340px;overflow-y:auto}
+.tbl-h::-webkit-scrollbar{width:4px} .tbl-h::-webkit-scrollbar-thumb{background:var(--b);border-radius:2px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{background:var(--bg3);color:var(--muted);font-weight:600;padding:9px 11px;
+  text-align:left;white-space:nowrap;border-bottom:1px solid var(--b);position:sticky;top:0}
+tbody tr{border-bottom:1px solid rgba(48,54,61,.4);transition:background .15s}
+tbody tr:hover{background:var(--bg3)}
+tbody td{padding:10px 11px;white-space:nowrap;color:var(--muted)}
+tbody td:first-child{color:var(--text);font-weight:600}
+.mono{font-family:'JetBrains Mono',monospace;font-size:11px}
+.pos{color:var(--green)!important} .neg{color:var(--red)!important} .warn{color:var(--gold)!important}
+.ab{padding:3px 9px;border-radius:10px;font-size:10px;font-weight:700;display:inline-block}
+.ab-hold{background:rgba(139,148,158,.1);color:var(--muted);border:1px solid rgba(139,148,158,.2)}
+.ab-book{background:rgba(227,179,65,.12);color:var(--gold);border:1px solid rgba(227,179,65,.3)}
+.ab-reduce{background:rgba(88,166,255,.12);color:var(--blue);border:1px solid rgba(88,166,255,.3)}
+.ab-exit{background:rgba(248,81,73,.2);color:var(--red);border:1px solid rgba(248,81,73,.4);animation:pulse .8s ease-in-out infinite alternate}
+@keyframes pulse{from{opacity:1}to{opacity:.5}}
+.sb-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.sb-label{font-size:12px;width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-track{flex:1;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.sb-fill{height:100%;border-radius:3px;transition:width .6s ease}
+.sb-pct{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--muted);width:42px;text-align:right}
+.sc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
+.sc{background:var(--bg3);border:1px solid var(--b);border-radius:var(--r);padding:16px;text-align:center}
+.sc-name{font-size:12px;font-weight:700;margin-bottom:6px}
+.sc-val{font-size:20px;font-weight:900;font-family:'JetBrains Mono',monospace}
+.sc-prob{font-size:11px;color:var(--muted);margin-top:6px}
+.ctrl{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+.ctrl-panel{background:var(--bg2);border:1px solid var(--b);border-radius:6px;padding:8px 14px;display:flex;align-items:center;gap:8px}
+.ctrl-label{font-size:11px;color:var(--muted)}
+select{background:var(--bg3);border:1px solid var(--b);color:var(--text);border-radius:5px;padding:6px 10px;font-size:12px;outline:none;font-family:'Inter',sans-serif}
+.footer{text-align:center;padding:20px;color:var(--muted);font-size:11px;border-top:1px solid var(--b);margin-top:16px}
+@media(max-width:1000px){.grid3,.grid2{grid-template-columns:1fr} .sc-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="hdr">
+  <div>
+    <h1>📊 Tactical Portfolio Intelligence Dashboard</h1>
+    <p id="hdrSub">Loading…</p>
+  </div>
+  <div class="badges">
+    <span class="badge b-blue">⚡ Dynamic</span>
+    <span class="badge b-green">✅ Power BI Ready</span>
+    <span class="badge b-gold">🏛 Institutional</span>
+    <span class="badge b-red" id="riskBadge">⚠ Risk Monitor</span>
+  </div>
+</div>
+
+<div class="ctrl">
+  <div class="ctrl-panel">
+    <span class="ctrl-label">SECTOR</span>
+    <select id="sectorFilter" onchange="filterSector(this.value)"><option value="all">All Sectors</option></select>
+  </div>
+  <div class="ctrl-panel" style="margin-left:auto">
+    <span class="ctrl-label">Updated:</span>
+    <span class="mono" id="updDate"></span>
+  </div>
+</div>
+
+<div class="kpi-row" id="kpiRow"></div>
+
+<div class="grid3">
+  <div class="panel"><div class="panel-hdr"><div class="panel-title"><span class="dot" style="background:var(--red)"></span>Portfolio Heat Gauge</div></div>
+    <canvas id="gaugeChart" height="160"></canvas><div style="text-align:center;margin-top:-10px"><span class="mono" style="font-size:28px;font-weight:900" id="gaugeVal"></span><br><small style="color:var(--muted)">Portfolio Heat %</small></div>
+  </div>
+  <div class="panel"><div class="panel-hdr"><div class="panel-title"><span class="dot" style="background:var(--purp)"></span>Sector Allocation</div></div>
+    <canvas id="donutChart" height="160"></canvas>
+  </div>
+  <div class="panel"><div class="panel-hdr"><div class="panel-title"><span class="dot" style="background:var(--gold)"></span>Scenario Projection</div></div>
+    <canvas id="scChart" height="160"></canvas>
+  </div>
+</div>
+
+<div class="grid2">
+  <div class="panel"><div class="panel-hdr"><div class="panel-title"><span class="dot" style="background:var(--green)"></span>P&amp;L per Stock</div></div>
+    <canvas id="pnlChart" height="200"></canvas>
+  </div>
+  <div class="panel"><div class="panel-hdr"><div class="panel-title"><span class="dot" style="background:var(--blue)"></span>Price Levels</div></div>
+    <canvas id="priceChart" height="200"></canvas>
+  </div>
+</div>
+
+<div class="panel" style="margin-bottom:16px">
+  <div class="panel-hdr">
+    <div class="panel-title"><span class="dot" style="background:var(--gold)"></span>Stock Risk Table</div>
+    <span class="panel-sub" id="tblCount"></span>
+  </div>
+  <div class="tbl-h tbl-wrap"><table id="riskTable"><thead><tr>
+    <th>Stock</th><th>Sector</th><th>Entry</th><th>Current</th>
+    <th>P&amp;L%</th><th>Dist SL%</th><th>Dist T1%</th><th>R:R</th><th>Risk</th><th>Action</th>
+  </tr></thead><tbody id="tblBody"></tbody></table></div>
+</div>
+
+<div class="sc-grid" id="scCards"></div>
+
+<div class="panel" style="margin-bottom:16px">
+  <div class="panel-hdr"><div class="panel-title"><span class="dot" style="background:var(--purp)"></span>Sector Concentration</div></div>
+  <div id="sectorBars"></div>
+</div>
+
+<div class="footer">⚠️ For information only — not financial advice. Capital: ₹100,000 · Run: 2026-03-04</div>
+</div>
+
+<script>
+const STOCKS   = [{"Stock": "BEL", "Sector": "Defence", "Sub-Sector": "Electronics", "Allocation Rs": 19791.2, "Entry Price": 449.8, "Quantity": 44, "Target 1": 477.848, "Target 2": 495.8800000000001, "Target 3": 518.42, "Stop Loss": 428.26, "Risk Level": "Medium-High", "Investment Value": 19791.2, "Current Price": 446.85, "Current Value": 19661.4, "PnL Rs": -129.8, "PnL Pct": -0.006558, "Risk Amount Rs": 947.76, "SL Exit Value": 18843.44, "Dist to SL Pct": 0.041602, "Dist to T1 Pct": 0.06937, "Reward Risk": 1.3, "Expected Value": 1232.09, "Action": "Hold", "Strategic Role": "Core Hold", "Volatility": "Medium-High", "Date": "2026-03-04"}, {"Stock": "BPCL", "Sector": "Oil & Gas", "Sub-Sector": "Downstream OMC", "Allocation Rs": 1489.8, "Entry Price": 372.45, "Quantity": 4, "Target 1": 394.797, "Target 2": 409.695, "Target 3": 428.3174999999999, "Stop Loss": 353.8275, "Risk Level": "Medium", "Investment Value": 1489.8, "Current Price": 356.4, "Current Value": 1425.6, "PnL Rs": -64.2, "PnL Pct": -0.043093, "Risk Amount Rs": 74.49, "SL Exit Value": 1415.31, "Dist to SL Pct": 0.007218, "Dist to T1 Pct": 0.107736, "Reward Risk": 1.2, "Expected Value": 89.39, "Action": "Hold", "Strategic Role": "Tactical Swing", "Volatility": "Medium", "Date": "2026-03-04"}, {"Stock": "GOLDBEES", "Sector": "ETF", "Sub-Sector": "Gold ETF", "Allocation Rs": 15171.52, "Entry Price": 135.46, "Quantity": 112, "Target 1": 139.92, "Target 2": 145.2, "Target 3": 151.8, "Stop Loss": 125.4, "Risk Level": "Low", "Investment Value": 15171.52, "Current Price": 133.96, "Current Value": 15003.52, "PnL Rs": -168.0, "PnL Pct": -0.011073, "Risk Amount Rs": 1126.72, "SL Exit Value": 14044.8, "Dist to SL Pct": 0.0639, "Dist to T1 Pct": 0.044491, "Reward Risk": 0.44, "Expected Value": 495.76, "Action": "Hold", "Strategic Role": "Hedge", "Volatility": "Low", "Date": "2026-03-04"}, {"Stock": "ONGC", "Sector": "Oil & Gas", "Sub-Sector": "Upstream E&P", "Allocation Rs": 14242.26, "Entry Price": 279.26, "Quantity": 51, "Target 1": 296.111, "Target 2": 307.285, "Target 3": 321.2525, "Stop Loss": 265.3825, "Risk Level": "Medium", "Investment Value": 14242.26, "Current Price": 276.95, "Current Value": 14124.45, "PnL Rs": -117.81, "PnL Pct": -0.008272, "Risk Amount Rs": 707.75, "SL Exit Value": 13534.51, "Dist to SL Pct": 0.041767, "Dist to T1 Pct": 0.069186, "Reward Risk": 1.21, "Expected Value": 856.38, "Action": "Hold", "Strategic Role": "Tactical Swing", "Volatility": "Medium", "Date": "2026-03-04"}, {"Stock": "PMC Fincorp", "Sector": "Fincorp", "Sub-Sector": "Fincorp", "Allocation Rs": 330.24, "Entry Price": 1.72, "Quantity": 192, "Target 1": 1.82, "Target 2": 1.89, "Target 3": 1.98, "Stop Loss": 1.63, "Risk Level": "Medium", "Investment Value": 330.24, "Current Price": 1.84, "Current Value": 353.28, "PnL Rs": 23.04, "PnL Pct": 0.069767, "Risk Amount Rs": 17.28, "SL Exit Value": 312.96, "Dist to SL Pct": 0.11413, "Dist to T1 Pct": -0.01087, "Reward Risk": 1.11, "Expected Value": 19.18, "Action": "Book 30%", "Strategic Role": "Tactical Swing", "Volatility": "Medium", "Date": "2026-03-04"}, {"Stock": "Suzlon Energy", "Sector": "Energy", "Sub-Sector": "Renewable Wind", "Allocation Rs": 299.25, "Entry Price": 11.97, "Quantity": 25, "Target 1": 42.45724000000001, "Target 2": 44.0594, "Target 3": 46.0621, "Stop Loss": 38.0513, "Risk Level": "Medium-High", "Investment Value": 299.25, "Current Price": 39.93, "Current Value": 998.25, "PnL Rs": 699.0, "PnL Pct": 2.33584, "Risk Amount Rs": -652.03, "SL Exit Value": 951.28, "Dist to SL Pct": 0.04705, "Dist to T1 Pct": 0.063292, "Reward Risk": 0.0, "Expected Value": -0.0, "Action": "Reduce 30%", "Strategic Role": "Speculative", "Volatility": "Medium-High", "Date": "2026-03-04"}, {"Stock": "Tata Gold Exchange Traded Fund", "Sector": "ETF", "Sub-Sector": "Gold ETF", "Allocation Rs": 14186.55, "Entry Price": 16.03, "Quantity": 885, "Target 1": 16.9918, "Target 2": 17.633, "Target 3": 18.4345, "Stop Loss": 15.2285, "Risk Level": "Low", "Investment Value": 14186.55, "Current Price": 15.67, "Current Value": 13867.95, "PnL Rs": -318.6, "PnL Pct": -0.022458, "Risk Amount Rs": 709.33, "SL Exit Value": 13477.22, "Dist to SL Pct": 0.028175, "Dist to T1 Pct": 0.084352, "Reward Risk": 1.2, "Expected Value": 851.2, "Action": "Hold", "Strategic Role": "Hedge", "Volatility": "Low", "Date": "2026-03-04"}, {"Stock": "Tata Silver Exchange Traded Fund", "Sector": "ETF", "Sub-Sector": "Silver ETF", "Allocation Rs": 5415.3, "Entry Price": 27.35, "Quantity": 198, "Target 1": 28.991, "Target 2": 30.085, "Target 3": 31.4525, "Stop Loss": 25.9825, "Risk Level": "Medium", "Investment Value": 5415.3, "Current Price": 25.77, "Current Value": 5102.46, "PnL Rs": -312.84, "PnL Pct": -0.05777, "Risk Amount Rs": 270.76, "SL Exit Value": 5144.54, "Dist to SL Pct": -0.008246, "Dist to T1 Pct": 0.12499, "Reward Risk": 1.2, "Expected Value": 324.91, "Action": "EXIT NOW", "Strategic Role": "Hold", "Volatility": "Medium", "Date": "2026-03-04"}, {"Stock": "Trident", "Sector": "Textail", "Sub-Sector": "Textail", "Allocation Rs": 79.71, "Entry Price": 26.57, "Quantity": 3, "Target 1": 28.16, "Target 2": 29.23, "Target 3": 30.56, "Stop Loss": 25.24, "Risk Level": "Medium", "Investment Value": 79.71, "Current Price": 23.58, "Current Value": 70.74, "PnL Rs": -8.97, "PnL Pct": -0.112533, "Risk Amount Rs": 3.99, "SL Exit Value": 75.72, "Dist to SL Pct": -0.070399, "Dist to T1 Pct": 0.194232, "Reward Risk": 1.2, "Expected Value": 4.79, "Action": "EXIT NOW", "Strategic Role": "Tactical Swing", "Volatility": "Medium", "Date": "2026-03-04"}];
+const KPIS     = {"Total Capital": 100000, "Total Invested": 71005.83, "Total Current Value": 70607.65, "Total PnL Rs": -398.18, "Total PnL Pct": -0.5608, "Total Risk Rs": 3206.05, "Capital After SL": 67799.78, "Portfolio Heat Pct": 4.5152, "Risk Status": "Warning", "Active Stocks": 9, "Cash Reserve": 28994.17};
+const SCENARIOS= [{"label": "Bullish", "value": 0.06, "prob": 0.08}, {"label": "Neutral", "value": 0.02, "prob": 0.02}, {"label": "Bearish", "value": -0.03, "prob": -0.05}];
+const INVESTED = 71005.83;
+const SEC_CLR  = {"Oil & Gas":"#F85149","Defence":"#58A6FF","ETF":"#E3B341","Infra":"#BC8CFF","Energy":"#3FB950"};
+const FMT = v => '₹'+Math.abs(v).toLocaleString('en-IN',{minimumFractionDigits:0,maximumFractionDigits:0});
+const PCT = v => (v>=0?'+':'')+((v*100).toFixed(2))+'%';
+
+// ── Header
+document.getElementById('updDate').textContent = STOCKS[0]?.Date || '';
+document.getElementById('hdrSub').textContent =
+  `${STOCKS[0]?.Date||''} · ${STOCKS.length} Stocks · ₹${(KPIS['Total Invested']||0).toLocaleString('en-IN')} Deployed`;
+
+// ── Populate sector filter
+const sectors = [...new Set(STOCKS.map(s=>s.Sector))];
+const sf = document.getElementById('sectorFilter');
+sectors.forEach(s=>{ const o=document.createElement('option'); o.value=s; o.textContent=s; sf.appendChild(o); });
+
+// ── KPI cards
+const kpiDefs = [
+  {label:'Total Capital',val:'₹'+((KPIS['Total Capital']||0).toLocaleString('en-IN')),sub:'Deployed: '+FMT(KPIS['Total Invested']||0),cls:'ck-blue',icon:'💰'},
+  {label:'Current Value',val:FMT(KPIS['Total Current Value']||0),sub:'As of today',cls:'ck-blue',icon:'📈'},
+  {label:'Total P&L',val:(KPIS['Total PnL Rs']>=0?'+':'')+FMT(KPIS['Total PnL Rs']||0),
+    sub:PCT((KPIS['Total PnL Pct']||0)/100),cls:KPIS['Total PnL Rs']>=0?'ck-green':'ck-red',icon:'💹'},
+  {label:'Portfolio Heat',val:(KPIS['Portfolio Heat Pct']||0).toFixed(2)+'%',sub:KPIS['Risk Status'],cls:'ck-gold',icon:'🛡️'},
+  {label:'Capital After SL',val:FMT(KPIS['Capital After SL']||0),sub:'Worst-case scenario',cls:'ck-gold',icon:'🎯'},
+  {label:'Active Stocks',val:KPIS['Active Stocks']||STOCKS.length,sub:sectors.length+' sectors',cls:'ck-purp',icon:'📊'},
+];
+document.getElementById('kpiRow').innerHTML = kpiDefs.map(k=>
+  `<div class="kpi ${k.cls}"><div style="font-size:20px;margin-bottom:8px">${k.icon}</div>
+   <div class="kpi-label">${k.label}</div>
+   <div class="kpi-val" style="color:${k.cls.includes('green')?'var(--green)':k.cls.includes('red')?'var(--red)':k.cls.includes('gold')?'var(--gold)':k.cls.includes('purp')?'var(--purp)':'var(--blue)'}">
+   ${k.val}</div><div class="kpi-sub">${k.sub}</div></div>`).join('');
+
+// ── Risk badge
+const rb = document.getElementById('riskBadge');
+const heat = KPIS['Portfolio Heat Pct']||0;
+if(heat>=6){rb.textContent='🛑 HARD STOP';rb.className='badge b-red';}
+else if(heat>=4){rb.textContent='⚠ Warning Zone';rb.className='badge b-red';}
+else{rb.textContent='✅ Safe Zone';rb.className='badge b-green';}
+
+// ── Gauge
+const gClr = heat>=6?'#F85149':heat>=4?'#E3B341':'#3FB950';
+document.getElementById('gaugeVal').textContent = heat.toFixed(2)+'%';
+document.getElementById('gaugeVal').style.color = gClr;
+new Chart(document.getElementById('gaugeChart'),{
+  type:'doughnut',
+  data:{datasets:[{data:[heat,Math.max(0,10-heat)],
+    backgroundColor:[gClr,'#1C2128'],borderColor:['transparent','transparent'],
+    circumference:180,rotation:270,cutout:'75%',borderRadius:4}]},
+  options:{plugins:{legend:{display:false},tooltip:{enabled:false}},animation:{duration:1200}}
+});
+
+// ── Donut
+const secMap={};
+STOCKS.forEach(s=>{secMap[s.Sector]=(secMap[s.Sector]||0)+(s['Investment Value']||0);});
+new Chart(document.getElementById('donutChart'),{
+  type:'doughnut',
+  data:{labels:Object.keys(secMap),datasets:[{data:Object.values(secMap),
+    backgroundColor:Object.keys(secMap).map(s=>SEC_CLR[s]||'#8B949E'),
+    borderColor:'#0D1117',borderWidth:3,hoverOffset:6}]},
+  options:{cutout:'62%',plugins:{legend:{position:'right',labels:{color:'#8B949E',font:{size:10},padding:6,boxWidth:8}},
+    tooltip:{callbacks:{label:c=>`${c.label}: ${FMT(c.parsed)}`}}}}
+});
+
+// ── Scenario chart
+new Chart(document.getElementById('scChart'),{
+  type:'bar',
+  data:{labels:SCENARIOS.map(s=>s.label),
+    datasets:[{label:'Projected',data:SCENARIOS.map(s=>s.value),
+      backgroundColor:['rgba(63,185,80,.6)','rgba(88,166,255,.6)','rgba(248,81,73,.6)'],
+      borderColor:['#3FB950','#58A6FF','#F85149'],borderWidth:2,borderRadius:5},
+      {label:'Invested',data:SCENARIOS.map(()=>INVESTED),
+        backgroundColor:'rgba(139,148,158,.15)',borderColor:'#8B949E',borderWidth:1}]},
+  options:{plugins:{legend:{labels:{color:'#8B949E',font:{size:10}}}},
+    scales:{x:{ticks:{color:'#8B949E',font:{size:9}},grid:{color:'rgba(48,54,61,.4)'}},
+             y:{ticks:{color:'#8B949E',font:{size:9},callback:v=>'₹'+Math.round(v/1000)+'K'},grid:{color:'rgba(48,54,61,.4)'}}}}
+});
+
+// ── P&L Chart
+const pnlVals = STOCKS.map(s=>+((s.PnL_Pct||s['PnL Pct']||0)*100).toFixed(2));
+new Chart(document.getElementById('pnlChart'),{
+  type:'bar',
+  data:{labels:STOCKS.map(s=>s.Stock.substring(0,10)),
+    datasets:[{label:'P&L%',data:pnlVals,
+      backgroundColor:pnlVals.map(v=>v>=0?'rgba(63,185,80,.7)':'rgba(248,81,73,.7)'),
+      borderColor:pnlVals.map(v=>v>=0?'#3FB950':'#F85149'),borderWidth:1.5,borderRadius:4}]},
+  options:{plugins:{legend:{display:false}},
+    scales:{x:{ticks:{color:'#8B949E',font:{size:9}},grid:{color:'rgba(48,54,61,.4)'}},
+             y:{ticks:{color:'#8B949E',font:{size:9},callback:v=>v+'%'},grid:{color:'rgba(48,54,61,.4)'}}}}
+});
+
+// ── Price levels
+const nm = (base,v)=>base?+((( v-base)/base*100).toFixed(2)):0;
+new Chart(document.getElementById('priceChart'),{
+  type:'bar',
+  data:{labels:STOCKS.map(s=>s.Stock.substring(0,8)),
+    datasets:[
+      {label:'Current%',data:STOCKS.map(s=>nm(s['Entry Price'],s['Current Price'])),backgroundColor:'rgba(88,166,255,.6)',borderColor:'#58A6FF',borderWidth:1.5,borderRadius:3},
+      {label:'SL%',data:STOCKS.map(s=>nm(s['Entry Price'],s['Stop Loss'])),backgroundColor:'rgba(248,81,73,.5)',borderColor:'#F85149',borderWidth:1.5,borderRadius:3},
+      {label:'T1%',data:STOCKS.map(s=>nm(s['Entry Price'],s['Target 1'])),backgroundColor:'rgba(63,185,80,.5)',borderColor:'#3FB950',borderWidth:1.5,borderRadius:3},
+    ]},
+  options:{plugins:{legend:{labels:{color:'#8B949E',font:{size:10}}}},
+    scales:{x:{ticks:{color:'#8B949E',font:{size:9}},grid:{color:'rgba(48,54,61,.4)'}},
+             y:{ticks:{color:'#8B949E',font:{size:9},callback:v=>v+'%'},grid:{color:'rgba(48,54,61,.4)'}}}}
+});
+
+// ── Table
+function buildTable(data){
+  document.getElementById('tblCount').textContent='Showing '+data.length+' stocks';
+  const tbody=document.getElementById('tblBody'); tbody.innerHTML='';
+  data.forEach(r=>{
+    const pnl=r.PnL_Pct||r['PnL Pct']||0;
+    const pCls=pnl>=0?'pos':'neg';
+    const sl=r.Dist_to_SL_Pct||r['Dist to SL Pct']||0;
+    const slCls=sl<0?'neg':sl<0.03?'warn':'pos';
+    const rr=r.Reward_Risk||r['Reward Risk']||0;
+    const ac=r.Action||'Hold';
+    const acCls=ac==='EXIT NOW'?'ab-exit':ac==='Hold'?'ab-hold':ac.startsWith('Reduce')?'ab-reduce':'ab-book';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${r.Stock}</td>
+      <td><span style="font-size:10px;padding:2px 7px;border-radius:10px;background:rgba(0,0,0,.3);color:var(--muted);border:1px solid var(--b)">${r.Sector}</span></td>
+      <td class="mono">₹${(r['Entry Price']||0).toFixed(2)}</td>
+      <td class="mono">₹${(r['Current Price']||0).toFixed(2)}</td>
+      <td class="mono ${pCls}">${PCT(pnl)}</td>
+      <td class="mono ${slCls}">${(sl*100).toFixed(2)}%</td>
+      <td class="mono" style="color:var(--blue)">${((r.Dist_to_T1_Pct||r['Dist to T1 Pct']||0)*100).toFixed(2)}%</td>
+      <td class="mono ${rr>=1.5?'pos':rr>=1?'warn':'neg'}">${rr.toFixed(2)}x</td>
+      <td class="mono" style="color:var(--red)">₹${(r['Risk Amount Rs']||0).toFixed(0)}</td>
+      <td><span class="ab ${acCls}">${ac}</span></td>`;
+    tbody.appendChild(tr);
+  });
+}
+buildTable(STOCKS);
+function filterSector(sec){ buildTable(sec==='all'?STOCKS:STOCKS.filter(s=>s.Sector===sec)); }
+
+// ── Scenario cards
+document.getElementById('scCards').innerHTML=SCENARIOS.map((sc,i)=>{
+  const clr=i===0?'var(--green)':i===1?'var(--blue)':'var(--red)';
+  const em=i===0?'🟢':i===1?'🔵':'🔴';
+  return `<div class="sc" style="border-color:${clr}40">
+    <div style="font-size:26px;margin-bottom:8px">${em}</div>
+    <div class="sc-name" style="color:${clr}">${sc.label.toUpperCase()}</div>
+    <div class="sc-val" style="color:${clr}">₹${(sc.value||0).toLocaleString('en-IN',{maximumFractionDigits:0})}</div>
+    <div class="sc-prob">${Math.round((sc.prob||0)*100)}% Probability</div>
+  </div>`;
+}).join('');
+
+// ── Sector bars
+const sbDiv=document.getElementById('sectorBars');
+const secTotals=Object.entries(secMap).sort((a,b)=>b[1]-a[1]);
+const totInv=KPIS['Total Invested']||1;
+sbDiv.innerHTML=secTotals.map(([sec,val])=>{
+  const p=(val/totInv*100).toFixed(1);
+  const clr=SEC_CLR[sec]||'#8B949E';
+  const warn=parseFloat(p)>40;
+  return `<div class="sb-row">
+    <span class="sb-label" style="color:${warn?'var(--red)':'var(--muted)'}">${sec}${warn?' ⚠':''}</span>
+    <div class="sb-track"><div class="sb-fill" style="width:${Math.min(p,100)}%;background:${clr}"></div></div>
+    <span class="sb-pct ${warn?'neg':''}">${p}%</span>
+  </div>`;
+}).join('');
+</script>
+</body>
+</html>

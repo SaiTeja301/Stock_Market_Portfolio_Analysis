@@ -1,0 +1,777 @@
+================================================================================
+  PART 2 — BACKEND IMPLEMENTATION PLAN (Spring Boot Microservices)
+  Tactical Financial Portfolio Management Platform
+  Version: 1.1 | Date: March 2026
+  Companion File: plan_backend_services.txt (Individual Service Structures)
+================================================================================
+
+================================================================================
+ 1. ARCHITECTURE OVERVIEW
+================================================================================
+
+The backend consists of 10 independent microservices, each deployed as
+a separate Spring Boot application with its own repository, database
+schema, and independent release cycle.
+
+Inter-service communication:
+  - Synchronous:  REST APIs (via API Gateway)
+  - Asynchronous: Apache Kafka (event-driven)
+  - ZERO direct database queries between services
+
+Design Principles:
+  - Single Responsibility per service
+  - Own your data (each service owns its schema)
+  - Event-driven for real-time updates
+  - Stateless services (horizontal scaling)
+  - Circuit breaker for fault isolation
+  - Distributed tracing for observability
+
+================================================================================
+ 2. SERVICE CATALOG
+================================================================================
+
+Service               Repo Name                  Port    DB Schema
+--------------------------------------------------------------------
+API Gateway           finport-gateway            8080    None
+User Service          finport-user-service       8081    user_schema
+Portfolio Service     finport-portfolio-service  8082    portfolio_schema
+Market Data Service   finport-market-service     8083    market_schema
+Risk Engine Service   finport-risk-engine        8084    risk_schema
+Scraper Service       finport-scraper-service    8085    None (stateless)
+Analytics Service     finport-analytics-service  8086    analytics_schema
+Notification Service  finport-notification-svc   8087    None (stateless)
+AI Service            finport-ai-service         8088    ai_schema
+Audit Service         finport-audit-service      8089    audit_schema
+--------------------------------------------------------------------
+
+================================================================================
+ 3. STANDARD REPOSITORY STRUCTURE (per service)
+================================================================================
+
+finport-{service-name}/
+├── .github/
+│   └── workflows/
+│       ├── ci.yml                       # Build + Test + SonarQube
+│       └── deploy.yml                   # Docker Build + K8s Deploy
+├── src/
+│   ├── main/
+│   │   ├── java/com/finport/{service}/
+│   │   │   ├── {Service}Application.java    # @SpringBootApplication
+│   │   │   │
+│   │   │   ├── config/                      # Configuration classes
+│   │   │   │   ├── SecurityConfig.java      # JWT filter chain
+│   │   │   │   ├── KafkaConfig.java         # Producer/Consumer config
+│   │   │   │   ├── RedisConfig.java         # Cache manager
+│   │   │   │   ├── CorsConfig.java
+│   │   │   │   └── SwaggerConfig.java       # OpenAPI 3.0
+│   │   │   │
+│   │   │   ├── controller/                  # REST Controllers
+│   │   │   │   ├── {Entity}Controller.java
+│   │   │   │   └── HealthController.java
+│   │   │   │
+│   │   │   ├── service/                     # Business Logic
+│   │   │   │   ├── {Entity}Service.java     # Interface
+│   │   │   │   └── {Entity}ServiceImpl.java # Implementation
+│   │   │   │
+│   │   │   ├── repository/                  # JPA Repositories
+│   │   │   │   └── {Entity}Repository.java
+│   │   │   │
+│   │   │   ├── entity/                      # JPA Entities
+│   │   │   │   └── {Entity}.java
+│   │   │   │
+│   │   │   ├── dto/                         # Request/Response DTOs
+│   │   │   │   ├── request/
+│   │   │   │   │   └── Create{Entity}Request.java
+│   │   │   │   └── response/
+│   │   │   │       └── {Entity}Response.java
+│   │   │   │
+│   │   │   ├── mapper/                      # Entity <-> DTO mappers
+│   │   │   │   └── {Entity}Mapper.java      # MapStruct
+│   │   │   │
+│   │   │   ├── event/                       # Kafka Events
+│   │   │   │   ├── publisher/
+│   │   │   │   │   └── {Topic}Publisher.java
+│   │   │   │   ├── consumer/
+│   │   │   │   │   └── {Topic}Consumer.java
+│   │   │   │   └── model/
+│   │   │   │       └── {Event}Event.java
+│   │   │   │
+│   │   │   ├── exception/                   # Custom Exceptions
+│   │   │   │   ├── GlobalExceptionHandler.java
+│   │   │   │   ├── ResourceNotFoundException.java
+│   │   │   │   ├── BusinessValidationException.java
+│   │   │   │   └── UnauthorizedException.java
+│   │   │   │
+│   │   │   ├── security/                    # JWT Filter + Utils
+│   │   │   │   ├── JwtAuthFilter.java
+│   │   │   │   ├── JwtUtils.java
+│   │   │   │   └── SecurityContext.java
+│   │   │   │
+│   │   │   ├── audit/                       # Audit support
+│   │   │   │   ├── AuditAspect.java
+│   │   │   │   └── AuditPublisher.java
+│   │   │   │
+│   │   │   └── util/                        # Utilities
+│   │   │       ├── Constants.java
+│   │   │       └── DateUtils.java
+│   │   │
+│   │   └── resources/
+│   │       ├── application.yml
+│   │       ├── application-dev.yml
+│   │       ├── application-prod.yml
+│   │       └── db/migration/               # Flyway migrations
+│   │           ├── V1__init_schema.sql
+│   │           └── V2__add_indexes.sql
+│   │
+│   └── test/
+│       ├── java/com/finport/{service}/
+│       │   ├── controller/                 # MockMvc integration tests
+│       │   ├── service/                    # Unit tests + Mockito
+│       │   ├── repository/                 # @DataJpaTest
+│       │   └── event/                      # @EmbeddedKafka tests
+│       └── resources/
+│           └── application-test.yml
+│
+├── Dockerfile
+├── docker-compose.yml                      # Local dev with deps
+├── pom.xml                                 # Maven build
+├── sonar-project.properties
+└── README.md
+
+================================================================================
+ 3.1 INDIVIDUAL SERVICE PROJECT STRUCTURES
+================================================================================
+
+  ► SEE COMPANION FILE: plan_backend_services.txt
+
+  That file contains DOMAIN-SPECIFIC project structures for ALL 10
+  services. Each service has a unique architecture style:
+
+  Service                Architecture Style        Justification
+  -------------------------------------------------------------------
+  API Gateway            Reactive Gateway          Non-blocking I/O
+  User Service           Layered Architecture      Simple CRUD + Auth
+  Portfolio Service      DDD with Aggregates       Complex business rules
+  Market Data Service    Hexagonal (Ports+Adapters) Multiple external I/O
+  Risk Engine            Event-Driven Processor    Pure compute, no REST
+  Scraper Service        Pipeline Architecture     Stage-based ETL flow
+  Analytics Service      CQRS (Read Side)          Denormalized read model
+  Notification Service   Strategy Pattern          Multi-channel dispatch
+  AI Service             Orchestrator + Adapter    Multi-step LLM pipeline
+  Audit Service          Event Sink (Append-Only)  Immutable compliance log
+  -------------------------------------------------------------------
+
+  Also includes:
+  - SECTION B: Event Interaction Matrix (Producer/Consumer grid)
+  - SECTION C: Service Communication Diagram (visual text diagram)
+  - SECTION D: Deployment Separation Strategy (replicas, HPA triggers)
+  - SECTION E: Scalability Strategy per Service
+  - SECTION F: Future Extensibility Strategy
+
+
+================================================================================
+ 4. SERVICE-SPECIFIC DESIGNS
+================================================================================
+
+--------------------------------------------------------------------
+ 4.1 API GATEWAY (finport-gateway)
+--------------------------------------------------------------------
+
+Tech: Spring Cloud Gateway
+
+Key Responsibilities:
+  - Central entry point for all client requests
+  - JWT validation (signature check, no DB call)
+  - Route management to downstream services
+  - Rate limiting (token bucket — Redis backed)
+  - Circuit breaker (Resilience4j)
+  - CORS enforcement
+  - Request logging (correlation ID injection)
+
+Route Configuration:
+  /api/auth/**           → finport-user-service:8081
+  /api/portfolios/**     → finport-portfolio-service:8082
+  /api/prices/**         → finport-market-service:8083
+  /api/risk/**           → finport-risk-engine:8084
+  /api/analytics/**      → finport-analytics-service:8086
+  /api/alerts/**         → finport-notification-svc:8087
+  /api/ai/**             → finport-ai-service:8088
+  /ws/**                 → WebSocket upstream
+
+Filters:
+  JwtValidationFilter    → pre-filter, validates JWT, injects user context
+  RateLimiterFilter      → 100 req/min per IP
+  CircuitBreakerFilter   → opens on 5 consecutive failures, 30s half-open
+  LoggingFilter          → adds X-Correlation-ID header, logs req/res
+  CorsFilter             → allows configured origins
+
+Rate Limiting:
+  Algorithm: Token Bucket
+  Storage:   Redis (per-IP bucket)
+  Limits:    100 req/min (normal), 1000 req/min (admin)
+
+--------------------------------------------------------------------
+ 4.2 USER SERVICE (finport-user-service)
+--------------------------------------------------------------------
+
+Endpoints:
+  POST /api/auth/register
+    → Body: { email, password, fullName }
+    → Response: { userId, email }
+
+  POST /api/auth/login
+    → Body: { email, password }
+    → Response: { accessToken, refreshToken, user }
+
+  POST /api/auth/refresh
+    → Cookie: refreshToken
+    → Response: { accessToken }
+
+  POST /api/auth/logout
+    → Blacklist current token in Redis
+
+  GET /api/users/me
+    → Returns authenticated user profile
+
+  PUT /api/users/roles/{userId}
+    → Admin only: change user role
+
+JWT Strategy:
+  Access Token:  RS256, 15-minute expiry, no DB lookup needed
+  Refresh Token: 7-day expiry, stored in HttpOnly secure cookie
+  Token Blacklist: Redis set with TTL matching token expiry
+
+Password Hashing: BCrypt (12 rounds)
+
+Event Published:
+  user-registered → topic: user-events
+
+--------------------------------------------------------------------
+ 4.3 PORTFOLIO SERVICE (finport-portfolio-service)
+--------------------------------------------------------------------
+
+Endpoints:
+  GET    /api/portfolios                     → List user's plans
+  POST   /api/portfolios                     → Create new plan
+  GET    /api/portfolios/{id}                → Get plan details
+  PUT    /api/portfolios/{id}                → Update plan
+  DELETE /api/portfolios/{id}                → Soft delete plan
+
+  GET    /api/portfolios/{id}/holdings       → List all holdings
+  POST   /api/portfolios/{id}/holdings       → Add holding
+  PUT    /api/portfolios/{id}/holdings/{hid} → Update holding
+  DELETE /api/portfolios/{id}/holdings/{hid} → Remove holding
+
+Business Logic:
+  - On Add Holding:
+    → If Target 1/2/3 blank: auto-fill (+6% / +10% / +15%)
+    → If Stop Loss blank: auto-fill (-5%)
+    → If Risk Level blank: default "Medium"
+    → If Strategic Role blank: default "Tactical Swing"
+    → If Volatility blank: default "Medium"
+    → Allocation Rs = Entry Price * Quantity
+
+  - On any holding change:
+    → Publish: portfolio-updated event to Kafka
+
+Validation (Jakarta Validation):
+  @NotBlank: symbol, sector
+  @Positive: entryPrice, quantity
+  @PastOrPresent: entryDate
+
+Event Published:
+  portfolio-updated → Kafka topic: portfolio-updated
+    Key: portfolioId
+    Payload: { portfolioId, userId, holdings[], timestamp }
+
+Caching:
+  Redis: portfolio:{userId}:list → 10 min TTL
+  Invalidated on: portfolio-updated event
+
+--------------------------------------------------------------------
+ 4.4 MARKET DATA SERVICE (finport-market-service)
+--------------------------------------------------------------------
+
+Endpoints:
+  GET /api/prices/{symbol}/latest
+    → Returns: { symbol, price, changePct, volume, refreshedAt }
+
+  GET /api/prices/{symbol}/history?from=&to=
+    → Returns: [ { date, open, high, low, close, volume } ]
+
+  GET /api/prices/batch?symbols=BPCL,ONGC,...
+    → Returns: [ { symbol, price, changePct } ]
+
+Event Consumer:
+  price-ingested → from Scraper Service
+    → Upsert latest_prices table
+    → Insert into price_history (TimescaleDB)
+    → Publish: price-updated (enriched event)
+
+Event Published:
+  price-updated → Kafka topic: price-updated
+    Key: symbol
+    Payload: { symbol, price, changePct, volume, source, timestamp }
+
+Caching:
+  Redis: price:latest:{symbol} → 60 sec TTL
+  Redis: price:batch → 60 sec TTL (batch of all symbols)
+
+TimescaleDB:
+  price_history table is a hypertable partitioned by month
+  Retention: 3 years of daily data
+  Archival: Monthly archive to S3 Parquet files
+
+--------------------------------------------------------------------
+ 4.5 RISK ENGINE SERVICE (finport-risk-engine)
+--------------------------------------------------------------------
+
+This is the CORE calculation service — ZERO endpoint exposure.
+Pure event-driven.
+
+Event Consumer:
+  price-updated → recalculate risk for all holdings with that symbol
+  portfolio-updated → recalculate risk for all holdings in plan
+
+Calculation Engine:
+  Investment Value     = Entry Price × Quantity
+  Current Value        = Current Price × Quantity
+  P&L ₹               = Current Value − Investment Value
+  P&L %               = (Current Price − Entry) / Entry
+  Risk Amount          = (Entry − Stop Loss) × Quantity
+  SL Exit Value        = Stop Loss × Quantity
+  Dist to SL %         = (Current − SL) / Current
+  Dist to T1 %         = (T1 − Current) / Current
+  Reward:Risk Ratio    = (T1 − Entry) / (Entry − SL)
+  Expected Value       = RR × Risk Amount
+  Action               = IF cur <= SL → "Exit"
+                         IF cur >= T1 → "Book Profit"
+                         ELSE "Hold"
+
+Post-Calculation:
+  → Upsert risk_schema.holding_risk_metrics
+  → Check: IF current_price <= stop_loss
+      → Publish: stoploss-triggered
+  → Check: IF current_price >= target_1
+      → Publish: target-hit
+  → Always publish: risk-recalculated
+
+Events Published:
+  risk-recalculated → topic: risk-recalculated
+    Key: portfolioId
+  stoploss-triggered → topic: stoploss-triggered
+    Key: holdingId
+  target-hit → topic: target-hit
+    Key: holdingId
+
+Consistency:
+  Eventual consistency model
+  Risk metrics may lag 5-10 seconds behind price change
+  Acceptable for tactical portfolio (not HFT)
+
+Idempotency:
+  Risk calculation is idempotent — same price yields same metrics
+  No double-publish: Redis lock per holdingId (5 sec TTL)
+
+--------------------------------------------------------------------
+ 4.6 SCRAPER SERVICE (finport-scraper-service)
+--------------------------------------------------------------------
+
+This is a STATELESS service — no database.
+All output goes to Kafka.
+
+Scraper Sources:
+  1. NSE/BSE Official API    → Primary source (most reliable)
+  2. MoneyControl             → Web scraping (Selenium/Playwright)
+  3. Groww API                → REST API (public endpoints)
+  4. Economic Times           → RSS Feed parsing
+  5. Mint                     → RSS Feed parsing
+  6. CNBC                     → API (market data endpoints)
+  7. Way2News                 → API for news sentiment
+
+Scheduling (Spring Scheduler + Quartz):
+  Market Hours (9:15 AM – 3:30 PM IST):
+    - Price scraping: every 5 minutes
+  Pre/Post Market:
+    - Price check: every 30 minutes
+  EOD (6:00 PM IST):
+    - OHLCV data storage run
+  News Scraping:
+    - Every 60 minutes (all day)
+
+Pipeline per Scrape Cycle:
+  1. Scrape raw data from source
+  2. Validate: price > 0, symbol exists, timestamp recent
+  3. Deduplicate: Redis key (symbol + timestamp hash), 10 min TTL
+  4. Transform: normalize to standard PriceEvent schema
+  5. Publish to Kafka: price-ingested topic
+
+Event Published:
+  price-ingested → topic: price-ingested
+    Key: symbol
+    Payload: { symbol, price, open, high, low, close,
+               volume, source, scrapedAt }
+
+Error Handling:
+  - If source fails → retry 3x with exponential backoff
+  - If all retries fail → log error + publish to scrape-failed DLT
+  - Use last known price (no stale publication)
+  - Alert ops team if a source fails 3 consecutive cycles
+
+Anti-Detection (Scraping):
+  - Rotating residential proxy pool
+  - Random User-Agent headers
+  - Request throttling (1 req/sec per source)
+  - Headless browser with realistic viewport
+
+--------------------------------------------------------------------
+ 4.7 ANALYTICS SERVICE (finport-analytics-service)
+--------------------------------------------------------------------
+
+Endpoints:
+  GET /api/analytics/portfolio/{id}/summary
+    → { totalInvested, currentValue, pnl, heat, activeStocks }
+
+  GET /api/analytics/portfolio/{id}/sector-exposure
+    → [ { sector, exposurePct, exposureValue } ]
+
+  GET /api/analytics/portfolio/{id}/risk-distribution
+    → { low: n, medium: n, high: n }
+
+  GET /api/analytics/portfolio/{id}/performance?period=1W|1M|3M
+    → [ { date, portfolioValue, pnlPct } ]
+
+Event Consumer:
+  risk-recalculated → refresh portfolio KPIs and sector aggregations
+
+Storage:
+  analytics_schema.portfolio_kpis → denormalized KPI snapshot
+  analytics_schema.sector_exposure_history → time-series
+  analytics_schema.performance_snapshots → daily/weekly snapshots
+
+Materialized Views:
+  mv_sector_allocation → refreshed on risk-recalculated
+  mv_risk_distribution → refreshed on risk-recalculated
+  mv_daily_performance → refreshed EOD via scheduled job
+
+Caching:
+  Redis: analytics:kpis:{portfolioId} → 5 min TTL
+  Redis: analytics:sector:{portfolioId} → 5 min TTL
+
+--------------------------------------------------------------------
+ 4.8 NOTIFICATION SERVICE (finport-notification-svc)
+--------------------------------------------------------------------
+
+Pure event consumer — NO REST endpoints (except health check).
+
+Event Consumer:
+  stoploss-triggered → Send critical alert (email + push + in-app)
+  target-hit         → Send positive alert (email + push + in-app)
+  risk-threshold     → Send warning (email only)
+
+Notification Channels:
+  1. WebSocket Push → real-time in-app notification
+  2. Email → AWS SES / SendGrid
+  3. Push (Future) → Firebase Cloud Messaging (mobile)
+
+WebSocket Server:
+  - Maintains active connections per userId
+  - On relevant event → push JSON to client socket
+  - Connection authenticated via JWT
+
+Alert Payload:
+  {
+    "alertId": "uuid",
+    "type": "STOPLOSS_TRIGGERED",
+    "severity": "CRITICAL",
+    "title": "Stop Loss Hit — TRIDENT",
+    "body": "TRIDENT dropped to ₹24.90, below SL ₹25.24",
+    "symbol": "TRIDENT",
+    "timestamp": "2026-03-03T10:30:00Z",
+    "read": false
+  }
+
+Deduplication:
+  Redis: alert:sent:{holdingId}:{type} → 1 hour TTL
+  Prevents duplicate alerts for same SL/Target event
+
+--------------------------------------------------------------------
+ 4.9 AI SERVICE (finport-ai-service)
+--------------------------------------------------------------------
+
+Architecture: Spring Boot wrapper + internal Python FastAPI service
+
+Event Consumer:
+  portfolio-snapshot-requested (or direct REST call)
+    → Enriches holdings with market sentiment + news
+    → Sends to Python ML/LLM engine
+    → Returns structured JSON analysis
+
+Endpoints:
+  POST /api/ai/analyze
+    → Body: { portfolioId, riskProfile, macroContext }
+    → Response: 202 Accepted (async — result via Kafka)
+
+  GET /api/ai/analysis/{portfolioId}/latest
+    → Returns last saved AI analysis
+
+AI Engine (Python FastAPI):
+  - Receives enriched portfolio data
+  - Stock Classification: Defensive / Cyclical /
+                          Commodity Beneficiary / High Beta
+  - Sentiment Scoring: Positive / Neutral / Negative
+  - Directional Bias: Bullish / Bearish / Neutral
+  - Scenario Generation: Bull / Bear / Neutral plans
+  - Action Matrix: Add / Hold / Reduce / Exit per stock
+  - LLM Integration: OpenAI / Gemini API for reasoning
+
+Event Published:
+  ai-analysis-completed → topic: ai-analysis-completed
+    Key: portfolioId
+    Payload: { portfolioSummary, stockAnalysis[], scenarios,
+               actionMatrix[], timestamp }
+
+Storage:
+  ai_schema.analysis_snapshots → full JSON + timestamp
+  Retention: last 30 analyses per portfolio
+
+================================================================================
+ 5. KAFKA TOPIC DESIGN
+================================================================================
+
+Topic                      Partitions   Replication   Retention
+--------------------------------------------------------------------
+price-ingested             12           3             7 days
+price-updated              12           3             7 days
+portfolio-updated          6            3             7 days
+risk-recalculated          6            3             3 days
+stoploss-triggered         3            3             30 days
+target-hit                 3            3             30 days
+ai-analysis-completed      3            3             30 days
+user-events                3            3             30 days
+scrape-failed.DLT          3            3             90 days
+risk-recalculated.DLT      3            3             90 days
+--------------------------------------------------------------------
+
+Producer → Consumer Mapping:
+--------------------------------------------------------------------
+Topic                  Producer         Consumer(s)
+--------------------------------------------------------------------
+price-ingested         Scraper          Market Data Service, Audit
+price-updated          Market Data      Risk Engine, Analytics, AI, Audit
+portfolio-updated      Portfolio        Risk Engine, Analytics, Audit
+risk-recalculated      Risk Engine      Analytics, Notification, AI, Audit
+stoploss-triggered     Risk Engine      Notification, Audit
+target-hit             Risk Engine      Notification, Audit
+ai-analysis-completed  AI Service       WebSocket (push to UI), Audit
+user-events            User Service     Analytics (user count), Audit
+--------------------------------------------------------------------
+
+Ordering Guarantees:
+  - price-updated: ordered per symbol (partition key = symbol)
+  - portfolio-updated: ordered per portfolio (key = portfolioId)
+  - stoploss-triggered: ordered per holding (key = holdingId)
+
+Idempotency:
+  - All events carry unique eventId (UUID)
+  - Consumers maintain processed-event set in Redis (24h TTL)
+  - On duplicate eventId → skip processing
+
+Retry Policy:
+  - 3 retries with exponential backoff (2s → 4s → 8s)
+  - After 3 failures → send to Dead Letter Topic (*.DLT)
+  - DLT monitored via Grafana alert
+
+Exactly-Once Semantics:
+  - Kafka transactions enabled for stoploss-triggered and target-hit
+  - Idempotent producer: enable.idempotence=true
+  - Consumer: read_committed isolation level
+
+================================================================================
+ 6. CROSS-CUTTING CONCERNS
+================================================================================
+
+--------------------------------------------------------------------
+ 6.1 Validation Strategy
+--------------------------------------------------------------------
+  - Jakarta Validation annotations on all DTOs (@NotBlank, @Positive)
+  - Custom validators for business rules (e.g., SL < Entry < T1)
+  - GlobalExceptionHandler translates ConstraintViolationException
+    to structured JSON error response
+
+  Error Response Format:
+  {
+    "status": 422,
+    "error": "Validation Failed",
+    "timestamp": "2026-03-03T10:00:00Z",
+    "errors": [
+      { "field": "entryPrice", "message": "must be positive" }
+    ]
+  }
+
+--------------------------------------------------------------------
+ 6.2 Exception Handling
+--------------------------------------------------------------------
+  @RestControllerAdvice GlobalExceptionHandler:
+    ResourceNotFoundException      → 404
+    BusinessValidationException    → 422
+    UnauthorizedException          → 401
+    AccessDeniedException          → 403
+    ConstraintViolationException   → 422
+    HttpMessageNotReadableException → 400
+    Exception (catch-all)          → 500 + log stack trace
+
+--------------------------------------------------------------------
+ 6.3 Logging Strategy
+--------------------------------------------------------------------
+  Framework: SLF4J + Logback
+  Format: JSON structured logging
+
+  Log Fields:
+    timestamp, level, service, correlationId, userId,
+    method, path, statusCode, duration, message
+
+  Log Levels:
+    PRODUCTION: INFO (default), WARN, ERROR
+    DEBUG: enabled per-service via Spring Profiles
+
+  Centralization: Logstash → Elasticsearch → Kibana
+
+--------------------------------------------------------------------
+ 6.4 Distributed Tracing
+--------------------------------------------------------------------
+  Framework: Micrometer Tracing + Zipkin/Jaeger
+  Every request gets: traceId + spanId
+  Propagated across: REST calls, Kafka events, WebSocket
+  Stored in: Jaeger backend (14-day retention)
+
+  Use Case: Trace a price update end-to-end:
+    Scraper → Kafka → Market Data → Kafka → Risk Engine →
+    Kafka → Notification → WebSocket → UI
+
+--------------------------------------------------------------------
+ 6.5 Security Integration (JWT)
+--------------------------------------------------------------------
+  Shared JWT Public Key:
+    - API Gateway validates JWT signature using RSA public key
+    - Downstream services trust Gateway's X-User-Id header
+    - No redundant JWT validation in every service
+
+  Security Headers Injected by Gateway:
+    X-User-Id: uuid
+    X-User-Role: TRADER
+    X-Correlation-Id: uuid
+
+--------------------------------------------------------------------
+ 6.6 Swagger/OpenAPI Documentation
+--------------------------------------------------------------------
+  Every service exposes: /{service}/swagger-ui.html
+  Generated from: @Operation, @ApiResponse, @Schema annotations
+  Aggregated at Gateway: /swagger-ui.html (SpringDoc aggregation)
+
+--------------------------------------------------------------------
+ 6.7 Circuit Breaker (Resilience4j)
+--------------------------------------------------------------------
+  Config per service:
+    failureRateThreshold: 50%
+    waitDurationInOpenState: 30s
+    permittedCallsInHalfOpen: 3
+    slidingWindowSize: 10
+
+  Applied to:
+    - Gateway → downstream calls
+    - Risk Engine → Market Data price lookup
+    - AI Service → Python ML service call
+
+--------------------------------------------------------------------
+ 6.8 API Versioning Strategy
+--------------------------------------------------------------------
+  URL-based versioning: /api/v1/portfolios, /api/v2/portfolios
+  Old versions deprecated after 6 months
+  Version header: X-API-Version (optional override)
+
+================================================================================
+ 7. LOOSE COUPLING STRATEGY
+================================================================================
+
+How Services Remain Decoupled:
+--------------------------------------------------------------------
+1. NO cross-service foreign keys
+   - Portfolio stores userId as UUID, NOT a FK to user table
+   - Risk stores holdingId as UUID, NOT a FK to holding table
+
+2. Communication is event-based
+   - Portfolio does NOT call Risk Engine API
+   - Portfolio publishes 'portfolio-updated' → Risk Engine consumes
+
+3. Each service owns its data
+   - Market Data owns price_history
+   - Risk Engine owns risk_metrics
+   - Analytics owns denormalized KPI tables
+
+4. Shared data is replicated via events
+   - When Market Data receives a new price → publishes event
+   - Risk Engine REACTS to event (doesn't poll Market Data)
+
+5. Schema changes are versioned
+   - Events carry "version" field
+   - Consumers handle multiple versions gracefully
+   - Old versions deprecated after 2 release cycles
+
+6. No shared libraries (except common DTOs)
+   - Each service has its own Exception handling
+   - Each service has its own Validation rules
+   - Only share: finport-common (event models ONLY)
+
+================================================================================
+ 8. DEVOPS & DEPLOYMENT
+================================================================================
+
+CI/CD Pipeline (per service):
+--------------------------------------------------------------------
+1. Developer pushes to feature branch
+2. GitHub Actions triggered:
+   a. Compile + Run unit tests
+   b. Run integration tests (Testcontainers)
+   c. SonarQube quality gate
+   d. Build Docker image
+   e. Push to Container Registry (ECR/GHCR)
+3. On merge to main:
+   a. Auto-deploy to staging (ArgoCD)
+   b. Run E2E smoke tests
+4. Manual approval → deploy to production
+--------------------------------------------------------------------
+
+Docker Strategy:
+  Base Image: eclipse-temurin:21-jre-alpine (minimal, secure)
+  Multi-stage build: build stage (Maven) → runtime stage (JRE only)
+  Image size target: < 200MB per service
+
+Kubernetes:
+  - 1 Deployment + 1 Service per microservice
+  - HPA: CPU threshold 70%, min 2, max 10 pods
+  - Pod disruption budget: maxUnavailable = 1
+  - Health probes: /actuator/health (liveness + readiness)
+  - ConfigMaps for non-sensitive config
+  - Secrets for DB passwords, JWT keys, API keys
+
+================================================================================
+ 9. RISK MITIGATION
+================================================================================
+
+Risk                          Mitigation
+--------------------------------------------------------------------
+Scraper source goes down      Multiple sources, failover, retry + DLT
+Kafka broker fails            3 broker cluster, replication factor 3
+Service crashes               K8s auto-restart, HPA maintains min replicas
+DB primary fails              Patroni auto-failover to read replica
+Cascading failure             Circuit breaker per service, DLT for events
+JWT key compromise            Rotate keys quarterly, Redis token blacklist
+Data inconsistency            Idempotent consumers, event replay capability
+Schema drift                  Event version field, backward compatibility
+Performance degradation       Prometheus alerts on latency P99 > 200ms
+--------------------------------------------------------------------
+
+================================================================================
+END OF PART 2 — BACKEND MICROSERVICES PLAN
+================================================================================

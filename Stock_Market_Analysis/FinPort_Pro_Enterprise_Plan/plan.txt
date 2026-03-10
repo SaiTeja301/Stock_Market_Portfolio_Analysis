@@ -1,0 +1,124 @@
+================================================================================
+  MASTER PLAN — Enterprise Financial Portfolio Management Platform
+  Version: 1.1 | Date: March 2026
+================================================================================
+
+This document is the master index linking independent architecture
+plans that together define the complete production-grade platform.
+
+================================================================================
+ PROJECT OVERVIEW
+================================================================================
+
+Platform Name:    FinPort Pro — Tactical Portfolio Management Platform
+Business Goal:    Replace Excel + Power BI with scalable, event-driven system
+Architecture:     Microservices + Event-Driven (Kafka) + Angular SPA
+Scale Target:     5+ million users, horizontal scaling
+Full Implementation: 8-9 Months (16-18 Sprints)
+
+================================================================================
+ THREE-LAYER ARCHITECTURE
+================================================================================
+
+The system is segregated into three independent, loosely-coupled layers:
+
+  LAYER 1 — UI (Angular)
+    - Plan File: plan_ui_layer.txt
+  
+  LAYER 2 — Backend (Spring Boot Microservices)
+    - Plan File: plan_backend_layer.txt
+    - Details: plan_backend_services.txt (Detailed Structures)
+
+  LAYER 3 — Database & Data Architecture
+    - Plan File: plan_database_layer.txt
+
+================================================================================
+ IMPLEMENTATION ROADMAP (8-9 MONTHS)
+================================================================================
+
+  The detailed sprint-by-sprint breakdown is split into two parts:
+
+  Part 1: plan_implementation_roadmap.txt (Months 1-4)
+    - Phases 1-4: Foundation, Core Backend, UI, Risk Engine.
+    - Local bare-metal development focus.
+
+  Part 2: plan_implementation_roadmap_part2.txt (Months 5-9)
+    - Phases 5-8: AI, Hardening, Stabilization, Enterprise Automation.
+    - Docker, Kubernetes, and CI/CD automation finalized at the end.
+
+================================================================================
+ PLAN FILES INDEX
+================================================================================
+
+  File                       Contents
+  -----------------------------------------------------------------------
+  plan.txt                   This file (master index)
+  plan_ui_layer.txt          Angular enterprise architecture details
+  plan_backend_layer.txt     General microservices & Kafka design
+  plan_backend_services.txt  Individual service project structures (10 services)
+  plan_database_layer.txt    PostgreSQL + TimescaleDB + Redis details
+  plan_implementation_roadmap.txt        Sprints 1-8 breakdown (Phase 1-4)
+  plan_implementation_roadmap_part2.txt  Sprints 9-16 breakdown (Phase 5-8)
+
+================================================================================
+ MICROSERVICES OVERVIEW
+================================================================================
+
+  #   Service                 Type           Kafka Role
+  ---  ----------------------  ----------     -----------------
+  1    API Gateway             Routing        None
+  2    User Service            CRUD + Auth    Publisher
+  3    Portfolio Service       CRUD           Publisher
+  4    Market Data Service     CRUD + Cache   Publisher + Consumer
+  5    Risk Engine Service     Compute        Publisher + Consumer
+  6    Scraper Service         ETL            Publisher
+  7    Analytics Service       Aggregation    Consumer
+  8    Notification Service    Alerting       Consumer
+  9    AI Service              Intelligence   Publisher + Consumer
+  10   Audit Service           Compliance     Consumer (All Topics)
+
+================================================================================
+ PHASED DEVELOPMENT ROADMAP (REVISED)
+================================================================================
+
+  Phase 1 — Foundation (Month 1/2)
+    [ ] Core repos & Local run scripts (bare-metal)
+    [ ] User Service + JWT Auth
+    [ ] PostgreSQL all schemas (Flyway)
+    [ ] Kafka infrastructure setup
+
+  Phase 2 — Core Services (Month 3)
+    [ ] Portfolio & Market Data Services
+    [ ] Scraper Service (NSE/MoneyControl integration)
+    [ ] Angular: Shell + Plan Management UI
+
+  Phase 3 — Real-Time Engine (Month 4)
+    [ ] Risk Engine (PnL, RR, Heat calcs)
+    [ ] Angular: Tactical Dashboard (ECharts + Widgets)
+    [ ] WebSocket real-time price pipeline
+
+  Phase 4 — Alerts & Audit (Month 5/6)
+    [ ] Notification Service (Email + WS Push)
+    [ ] Audit Service (Immutable log sink)
+    [ ] Integration testing of all 10 services
+
+  Phase 5 — Intelligence (Month 7)
+    [ ] AI Service (LLM integration/Scenarios)
+    [ ] Advanced Analytics (Performance snapshots)
+
+  Phase 6 — Hardening (Month 8)
+    [ ] Load testing & Security audit
+    [ ] Performance tuning & Query optimization
+
+  Phase 7 — Deployment (Month 9)
+    [ ] Data Migration from Excel
+    [ ] Stabilization in Staging environment
+
+  Phase 8 — Enterprise Automation (Month 9 - END)
+    [ ] Full Containerization (Docker)
+    [ ] Kubernetes Orchestration (HPA/Autoscale)
+    [ ] Fully Automated CI/CD Pipelines
+
+================================================================================
+END OF MASTER PLAN
+================================================================================

@@ -1,0 +1,74 @@
+================================================================================
+INSTITUTIONAL TRADING ANALYTICS SYSTEM — SYSTEM WORKFLOW
+================================================================================
+
+This document outlines the step-by-step execution flow for the tactical trading 
+analytics system. The system is designed to be fully dynamic, automated, 
+and production-hardened.
+
+--------------------------------------------------------------------------------
+🚀 QUICK COMMANDS (Run in terminal)
+--------------------------------------------------------------------------------
+1. Interactive Update:   python daily_update.py
+2. Run Engine Only:      python build_model.py
+
+--------------------------------------------------------------------------------
+1. INPUT PHASE: DATA ENTRY
+--------------------------------------------------------------------------------
+   • Primary Source: 'Tactical_Model_INSTITUTIONAL.xlsx'
+   • Action: You have two ways to update daily prices:
+     A) Run 'python daily_update.py': 
+        - Command: python daily_update.py
+        - This interactive script reads all stocks from your Excel.
+        - Shows the last recorded price for each stock.
+        - Prompts you to enter today's price (or press Enter to keep last).
+        - Automatically saves to Excel and triggers the processing engine.
+     B) Manual Edit: 
+        - Open Excel directly and edit the 'Current Price' column.
+        - After saving Excel, run: python build_model.py
+
+--------------------------------------------------------------------------------
+2. PROCESSING PHASE: ETL ENGINE ('build_model.py')
+--------------------------------------------------------------------------------
+   • Command: python build_model.py
+   • Once triggered, the engine performs these steps:
+     1. PRE-FLIGHT: Checks for Excel lock files (~$) to prevent corruption.
+     2. BACKUP: Creates a dated copy of your source Excel in the 'backups/' folder.
+     3. EXTRACT: Reads all stocks, scenario parameters, and price history.
+     4. VALIDATE: Ensures required columns (Stock, Entry, Qty) are present.
+     5. TRANSFORM: 
+        - Recalculates Portfolio Value, Heat %, and P&L.
+        - Calculates Stock-level Risk (₹), Reward:Risk, and Target distance.
+        - Generates Quant Action Triggers (Hold, Reduce, Book, Exit).
+     6. LOAD (OUTPUTS):
+        - Generates 'Tactical_Model_UPDATED.xlsx' (formatted report).
+        - Generates 4 Power BI CSVs (Fact_Portfolio, Dim_Stock, etc.).
+        - Generates 'Pipeline_Status.csv' (timestamp of the run).
+        - Generates 'tactical_dashboard.html' (interactive web view).
+
+--------------------------------------------------------------------------------
+3. VISUALIZATION PHASE: DASHBOARDS
+--------------------------------------------------------------------------------
+   • HTML Dashboard:
+     - Automatically refreshes once 'build_model.py' finishes.
+     - Provides instant KPI visualization, risk gauges, and stock tables.
+   • Power BI Dashboard:
+     - Open your .pbix file.
+     - Click 'Refresh' on the Home tab. 
+     - All charts, matrices, and KPIs update instantly using the new CSV data.
+     - Schema Tip: Use 'Pipeline_Status.csv' to display the last build time 
+       on your Power BI canvas to ensure you are viewing fresh data.
+
+--------------------------------------------------------------------------------
+4. ERROR HANDLING & LOGS
+--------------------------------------------------------------------------------
+   • If the script fails, check 'build_model.log'.
+   • Common Errors:
+     - "EXCEL FILE IS LOCKED": Close Excel or Power BI and try again.
+     - "REQUIRED COLUMN MISSING": Ensure headers in 'Fact_Portfolio' are correct.
+     - "Blank Current Price": Script will use 'Entry Price' as a fallback to
+       prevent zero-value errors and log a WARNING.
+
+================================================================================
+🚀 System Ready for Execution.
+================================================================================

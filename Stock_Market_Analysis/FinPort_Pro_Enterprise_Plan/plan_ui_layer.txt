@@ -1,0 +1,841 @@
+================================================================================
+  PART 1 — UI IMPLEMENTATION PLAN (Angular Enterprise Repository)
+  Tactical Financial Portfolio Management Platform
+  Version: 1.0 | Date: March 2026
+================================================================================
+
+================================================================================
+ 1. ARCHITECTURE OVERVIEW
+================================================================================
+
+This Angular application is a standalone UI repository that:
+- Communicates ONLY via REST APIs and WebSocket to backend microservices
+- Has ZERO direct database access
+- Uses NgRx for centralized, predictable state management
+- All real-time updates flow through WebSocket → NgRx Effects → Store
+- Is fully independent — can be deployed, scaled, and versioned independently
+
+Repository Name: finport-ui
+Tech Stack: Angular 18+ | NgRx | RxJS | ECharts | Angular CDK | Angular Material
+
+================================================================================
+ 2. FOLDER STRUCTURE (Enterprise Modular)
+================================================================================
+
+finport-ui/
+├── .github/
+│   └── workflows/
+│       ├── ci.yml                         # Lint + Test + Build
+│       └── deploy.yml                     # Deploy to K8s / S3+CloudFront
+├── .vscode/
+│   └── settings.json
+├── src/
+│   ├── app/
+│   │   ├── app.component.ts               # Root shell (sidenav + router-outlet)
+│   │   ├── app.module.ts                  # Root module
+│   │   ├── app-routing.module.ts          # Root routes (lazy-loaded)
+│   │   │
+│   │   ├── core/                          # SINGLETON SERVICES (imported once)
+│   │   │   ├── core.module.ts
+│   │   │   ├── guards/
+│   │   │   │   ├── auth.guard.ts          # JWT existence check
+│   │   │   │   └── role.guard.ts          # Role-based route protection
+│   │   │   ├── interceptors/
+│   │   │   │   ├── jwt.interceptor.ts     # Attach Bearer token to all requests
+│   │   │   │   ├── error.interceptor.ts   # Global HTTP error handler
+│   │   │   │   └── loading.interceptor.ts # Show/hide loading spinner
+│   │   │   ├── services/
+│   │   │   │   ├── auth.service.ts        # Login, logout, refresh token
+│   │   │   │   ├── websocket.service.ts   # WebSocket connection management
+│   │   │   │   ├── api.service.ts         # Base HTTP wrapper (retry, timeout)
+│   │   │   │   └── storage.service.ts     # LocalStorage/SessionStorage wrapper
+│   │   │   └── models/
+│   │   │       ├── user.model.ts
+│   │   │       ├── jwt-payload.model.ts
+│   │   │       └── api-response.model.ts
+│   │   │
+│   │   ├── shared/                        # REUSABLE COMPONENTS (imported by features)
+│   │   │   ├── shared.module.ts
+│   │   │   ├── components/
+│   │   │   │   ├── kpi-card/
+│   │   │   │   │   ├── kpi-card.component.ts
+│   │   │   │   │   ├── kpi-card.component.html
+│   │   │   │   │   └── kpi-card.component.scss
+│   │   │   │   ├── data-table/
+│   │   │   │   │   ├── data-table.component.ts   # Virtual scroll enabled
+│   │   │   │   │   └── data-table.component.html
+│   │   │   │   ├── chart-widget/
+│   │   │   │   │   └── chart-widget.component.ts  # ECharts wrapper
+│   │   │   │   ├── action-badge/
+│   │   │   │   │   └── action-badge.component.ts  # Hold/Exit/Book Profit badges
+│   │   │   │   ├── sector-bar/
+│   │   │   │   │   └── sector-bar.component.ts
+│   │   │   │   ├── scenario-card/
+│   │   │   │   │   └── scenario-card.component.ts
+│   │   │   │   ├── alert-banner/
+│   │   │   │   │   └── alert-banner.component.ts
+│   │   │   │   ├── loading-spinner/
+│   │   │   │   │   └── loading-spinner.component.ts
+│   │   │   │   └── confirm-dialog/
+│   │   │   │       └── confirm-dialog.component.ts
+│   │   │   ├── directives/
+│   │   │   │   ├── has-role.directive.ts           # *appHasRole="['ADMIN']"
+│   │   │   │   ├── positive-negative.directive.ts  # Green/Red text coloring
+│   │   │   │   └── tooltip.directive.ts
+│   │   │   ├── pipes/
+│   │   │   │   ├── currency-inr.pipe.ts            # ₹1,23,456.00
+│   │   │   │   ├── pnl-color.pipe.ts               # Returns 'pos' or 'neg' class
+│   │   │   │   ├── percent-format.pipe.ts           # +1.33% / -0.45%
+│   │   │   │   └── truncate.pipe.ts
+│   │   │   └── models/
+│   │   │       ├── holding.model.ts
+│   │   │       ├── plan.model.ts
+│   │   │       ├── risk-metric.model.ts
+│   │   │       ├── price-update.model.ts
+│   │   │       ├── ai-analysis.model.ts
+│   │   │       ├── alert.model.ts
+│   │   │       └── scenario.model.ts
+│   │   │
+│   │   ├── store/                         # NgRx GLOBAL STATE
+│   │   │   ├── app.state.ts               # Root state interface
+│   │   │   ├── auth/
+│   │   │   │   ├── auth.actions.ts
+│   │   │   │   ├── auth.reducer.ts
+│   │   │   │   ├── auth.effects.ts
+│   │   │   │   └── auth.selectors.ts
+│   │   │   ├── plans/
+│   │   │   │   ├── plan.actions.ts
+│   │   │   │   ├── plan.reducer.ts
+│   │   │   │   ├── plan.effects.ts
+│   │   │   │   └── plan.selectors.ts
+│   │   │   ├── portfolio/
+│   │   │   │   ├── portfolio.actions.ts
+│   │   │   │   ├── portfolio.reducer.ts
+│   │   │   │   ├── portfolio.effects.ts
+│   │   │   │   └── portfolio.selectors.ts
+│   │   │   ├── risk/
+│   │   │   │   ├── risk.actions.ts
+│   │   │   │   ├── risk.reducer.ts
+│   │   │   │   ├── risk.effects.ts
+│   │   │   │   └── risk.selectors.ts
+│   │   │   ├── market/
+│   │   │   │   ├── market.actions.ts
+│   │   │   │   ├── market.reducer.ts
+│   │   │   │   ├── market.effects.ts
+│   │   │   │   └── market.selectors.ts
+│   │   │   ├── ai/
+│   │   │   │   ├── ai.actions.ts
+│   │   │   │   ├── ai.reducer.ts
+│   │   │   │   ├── ai.effects.ts
+│   │   │   │   └── ai.selectors.ts
+│   │   │   └── notifications/
+│   │   │       ├── notification.actions.ts
+│   │   │       ├── notification.reducer.ts
+│   │   │       ├── notification.effects.ts
+│   │   │       └── notification.selectors.ts
+│   │   │
+│   │   └── features/                      # LAZY-LOADED FEATURE MODULES
+│   │       ├── auth/
+│   │       │   ├── auth.module.ts
+│   │       │   ├── auth-routing.module.ts
+│   │       │   ├── pages/
+│   │       │   │   ├── login/
+│   │       │   │   │   ├── login.component.ts
+│   │       │   │   │   └── login.component.html
+│   │       │   │   └── forgot-password/
+│   │       │   └── components/
+│   │       │       └── login-form/
+│   │       │
+│   │       ├── dashboard/
+│   │       │   ├── dashboard.module.ts
+│   │       │   ├── dashboard-routing.module.ts
+│   │       │   └── pages/
+│   │       │       └── dashboard-home/
+│   │       │           ├── dashboard-home.component.ts
+│   │       │           └── dashboard-home.component.html
+│   │       │
+│   │       ├── plans/
+│   │       │   ├── plans.module.ts
+│   │       │   ├── plans-routing.module.ts
+│   │       │   └── pages/
+│   │       │       ├── plan-list/
+│   │       │       ├── plan-create/
+│   │       │       ├── plan-detail/
+│   │       │       └── plan-archived/
+│   │       │
+│   │       ├── tactical/                  # CORE SCREEN — Plan-Specific Dashboard
+│   │       │   ├── tactical.module.ts
+│   │       │   ├── tactical-routing.module.ts
+│   │       │   └── pages/
+│   │       │       └── tactical-dashboard/
+│   │       │           ├── tactical-dashboard.component.ts
+│   │       │           ├── tactical-dashboard.component.html
+│   │       │           └── tactical-dashboard.component.scss
+│   │       │   └── components/
+│   │       │       ├── heat-gauge/
+│   │       │       ├── sector-donut/
+│   │       │       ├── scenario-chart/
+│   │       │       ├── pnl-bar-chart/
+│   │       │       ├── price-levels-chart/
+│   │       │       ├── risk-table/
+│   │       │       ├── scenario-cards/
+│   │       │       ├── sector-concentration/
+│   │       │       └── ai-summary-panel/
+│   │       │
+│   │       ├── portfolio/
+│   │       │   ├── portfolio.module.ts
+│   │       │   └── pages/
+│   │       │       ├── holdings-grid/
+│   │       │       ├── add-holding/
+│   │       │       └── holding-detail/
+│   │       │
+│   │       ├── risk/
+│   │       │   ├── risk.module.ts
+│   │       │   └── pages/
+│   │       │       ├── risk-dashboard/
+│   │       │       ├── sl-tracker/
+│   │       │       └── target-tracker/
+│   │       │
+│   │       ├── market/
+│   │       │   ├── market.module.ts
+│   │       │   └── pages/
+│   │       │       ├── live-prices/
+│   │       │       ├── price-history/
+│   │       │       └── sector-heatmap/
+│   │       │
+│   │       ├── analytics/
+│   │       │   ├── analytics.module.ts
+│   │       │   └── pages/
+│   │       │       ├── performance/
+│   │       │       ├── sector-exposure/
+│   │       │       └── plan-comparison/
+│   │       │
+│   │       ├── ai/
+│   │       │   ├── ai.module.ts
+│   │       │   └── pages/
+│   │       │       ├── ai-dashboard/
+│   │       │       ├── stock-classification/
+│   │       │       ├── scenario-simulation/
+│   │       │       └── action-matrix/
+│   │       │
+│   │       ├── alerts/
+│   │       │   ├── alerts.module.ts
+│   │       │   └── pages/
+│   │       │       ├── alert-list/
+│   │       │       └── alert-detail/
+│   │       │
+│   │       └── admin/
+│   │           ├── admin.module.ts
+│   │           └── pages/
+│   │               ├── user-management/
+│   │               ├── scraper-config/
+│   │               └── system-health/
+│   │
+│   ├── assets/
+│   │   ├── icons/
+│   │   ├── images/
+│   │   └── fonts/
+│   ├── environments/
+│   │   ├── environment.ts
+│   │   ├── environment.staging.ts
+│   │   └── environment.prod.ts
+│   ├── styles/
+│   │   ├── _variables.scss               # Design tokens (dark theme colors)
+│   │   ├── _mixins.scss                  # Responsive breakpoints, animations
+│   │   ├── _typography.scss              # Font system (Inter + JetBrains Mono)
+│   │   ├── _components.scss              # Base component styles
+│   │   └── global.scss                   # Global reset + imports
+│   ├── index.html
+│   └── main.ts
+├── angular.json
+├── package.json
+├── tsconfig.json
+├── jest.config.ts                         # Unit testing config
+├── cypress/                               # E2E testing
+│   ├── integration/
+│   ├── fixtures/
+│   └── support/
+├── Dockerfile
+├── nginx.conf                             # Production nginx config
+├── docker-compose.yml                     # Local dev environment
+└── README.md
+
+================================================================================
+ 3. ROUTING STRATEGY (Lazy-Loaded)
+================================================================================
+
+All feature modules are lazy-loaded. Initial bundle contains ONLY:
+- AppComponent (shell)
+- CoreModule (guards, interceptors)
+- Login route
+
+Route Definitions:
+--------------------------------------------------------------------
+Path                        Module                Guard          Role
+--------------------------------------------------------------------
+/login                      AuthModule            None           Public
+/dashboard                  DashboardModule       AuthGuard      All
+/plans                      PlansModule           AuthGuard      All
+/plans/create               PlansModule           AuthGuard      Admin,Trader
+/plans/archived             PlansModule           AuthGuard      All
+/tactical/:planId           TacticalModule        AuthGuard      All
+/portfolio                  PortfolioModule       AuthGuard      All
+/risk                       RiskModule            AuthGuard      All
+/market                     MarketModule          AuthGuard      All
+/analytics                  AnalyticsModule       AuthGuard      All
+/ai                         AiModule              AuthGuard      All
+/alerts                     AlertsModule          AuthGuard      All
+/reports                    ReportsModule         AuthGuard      Analyst,Admin
+/admin                      AdminModule           AuthGuard +    Admin only
+                                                  RoleGuard
+--------------------------------------------------------------------
+
+Route Change Strategy:
+- Router events tracked via NgRx Router Store
+- Breadcrumb derived from route data
+- Active sidenav item highlighted via routerLinkActive
+
+================================================================================
+ 4. NgRx STATE MANAGEMENT DESIGN
+================================================================================
+
+Root State Interface:
+--------------------------------------------------------------------
+AppState {
+  auth          : AuthState
+  plans         : PlanState
+  portfolio     : PortfolioState
+  risk          : RiskState
+  market        : MarketDataState
+  ai            : AiAnalysisState
+  notifications : NotificationState
+  router        : RouterReducerState   // @ngrx/router-store
+}
+--------------------------------------------------------------------
+
+ 4.1 AuthState
+--------------------------------------------------------------------
+AuthState {
+  user          : User | null
+  token         : string | null
+  role          : 'ADMIN' | 'TRADER' | 'ANALYST' | 'VIEWER' | null
+  isAuthenticated: boolean
+  loading       : boolean
+  error         : string | null
+}
+
+Actions:
+  [Auth] Login                    { email, password }
+  [Auth] Login Success            { user, token }
+  [Auth] Login Failure            { error }
+  [Auth] Logout
+  [Auth] Refresh Token
+  [Auth] Refresh Token Success    { token }
+
+Effects:
+  login$          → POST /auth/login → Login Success / Failure
+  refreshToken$   → POST /auth/refresh → set new token
+  logout$         → Clear localStorage → Navigate to /login
+
+Selectors:
+  selectIsAuthenticated   → boolean
+  selectUser              → User
+  selectUserRole          → role string
+  selectAuthLoading       → boolean
+--------------------------------------------------------------------
+
+ 4.2 PlanState
+--------------------------------------------------------------------
+PlanState {
+  plans         : Plan[]
+  activePlanId  : string | null
+  loading       : boolean
+  error         : string | null
+}
+
+Actions:
+  [Plans] Load Plans
+  [Plans] Load Plans Success        { plans: Plan[] }
+  [Plans] Load Plans Failure        { error }
+  [Plans] Select Plan               { planId }
+  [Plans] Create Plan               { plan: CreatePlanDto }
+  [Plans] Create Plan Success       { plan: Plan }
+  [Plans] Archive Plan              { planId }
+  [Plans] Delete Plan               { planId }
+
+Effects:
+  loadPlans$    → GET /api/portfolios → Success
+  createPlan$   → POST /api/portfolios → Create Success → Navigate
+  selectPlan$   → Dispatch Load Holdings + Load Risk Metrics
+
+Selectors:
+  selectAllPlans          → Plan[]
+  selectActivePlan        → Plan (by activePlanId)
+  selectPlanById(id)      → Plan
+  selectPlansLoading      → boolean
+--------------------------------------------------------------------
+
+ 4.3 PortfolioState
+--------------------------------------------------------------------
+PortfolioState {
+  holdings     : Holding[]
+  kpis         : PortfolioKpis | null
+  sectorFilter : string | null
+  loading      : boolean
+}
+
+Actions:
+  [Portfolio] Load Holdings              { planId }
+  [Portfolio] Load Holdings Success      { holdings }
+  [Portfolio] Add Holding                { holding }
+  [Portfolio] Add Holding Success        { holding }
+  [Portfolio] Update Holding             { id, changes }
+  [Portfolio] Remove Holding             { id }
+  [Portfolio] Set Sector Filter          { sector | null }
+  [Portfolio] Holdings Updated (WS)      { holdings }
+
+Effects:
+  loadHoldings$    → GET /api/portfolios/:id/holdings → Success
+  addHolding$      → POST /api/portfolios/:id/holdings → Dispatch refresh
+  wsHoldings$      → WebSocket 'portfolio-updated' → Holdings Updated
+
+Selectors:
+  selectAllHoldings            → Holding[]
+  selectFilteredHoldings       → filtered by sectorFilter
+  selectPortfolioKpis          → computed from holdings:
+                                   total invested, current value, P&L,
+                                   heat, active stocks
+  selectSectorExposure         → { sector: pct } map
+  selectTopGainers             → top 3 by PnL%
+  selectTopLosers              → bottom 3 by PnL%
+  selectActionSummary          → { hold: n, exit: n, bookProfit: n }
+  selectHoldingsByRisk         → grouped by risk level
+--------------------------------------------------------------------
+
+ 4.4 RiskState
+--------------------------------------------------------------------
+RiskState {
+  metrics      : HoldingRiskMetric[]
+  loading      : boolean
+}
+
+Actions:
+  [Risk] Load Risk Metrics                 { planId }
+  [Risk] Load Risk Metrics Success         { metrics }
+  [Risk] Risk Recalculated (WS)            { metrics }
+  [Risk] StopLoss Triggered (WS)           { holdingId, symbol }
+  [Risk] Target Hit (WS)                   { holdingId, symbol }
+
+Effects:
+  loadRisk$          → GET /api/risk/:planId → Success
+  wsRisk$            → WebSocket 'risk-recalculated' → dispatch update
+  wsStopLoss$        → WebSocket 'stoploss-triggered'
+                       → dispatch Notification + highlight in table
+  wsTargetHit$       → WebSocket 'target-hit'
+                       → dispatch Notification + highlight in table
+
+Selectors:
+  selectRiskMetrics           → HoldingRiskMetric[]
+  selectPortfolioHeat         → computed heat percentage
+  selectRiskDistribution      → { Low: n, Medium: n, High: n }
+  selectStopLossProximity     → sorted by dist_to_sl ascending
+  selectNearSLStocks          → where dist_to_sl < 3%
+--------------------------------------------------------------------
+
+ 4.5 MarketDataState
+--------------------------------------------------------------------
+MarketDataState {
+  latestPrices : { [symbol: string]: PriceUpdate }
+  lastUpdated  : string | null
+}
+
+Actions:
+  [Market] Price Updated (WS)      { symbol, price, changePct }
+  [Market] Batch Prices Loaded     { prices: PriceUpdate[] }
+  [Market] Load Price History       { symbol, from, to }
+  [Market] Price History Loaded     { symbol, data: PricePoint[] }
+
+Effects:
+  wsPrice$          → WebSocket 'price-updated' → dispatch Price Updated
+  loadHistory$      → GET /api/prices/:symbol/history → Price History Loaded
+
+Selectors:
+  selectLatestPrice(symbol)  → PriceUpdate
+  selectAllLatestPrices      → map
+  selectLastMarketUpdate     → timestamp string
+--------------------------------------------------------------------
+
+ 4.6 AiAnalysisState
+--------------------------------------------------------------------
+AiAnalysisState {
+  analysis     : AiAnalysisResult | null
+  isAnalyzing  : boolean
+  lastRun      : string | null
+  error        : string | null
+}
+
+Actions:
+  [AI] Request Analysis              { planId }
+  [AI] Analysis Completed (WS)       { result: AiAnalysisResult }
+  [AI] Analysis Failed               { error }
+
+Effects:
+  requestAnalysis$   → POST /api/ai/analyze → (async, result via WS)
+  wsAnalysis$        → WebSocket 'ai-analysis-completed' → dispatch completed
+
+Selectors:
+  selectAiSummary                → portfolio_summary
+  selectStockClassifications     → stock_analysis[]
+  selectScenarios                → { bullish, bearish, neutral }
+  selectActionMatrix             → action_matrix[]
+  selectIsAnalyzing              → boolean
+--------------------------------------------------------------------
+
+ 4.7 NotificationState
+--------------------------------------------------------------------
+NotificationState {
+  alerts       : Alert[]
+  unreadCount  : number
+}
+
+Actions:
+  [Notifications] New Alert (WS)     { alert }
+  [Notifications] Mark Read          { alertId }
+  [Notifications] Mark All Read
+  [Notifications] Load History
+
+Effects:
+  wsAlert$           → WebSocket → dispatch New Alert + play sound
+  loadHistory$       → GET /api/alerts → populate initial list
+
+Selectors:
+  selectUnreadCount          → number (shown on bell icon badge)
+  selectRecentAlerts         → last 10
+  selectCriticalAlerts       → severity === 'CRITICAL'
+--------------------------------------------------------------------
+
+================================================================================
+ 5. REAL-TIME INTEGRATION (WebSocket)
+================================================================================
+
+WebSocket Service Design:
+--------------------------------------------------------------------
+- Single persistent WebSocket connection per authenticated session
+- Connects to: wss://api.finport.io/ws?token={jwt}
+- Auto-reconnect with exponential backoff (1s, 2s, 4s, 8s, max 30s)
+- Heartbeat ping every 30 seconds
+
+Incoming Event Types:
+  price-updated          → MarketActions.priceUpdated()
+  portfolio-updated      → PortfolioActions.holdingsUpdated()
+  risk-recalculated      → RiskActions.riskRecalculated()
+  stoploss-triggered     → RiskActions.stopLossTriggered()
+                           + NotificationActions.newAlert()
+  target-hit             → RiskActions.targetHit()
+                           + NotificationActions.newAlert()
+  ai-analysis-completed  → AiActions.analysisCompleted()
+
+Connection Lifecycle:
+  1. User logs in → AuthEffects dispatches [WS] Connect
+  2. WebSocketService opens connection
+  3. NgRx Effects subscribe to incoming messages
+  4. On token refresh → reconnect with new token
+  5. On logout → close connection
+  6. On disconnect → auto-reconnect with backoff
+
+Performance:
+  - Messages are debounced at 200ms intervals
+  - Batch price updates merged into single state update
+  - Only active plan's holdings trigger UI re-render
+--------------------------------------------------------------------
+
+================================================================================
+ 6. TACTICAL DASHBOARD LAYOUT (Core Screen)
+================================================================================
+
+Based on existing tactical_dashboard.html design:
+
+Layout Grid (CSS Grid):
+--------------------------------------------------------------------
+ROW 1: Header Bar (full width)
+  - Plan name + date + stock count + deployed capital
+  - Status badges: [Dynamic] [Live] [Institutional] [Risk Level]
+
+ROW 2: KPI Card Row (6 equal columns, responsive)
+  - Total Capital | Current Value | Total P&L
+  - Portfolio Heat | Capital After SL | Active Stocks
+  - Each card: icon + label + value + subtitle
+  - Color-coded top border (blue/green/red/gold/purple)
+
+ROW 3: Charts Grid (3 equal columns)
+  - Portfolio Heat Gauge (doughnut 180°)
+  - Sector Allocation (donut chart with legend)
+  - Scenario Projection (grouped bar chart)
+
+ROW 4: Charts Grid (2 columns: 2fr + 1fr)
+  - P&L per Stock (horizontal bar, green/red)
+  - Price Levels (grouped bar: Current vs SL vs T1)
+
+ROW 5: Risk Table (full width, scrollable)
+  - Columns: Stock | Sector | Entry | Current | P&L% |
+             Dist SL% | Dist T1% | R:R | Risk | Action
+  - Action badges: Hold (grey) | Book Profit (gold) |
+                   Reduce (blue) | EXIT NOW (red, pulsing)
+  - Virtual scroll for 100+ rows
+  - Column sorting + sector filter dropdown
+
+ROW 6: Scenario Cards (3 columns)
+  - Bullish (green) | Neutral (blue) | Bearish (red)
+  - Projected value + probability percentage
+
+ROW 7: Sector Concentration Bars (full width)
+  - Horizontal progress bars per sector
+  - >40% triggers red warning indicator
+
+ROW 8: AI Summary Panel (full width, collapsible)
+  - Risk Rating | Directional Bias | Hedge Adequacy
+  - Top recommended action
+  - [View Full Analysis] link → /ai
+
+Design Tokens (from existing dashboard):
+  --bg:    #0D1117 (deepest background)
+  --bg2:   #161B22 (card background)
+  --bg3:   #1C2128 (table header)
+  --b:     #30363D (border)
+  --blue:  #58A6FF
+  --green: #3FB950
+  --red:   #F85149
+  --gold:  #E3B341
+  --purp:  #BC8CFF
+  --text:  #F0F6FC (primary text)
+  --muted: #8B949E (secondary text)
+
+Fonts:
+  Primary: 'Inter' (UI text)
+  Mono:    'JetBrains Mono' (numbers, prices, KPIs)
+--------------------------------------------------------------------
+
+================================================================================
+ 7. CHART INTEGRATION STRATEGY
+================================================================================
+
+Library: Apache ECharts (ngx-echarts Angular wrapper)
+
+Reasons:
+  - Lightweight (~400KB gzipped vs Highcharts ~600KB)
+  - No license fee (Apache 2.0)
+  - Enterprise-grade, used by Alibaba, Baidu
+  - Rich chart types: doughnut, bar, line, candlestick, heatmap
+  - Built-in animation + responsive resize
+  - Angular integration via ngx-echarts
+
+Chart Components:
+--------------------------------------------------------------------
+Component                    Chart Type       Data Source Selector
+--------------------------------------------------------------------
+HeatGaugeComponent           Doughnut (180°)  selectPortfolioHeat
+SectorDonutComponent         Donut            selectSectorExposure
+ScenarioBarComponent         Grouped Bar      selectScenarios
+PnlBarChartComponent         Horizontal Bar   selectAllHoldings
+PriceLevelsChartComponent    Grouped Bar      selectAllHoldings
+PerformanceLineComponent     Line (time)      selectPerformanceHistory
+CandlestickComponent         Candlestick      selectPriceHistory
+SectorHeatmapComponent       Heatmap          selectSectorExposure
+--------------------------------------------------------------------
+
+Performance:
+  - Charts wrapped in OnPush components
+  - ECharts dispose() on component destroy
+  - Resize observer for responsive container
+  - requestAnimationFrame for live price updates
+  - Debounce chart updates to 200ms (prevent thrashing)
+
+================================================================================
+ 8. ROLE-BASED ACCESS CONTROL (RBAC)
+================================================================================
+
+JWT Payload:
+{
+  "sub": "user-uuid",
+  "email": "trader@firm.com",
+  "role": "TRADER",
+  "permissions": ["portfolio.read", "portfolio.write", "holdings.write"],
+  "iat": 1709400000,
+  "exp": 1709401800
+}
+
+Guard Implementation:
+--------------------------------------------------------------------
+AuthGuard:
+  - Checks if JWT exists and is not expired
+  - If expired → try refresh token
+  - If no refresh → redirect to /login
+
+RoleGuard:
+  - Reads route.data.roles: string[]
+  - Compares with JWT role claim
+  - If not authorized → redirect to /dashboard with toast error
+
+HasRoleDirective:
+  - Structural directive: *appHasRole="['ADMIN','TRADER']"
+  - Shows/hides DOM element based on current user role
+  - Used for buttons, menu items, action columns
+
+Visibility Matrix:
+--------------------------------------------------------------------
+Element                        Admin  Trader  Analyst  Viewer
+--------------------------------------------------------------------
+Sidenav: Admin                 YES    NO      NO       NO
+Button: Create Plan            YES    YES     NO       NO
+Button: Add Holding            YES    YES     NO       NO
+Button: Delete Plan            YES    NO      NO       NO
+Button: Run AI Analysis        YES    YES     YES      NO
+Column: Action (in table)      YES    YES     VIEW     VIEW
+Tab: Reports                   YES    NO      YES      NO
+Settings: Scraper Config       YES    NO      NO       NO
+--------------------------------------------------------------------
+
+================================================================================
+ 9. ERROR HANDLING & INTERCEPTOR DESIGN
+================================================================================
+
+Global Error Interceptor (error.interceptor.ts):
+--------------------------------------------------------------------
+- Catches ALL HTTP errors globally
+- 401 Unauthorized → Try token refresh; if fails → redirect /login
+- 403 Forbidden → Show "Access Denied" toast
+- 404 Not Found → Show "Resource not found" toast
+- 422 Validation → Extract field errors → show inline
+- 429 Rate Limit → Show "Too many requests, wait..." toast
+- 500+ Server Error → Show "Server error, try again" toast
+- Network Error → Show "No connection" banner (sticky)
+
+Error State in NgRx:
+  - Each feature state has an error: string | null field
+  - Error actions dispatched by effects on API failure
+  - Components show error banner via selector
+
+Retry Strategy:
+  - 3 retries on 5xx errors with exponential backoff
+  - No retry on 4xx errors (user errors)
+  - No retry on 401 (auth errors — handled by refresh flow)
+--------------------------------------------------------------------
+
+================================================================================
+ 10. CACHING STRATEGY IN UI
+================================================================================
+
+Layer 1 — NgRx Store (In-Memory State):
+  - Plans list:      cached 5 minutes, invalidated on create/delete
+  - Holdings:        cached until WS 'portfolio-updated' event
+  - Risk metrics:    real-time (always WS-driven)
+  - Latest prices:   real-time (always WS-driven)
+  - AI analysis:     cached 30 minutes, invalidated on manual refresh
+
+Layer 2 — HTTP Interceptor Cache:
+  - GET /api/prices/:symbol/history → cached 1 hour (historical data)
+  - GET /api/analytics/performance → cached 5 minutes
+
+Layer 3 — LocalStorage:
+  - JWT token + refresh token
+  - User preferences (theme, default plan, table columns)
+  - Last active planId (for quick resume)
+
+Cache Invalidation:
+  - WebSocket events are the primary invalidator
+  - Manual refresh button on dashboards
+  - Auto-invalidate on navigation if stale > TTL
+
+================================================================================
+ 11. PERFORMANCE OPTIMIZATION
+================================================================================
+
+Technique                     Implementation
+--------------------------------------------------------------------
+ChangeDetection.OnPush        All presentational components
+Memoized Selectors            NgRx createSelector (auto-memoized)
+Virtual Scrolling             CDK VirtualScrollViewport for tables
+TrackBy Functions             All *ngFor loops: trackBy: trackBySymbol
+Lazy Loading                  Every feature module loaded on demand
+Tree Shaking                  Production build removes unused code
+Ahead-of-Time (AOT)           Enabled by default in Angular 18
+Bundle Analysis               webpack-bundle-analyzer in CI pipeline
+Image Optimization            WebP + lazy loading (loading="lazy")
+Service Worker                Angular PWA for offline static cache
+Chart Throttling              requestAnimationFrame + 200ms debounce
+Web Workers                   Heavy calculations offloaded to worker
+Preloading Strategy           PreloadAllModules after initial load
+
+Target Bundle Sizes:
+  Initial load:    < 150KB (gzipped)
+  Feature chunk:   < 50KB each
+  Total app:       < 500KB (all chunks loaded)
+
+================================================================================
+ 12. FUTURE EXTENSIBILITY
+================================================================================
+
+Adding a new feature module (e.g., Options Trading):
+--------------------------------------------------------------------
+1. Create: src/app/features/options/
+2. Add: options.module.ts + options-routing.module.ts
+3. Add: store/options/ (actions, reducer, effects, selectors)
+4. Add route: { path: 'options', loadChildren: ... }
+5. Add sidenav entry (guarded by role)
+6. Done — zero changes to existing modules
+
+Planned Extensions:
+--------------------------------------------------------------------
+Module                  New Components              New State Slice
+--------------------------------------------------------------------
+Options Trading         OptionsChainComponent       optionsState
+                        GreeksDisplayComponent
+Mutual Funds            MFHoldingsComponent         mfState
+                        NavHistoryChartComponent
+Algo Trading            StrategyBuilderComponent    algoState
+                        BacktestResultComponent
+Mobile App              Angular PWA + Capacitor     same NgRx
+AI Heatmap              MarketHeatmapComponent      same aiState
+--------------------------------------------------------------------
+
+================================================================================
+ 13. DESIGN DECISIONS SUMMARY
+================================================================================
+
+Decision                             Reasoning
+--------------------------------------------------------------------
+NgRx over Akita/NGXS                Enterprise standard, Redux devtools,
+                                     mature ecosystem, best for large teams
+ECharts over Highcharts              Free (Apache), lighter, rich chart types,
+                                     enterprise-proven at scale
+OnPush everywhere                    Prevent unnecessary change detection,
+                                     mandatory for real-time dashboards
+Feature-based folders over           Better encapsulation, independent
+type-based (components/services)     deployment of feature areas
+WebSocket over SSE                   Bidirectional (needed for future features
+                                     like in-app messaging, algo commands)
+Dark theme as default                FinTrader industry standard, reduces
+                                     eye strain during market hours
+JetBrains Mono for numbers           Monospace font ensures price alignment,
+                                     industry standard for trading UIs
+--------------------------------------------------------------------
+
+================================================================================
+ 14. RISK MITIGATION
+================================================================================
+
+Risk                           Mitigation
+--------------------------------------------------------------------
+WebSocket disconnection        Auto-reconnect + fallback polling every 30s
+Large data tables              Virtual scroll + pagination
+Stale cache                    WS events invalidate + TTL-based eviction
+Bundle size growth             Budget in angular.json (150KB initial),
+                               CI enforcement
+Browser memory leaks           RxJS takeUntil pattern + OnDestroy cleanup
+Theme inconsistency            CSS custom properties (vars) + design tokens
+Cross-browser issues           Angular CDK + targeted testing (Chrome+Firefox)
+--------------------------------------------------------------------
+
+================================================================================
+END OF PART 1 — UI IMPLEMENTATION PLAN
+================================================================================

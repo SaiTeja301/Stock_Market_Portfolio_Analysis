@@ -1,0 +1,1282 @@
+20:18:35  INFO      ============================================================
+20:18:35  INFO      Tactical Trading Analytics — Build Pipeline
+20:18:35  INFO      ============================================================
+20:18:35  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+20:18:35  INFO        Loaded 11 stocks from 'Fact_Portfolio'
+20:18:35  INFO      
+20:18:35  INFO      ── Portfolio Snapshot ──────────────
+20:18:35  INFO        Stocks   : 11
+20:18:35  INFO        Invested : ₹0.00
+20:18:35  INFO        Value    : ₹0.00
+20:18:35  INFO        P&L      : ₹+0.00 (0.00%)
+20:18:35  INFO        Heat     : 0.00% [Safe]
+20:18:35  INFO      
+20:18:35  INFO        Action [Hold]: 11 stock(s)
+20:18:35  INFO      
+20:18:35  INFO      Writing outputs …
+20:19:40  INFO      ============================================================
+20:19:40  INFO      Tactical Trading Analytics — Build Pipeline
+20:19:40  INFO      ============================================================
+20:19:40  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+20:19:40  INFO        Loaded 10 stocks from 'Fact_Portfolio'
+20:19:40  INFO      
+20:19:40  INFO      ── Portfolio Snapshot ──────────────
+20:19:40  INFO        Stocks   : 10
+20:19:40  INFO        Invested : ₹97,857.05
+20:19:40  INFO        Value    : ₹98,343.31
+20:19:40  INFO        P&L      : ₹+486.26 (0.50%)
+20:19:40  INFO        Heat     : 5.00% [Warning]
+20:19:40  INFO      
+20:19:40  INFO        Action [Hold]: 8 stock(s)
+20:19:40  INFO        Action [EXIT NOW]: 1 stock(s) ← ACTION NEEDED
+20:19:40  INFO        Action [Book 30%]: 1 stock(s) ← ACTION NEEDED
+20:19:40  INFO      
+20:19:40  INFO      Writing outputs …
+20:19:55  INFO      ============================================================
+20:19:55  INFO      Tactical Trading Analytics — Build Pipeline
+20:19:55  INFO      ============================================================
+20:19:55  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+20:19:55  INFO        Loaded 10 stocks from 'Fact_Portfolio'
+20:19:55  INFO      
+20:19:55  INFO      ── Portfolio Snapshot ──────────────
+20:19:55  INFO        Stocks   : 10
+20:19:55  INFO        Invested : ₹97,857.05
+20:19:55  INFO        Value    : ₹98,343.31
+20:19:55  INFO        P&L      : ₹+486.26 (0.50%)
+20:19:55  INFO        Heat     : 5.00% [Warning]
+20:19:55  INFO      
+20:19:55  INFO        Action [Hold]: 8 stock(s)
+20:19:55  INFO        Action [EXIT NOW]: 1 stock(s) ← ACTION NEEDED
+20:19:55  INFO        Action [Book 30%]: 1 stock(s) ← ACTION NEEDED
+20:19:55  INFO      
+20:19:55  INFO      Writing outputs …
+20:21:17  INFO      ============================================================
+20:21:17  INFO      Tactical Trading Analytics — Build Pipeline
+20:21:17  INFO      ============================================================
+20:21:17  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+20:21:17  INFO        Loaded 10 stocks from 'Fact_Portfolio'
+20:21:17  INFO      
+20:21:17  INFO      ── Portfolio Snapshot ──────────────
+20:21:17  INFO        Stocks   : 10
+20:21:17  INFO        Invested : ₹97,857.05
+20:21:17  INFO        Value    : ₹98,343.31
+20:21:17  INFO        P&L      : ₹+486.26 (0.50%)
+20:21:17  INFO        Heat     : 5.00% [Warning]
+20:21:17  INFO      
+20:21:17  INFO        Action [Hold]: 8 stock(s)
+20:21:17  INFO        Action [EXIT NOW]: 1 stock(s) ← ACTION NEEDED
+20:21:17  INFO        Action [Book 30%]: 1 stock(s) ← ACTION NEEDED
+20:21:17  INFO      
+20:21:17  INFO      Writing outputs …
+20:21:18  INFO      Excel saved: Tactical_Model_UPDATED.xlsx
+20:21:18  INFO        CSV: Fact_Portfolio.csv  (10 rows)
+20:21:18  INFO        CSV: Dim_Stock.csv  (10 stocks)
+20:21:18  INFO        CSV: Dim_Scenario.csv
+20:21:18  INFO        CSV: Fact_Prices.csv  (51 rows)
+20:22:36  INFO      ============================================================
+20:22:36  INFO      Tactical Trading Analytics — Build Pipeline
+20:22:36  INFO      ============================================================
+20:22:36  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+20:22:36  INFO        Loaded 10 stocks from 'Fact_Portfolio'
+20:22:36  INFO      
+20:22:36  INFO      ── Portfolio Snapshot ──────────────
+20:22:36  INFO        Stocks   : 10
+20:22:36  INFO        Invested : ₹97,857.05
+20:22:36  INFO        Value    : ₹98,343.31
+20:22:36  INFO        P&L      : ₹+486.26 (0.50%)
+20:22:36  INFO        Heat     : 5.00% [Warning]
+20:22:36  INFO      
+20:22:36  INFO        Action [Hold]: 8 stock(s)
+20:22:36  INFO        Action [EXIT NOW]: 1 stock(s) ← ACTION NEEDED
+20:22:36  INFO        Action [Book 30%]: 1 stock(s) ← ACTION NEEDED
+20:22:36  INFO      
+20:22:36  INFO      Writing outputs …
+20:22:36  INFO      Excel saved: Tactical_Model_UPDATED.xlsx
+20:22:36  INFO        CSV: Fact_Portfolio.csv  (10 rows)
+20:22:36  INFO        CSV: Dim_Stock.csv  (10 stocks)
+20:22:36  INFO        CSV: Dim_Scenario.csv
+20:22:36  INFO        CSV: Fact_Prices.csv  (0 rows)
+20:22:36  INFO      HTML dashboard saved: tactical_dashboard.html
+20:22:36  INFO      
+20:22:36  INFO      ============================================================
+20:22:36  INFO      BUILD COMPLETE
+20:22:36  INFO        Excel   : Tactical_Model_UPDATED.xlsx
+20:22:36  INFO        HTML    : tactical_dashboard.html
+20:22:36  INFO        CSVs    : Fact_Portfolio | Dim_Stock | Dim_Scenario | Fact_Prices
+20:22:36  INFO        Log     : build_model.log
+20:22:36  INFO      ============================================================
+20:29:48  INFO      ============================================================
+20:29:48  INFO      Tactical Trading Analytics — Build Pipeline
+20:29:48  INFO      ============================================================
+20:29:48  ERROR     EXCEL FILE IS LOCKED — another application has it open.
+20:29:48  ERROR       Close Excel (or Power BI) holding Tactical_Model_INSTITUTIONAL.xlsx, then retry.
+20:29:48  ERROR       Lock file: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\~$Tactical_Model_INSTITUTIONAL.xlsx
+20:30:41  INFO      ============================================================
+20:30:41  INFO      Tactical Trading Analytics — Build Pipeline
+20:30:41  INFO      ============================================================
+20:30:41  ERROR     EXCEL FILE IS LOCKED — another application has it open.
+20:30:41  ERROR       Close Excel (or Power BI) holding Tactical_Model_INSTITUTIONAL.xlsx, then retry.
+20:30:41  ERROR       Lock file: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\~$Tactical_Model_INSTITUTIONAL.xlsx
+20:31:20  INFO      ============================================================
+20:31:20  INFO      Tactical Trading Analytics — Build Pipeline
+20:31:20  INFO      ============================================================
+20:31:20  ERROR     EXCEL FILE IS LOCKED — another application has it open.
+20:31:20  ERROR       Close Excel (or Power BI) holding Tactical_Model_INSTITUTIONAL.xlsx, then retry.
+20:31:20  ERROR       Lock file: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\~$Tactical_Model_INSTITUTIONAL.xlsx
+20:33:05  INFO      ============================================================
+20:33:05  INFO      Tactical Trading Analytics — Build Pipeline
+20:33:05  INFO      ============================================================
+20:33:05  INFO      Pre-flight OK — source file accessible
+20:33:05  INFO      Backup created: Tactical_Model_INSTITUTIONAL_20260302.xlsx
+20:33:05  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+20:33:05  INFO        Loaded 10 stocks from 'Fact_Portfolio'
+20:33:05  INFO      
+20:33:05  INFO      ── Portfolio Snapshot ──────────────
+20:33:05  INFO        Stocks   : 10
+20:33:05  INFO        Invested : ₹97,857.05
+20:33:05  INFO        Value    : ₹98,343.31
+20:33:05  INFO        P&L      : ₹+486.26 (0.50%)
+20:33:05  INFO        Heat     : 5.00% [Warning]
+20:33:05  INFO      
+20:33:05  INFO        Action [Hold]: 8 stock(s)
+20:33:05  INFO        Action [EXIT NOW]: 1 stock(s) ← ACTION NEEDED
+20:33:05  INFO        Action [Book 30%]: 1 stock(s) ← ACTION NEEDED
+20:33:05  INFO      
+20:33:05  INFO      Writing outputs …
+20:33:05  INFO      Excel saved: Tactical_Model_UPDATED.xlsx
+20:33:05  INFO        CSV: Fact_Portfolio.csv  (10 rows)
+20:33:05  INFO        CSV: Dim_Stock.csv  (10 stocks)
+20:33:05  INFO        CSV: Dim_Scenario.csv
+20:33:05  INFO        CSV: Fact_Prices.csv  (0 rows)
+20:33:05  INFO      Pipeline Status CSV saved: Pipeline_Status.csv
+20:33:05  INFO      HTML dashboard saved: tactical_dashboard.html
+20:33:05  INFO      
+20:33:05  INFO      ============================================================
+20:33:05  INFO      BUILD COMPLETE in 0.46 seconds
+20:33:05  INFO        Excel   : Tactical_Model_UPDATED.xlsx
+20:33:05  INFO        HTML    : tactical_dashboard.html
+20:33:05  INFO        Status  : Pipeline_Status.csv
+20:33:05  INFO        CSVs    : Fact_Portfolio | Dim_Stock | Dim_Scenario | Fact_Prices
+20:33:05  INFO        Log     : build_model.log
+20:33:05  INFO      ============================================================
+21:07:09  INFO      ============================================================
+21:07:09  INFO      Tactical Trading Analytics — Build Pipeline
+21:07:09  INFO      ============================================================
+21:07:09  INFO      Pre-flight OK — source file accessible
+21:07:09  INFO      Backup already exists for today: Tactical_Model_INSTITUTIONAL_20260302.xlsx
+21:07:09  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+21:07:09  INFO        Loaded 12 stocks from 'Fact_Portfolio'
+21:07:09  WARNING     [PMC Fincorp] Current Price is blank — using Entry Price (1.72) as fallback
+21:07:09  WARNING     [Trident] Current Price is blank — using Entry Price (26.57) as fallback
+21:07:09  INFO      
+21:07:09  INFO      ── Portfolio Snapshot ──────────────
+21:07:09  INFO        Stocks   : 12
+21:07:09  INFO        Invested : ₹97,564.90
+21:07:09  INFO        Value    : ₹99,335.93
+21:07:09  INFO        P&L      : ₹+1,771.03 (1.82%)
+21:07:09  INFO        Heat     : 4.30% [Warning]
+21:07:09  INFO      
+21:07:09  INFO        Action [Hold]: 9 stock(s)
+21:07:09  INFO        Action [EXIT NOW]: 1 stock(s) ← ACTION NEEDED
+21:07:09  INFO        Action [Reduce 30%]: 1 stock(s) ← ACTION NEEDED
+21:07:09  INFO        Action [Book 30%]: 1 stock(s) ← ACTION NEEDED
+21:07:09  INFO      
+21:07:09  INFO      Writing outputs …
+21:07:09  INFO      Excel saved: Tactical_Model_UPDATED.xlsx
+21:07:09  INFO        CSV: Fact_Portfolio.csv  (12 rows)
+21:07:09  INFO        CSV: Dim_Stock.csv  (12 stocks)
+21:07:09  INFO        CSV: Dim_Scenario.csv
+21:07:09  INFO        CSV: Fact_Prices.csv  (0 rows)
+21:07:09  INFO      Pipeline Status CSV saved: Pipeline_Status.csv
+21:07:09  INFO      HTML dashboard saved: tactical_dashboard.html
+21:07:09  INFO      
+21:07:09  INFO      ============================================================
+21:07:09  INFO      BUILD COMPLETE in 0.34 seconds
+21:07:09  INFO        Excel   : Tactical_Model_UPDATED.xlsx
+21:07:09  INFO        HTML    : tactical_dashboard.html
+21:07:09  INFO        Status  : Pipeline_Status.csv
+21:07:09  INFO        CSVs    : Fact_Portfolio | Dim_Stock | Dim_Scenario | Fact_Prices
+21:07:09  INFO        Log     : build_model.log
+21:07:09  INFO      ============================================================
+21:28:39  INFO      ============================================================
+21:28:39  INFO      Tactical Trading Analytics — Build Pipeline
+21:28:39  INFO      ============================================================
+21:28:39  INFO      Pre-flight OK — source file accessible
+21:28:39  INFO      Backup already exists for today: Tactical_Model_INSTITUTIONAL_20260302.xlsx
+21:28:39  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+21:28:39  INFO        Loaded 12 stocks from 'Fact_Portfolio'
+21:28:39  WARNING     [PMC Fincorp] Current Price is blank — using Entry Price (1.72) as fallback
+21:28:39  WARNING     [Trident] Current Price is blank — using Entry Price (26.57) as fallback
+21:28:39  INFO      
+21:28:39  INFO      ── Portfolio Snapshot ──────────────
+21:28:39  INFO        Stocks   : 12
+21:28:39  INFO        Invested : ₹97,564.90
+21:28:39  INFO        Value    : ₹99,335.93
+21:28:39  INFO        P&L      : ₹+1,771.03 (1.82%)
+21:28:39  INFO        Heat     : 4.30% [Warning]
+21:28:39  INFO      
+21:28:39  INFO        Action [Hold]: 9 stock(s)
+21:28:39  INFO        Action [EXIT NOW]: 1 stock(s) ← ACTION NEEDED
+21:28:39  INFO        Action [Reduce 30%]: 1 stock(s) ← ACTION NEEDED
+21:28:39  INFO        Action [Book 30%]: 1 stock(s) ← ACTION NEEDED
+21:28:39  INFO      
+21:28:39  INFO      Writing outputs …
+21:28:39  INFO      Excel saved: Tactical_Model_UPDATED.xlsx
+21:28:39  INFO        CSV: Fact_Portfolio.csv  (12 rows)
+21:28:39  INFO        CSV: Dim_Stock.csv  (12 stocks)
+21:28:39  INFO        CSV: Dim_Scenario.csv
+21:28:39  INFO        CSV: Fact_Prices.csv  (0 rows)
+21:28:39  INFO      Pipeline Status CSV saved: Pipeline_Status.csv
+21:28:39  INFO      HTML dashboard saved: tactical_dashboard.html
+21:28:39  INFO      Formula verification: Portfolio_Master G2 has formula =E2*1.06
+21:28:39  INFO      Formula verification: Stock_Visualization_Data G2 has formula =XLOOKUP(A2, Portfolio_Master!$A:$A, Portfolio_Master!$I:$I)
+21:28:39  INFO      
+21:28:39  INFO      ============================================================
+21:28:39  INFO      BUILD COMPLETE in 0.38 seconds
+21:28:39  INFO        Excel   : Tactical_Model_UPDATED.xlsx
+21:28:39  INFO        HTML    : tactical_dashboard.html
+21:28:39  INFO        Status  : Pipeline_Status.csv
+21:28:39  INFO        CSVs    : Fact_Portfolio | Dim_Stock | Dim_Scenario | Fact_Prices
+21:28:39  INFO        Log     : build_model.log
+21:28:39  INFO      ============================================================
+21:31:01  INFO      ============================================================
+21:31:01  INFO      Tactical Trading Analytics — Build Pipeline
+21:31:01  INFO      ============================================================
+21:31:01  INFO      Pre-flight OK — source file accessible
+21:31:01  INFO      Backup already exists for today: Tactical_Model_INSTITUTIONAL_20260302.xlsx
+21:31:01  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+21:31:01  INFO        Loaded 12 stocks from 'Fact_Portfolio'
+21:31:01  WARNING     [PMC Fincorp] Current Price is blank — using Entry Price (1.72) as fallback
+21:31:01  WARNING     [Trident] Current Price is blank — using Entry Price (26.57) as fallback
+21:31:01  INFO      
+21:31:01  INFO      ── Portfolio Snapshot ──────────────
+21:31:01  INFO        Stocks   : 12
+21:31:01  INFO        Invested : ₹97,564.90
+21:31:01  INFO        Value    : ₹99,335.93
+21:31:01  INFO        P&L      : ₹+1,771.03 (1.82%)
+21:31:01  INFO        Heat     : 4.30% [Warning]
+21:31:01  INFO      
+21:31:01  INFO        Action [Hold]: 9 stock(s)
+21:31:01  INFO        Action [EXIT NOW]: 1 stock(s) ← ACTION NEEDED
+21:31:01  INFO        Action [Reduce 30%]: 1 stock(s) ← ACTION NEEDED
+21:31:01  INFO        Action [Book 30%]: 1 stock(s) ← ACTION NEEDED
+21:31:01  INFO      
+21:31:01  INFO      Writing outputs …
+21:31:01  INFO      Excel saved: Tactical_Model_UPDATED.xlsx
+21:31:01  INFO        CSV: Fact_Portfolio.csv  (12 rows)
+21:31:01  INFO        CSV: Dim_Stock.csv  (12 stocks)
+21:31:01  INFO        CSV: Dim_Scenario.csv
+21:31:01  INFO        CSV: Fact_Prices.csv  (0 rows)
+21:31:01  INFO      Pipeline Status CSV saved: Pipeline_Status.csv
+21:31:01  INFO      HTML dashboard saved: tactical_dashboard.html
+21:31:01  INFO      Formula verification: Portfolio_Master G2 has formula =E2*1.06
+21:31:01  INFO      Formula verification: Stock_Visualization_Data G2 has formula =XLOOKUP(A2, Portfolio_Master!$A:$A, Portfolio_Master!$I:$I)
+21:31:01  INFO      
+21:31:01  INFO      ============================================================
+21:31:01  INFO      BUILD COMPLETE in 0.33 seconds
+21:31:01  INFO        Excel   : Tactical_Model_UPDATED.xlsx
+21:31:01  INFO        HTML    : tactical_dashboard.html
+21:31:01  INFO        Status  : Pipeline_Status.csv
+21:31:01  INFO        CSVs    : Fact_Portfolio | Dim_Stock | Dim_Scenario | Fact_Prices
+21:31:01  INFO        Log     : build_model.log
+21:31:01  INFO      ============================================================
+22:04:00  INFO      ============================================================
+22:04:00  INFO      Tactical Trading Analytics — Build Pipeline
+22:04:00  INFO      ============================================================
+22:04:00  INFO      Pre-flight OK — source file accessible
+22:04:00  INFO      Backup already exists for today: Tactical_Model_INSTITUTIONAL_20260302.xlsx
+22:04:00  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+22:04:00  INFO        Loaded 12 stocks from 'Fact_Portfolio'
+22:04:00  WARNING     [PMC Fincorp] Current Price is blank — using Entry Price (1.72) as fallback
+22:04:00  WARNING     [Trident] Current Price is blank — using Entry Price (26.57) as fallback
+22:04:00  INFO      
+22:04:00  INFO      ── Portfolio Snapshot ──────────────
+22:04:00  INFO        Stocks   : 12
+22:04:00  INFO        Invested : ₹97,564.90
+22:04:00  INFO        Value    : ₹99,335.93
+22:04:00  INFO        P&L      : ₹+1,771.03 (1.82%)
+22:04:00  INFO        Heat     : 4.30% [Warning]
+22:04:00  INFO      
+22:04:00  INFO        Action [Hold]: 9 stock(s)
+22:04:00  INFO        Action [EXIT NOW]: 1 stock(s) ← ACTION NEEDED
+22:04:00  INFO        Action [Reduce 30%]: 1 stock(s) ← ACTION NEEDED
+22:04:00  INFO        Action [Book 30%]: 1 stock(s) ← ACTION NEEDED
+22:04:00  INFO      
+22:04:00  INFO      Writing outputs …
+22:04:01  INFO      Excel saved: Tactical_Model_UPDATED.xlsx
+22:04:01  INFO        CSV: Fact_Portfolio.csv  (12 rows)
+22:04:01  INFO        CSV: Dim_Stock.csv  (12 stocks)
+22:04:01  INFO        CSV: Dim_Scenario.csv
+22:04:01  INFO        CSV: Fact_Prices.csv  (0 rows)
+22:04:01  INFO      Pipeline Status CSV saved: Pipeline_Status.csv
+22:04:01  INFO      HTML dashboard saved: tactical_dashboard.html
+22:04:01  INFO      Formula verification: Portfolio_Master G2 has formula =E2*1.06
+22:04:01  INFO      Formula verification: Stock_Visualization_Data G2 has formula =XLOOKUP(A2, Portfolio_Master!$A:$A, Portfolio_Master!$I:$I)
+22:04:01  INFO      
+22:04:01  INFO      ============================================================
+22:04:01  INFO      BUILD COMPLETE in 0.29 seconds
+22:04:01  INFO        Excel   : Tactical_Model_UPDATED.xlsx
+22:04:01  INFO        HTML    : tactical_dashboard.html
+22:04:01  INFO        Status  : Pipeline_Status.csv
+22:04:01  INFO        CSVs    : Fact_Portfolio | Dim_Stock | Dim_Scenario | Fact_Prices
+22:04:01  INFO        Log     : build_model.log
+22:04:01  INFO      ============================================================
+22:12:30  INFO      ============================================================
+22:12:30  INFO      Tactical Trading Analytics — Build Pipeline
+22:12:30  INFO      ============================================================
+22:12:30  INFO      Pre-flight OK — source file accessible
+22:12:30  INFO      Backup already exists for today: Tactical_Model_INSTITUTIONAL_20260302.xlsx
+22:12:30  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+22:12:30  INFO        Loaded 12 stocks from 'Fact_Portfolio'
+22:12:30  INFO      
+22:12:30  INFO      ── Portfolio Snapshot ──────────────
+22:12:30  INFO        Stocks   : 12
+22:12:30  INFO        Invested : ₹97,564.90
+22:12:30  INFO        Value    : ₹99,354.50
+22:12:30  INFO        P&L      : ₹+1,789.60 (1.83%)
+22:12:30  INFO        Heat     : 4.32% [Warning]
+22:12:30  INFO      
+22:12:30  INFO        Action [Hold]: 7 stock(s)
+22:12:30  INFO        Action [EXIT NOW]: 2 stock(s) ← ACTION NEEDED
+22:12:30  INFO        Action [Reduce 30%]: 1 stock(s) ← ACTION NEEDED
+22:12:30  INFO        Action [Book 30%]: 2 stock(s) ← ACTION NEEDED
+22:12:30  INFO      
+22:12:30  INFO      Writing outputs …
+22:12:30  INFO      Excel saved: Tactical_Model_UPDATED.xlsx
+22:12:30  INFO        CSV: Fact_Portfolio.csv  (12 rows)
+22:12:30  INFO        CSV: Dim_Stock.csv  (12 stocks)
+22:12:30  INFO        CSV: Dim_Scenario.csv
+22:12:30  INFO        CSV: Fact_Prices.csv  (0 rows)
+22:12:30  INFO      Pipeline Status CSV saved: Pipeline_Status.csv
+22:12:31  INFO      HTML dashboard saved: tactical_dashboard.html
+22:12:31  INFO      Formula verification: Portfolio_Master G2 has formula =E2*1.06
+22:12:31  INFO      Formula verification: Stock_Visualization_Data G2 has formula =XLOOKUP(A2, Portfolio_Master!$A:$A, Portfolio_Master!$I:$I)
+22:12:31  INFO      
+22:12:31  INFO      ============================================================
+22:12:31  INFO      BUILD COMPLETE in 0.36 seconds
+22:12:31  INFO        Excel   : Tactical_Model_UPDATED.xlsx
+22:12:31  INFO        HTML    : tactical_dashboard.html
+22:12:31  INFO        Status  : Pipeline_Status.csv
+22:12:31  INFO        CSVs    : Fact_Portfolio | Dim_Stock | Dim_Scenario | Fact_Prices
+22:12:31  INFO        Log     : build_model.log
+22:12:31  INFO      ============================================================
+22:30:16  INFO      ============================================================
+22:30:16  INFO      Tactical Trading Analytics — Build Pipeline
+22:30:16  INFO      ============================================================
+22:30:16  INFO      Pre-flight OK — source file accessible
+22:30:16  INFO      Backup already exists for today: Tactical_Model_INSTITUTIONAL_20260302.xlsx
+22:30:16  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+22:30:16  INFO        Loaded 10 stocks from 'Fact_Portfolio'
+22:30:16  INFO      
+22:30:16  INFO      ── Portfolio Snapshot ──────────────
+22:30:16  INFO        Stocks   : 10
+22:30:16  INFO        Invested : ₹97,154.95
+22:30:16  INFO        Value    : ₹98,925.98
+22:30:16  INFO        P&L      : ₹+1,771.03 (1.82%)
+22:30:16  INFO        Heat     : 4.31% [Warning]
+22:30:16  INFO      
+22:30:16  INFO        Action [Hold]: 7 stock(s)
+22:30:16  INFO        Action [EXIT NOW]: 1 stock(s) ← ACTION NEEDED
+22:30:16  INFO        Action [Reduce 30%]: 1 stock(s) ← ACTION NEEDED
+22:30:16  INFO        Action [Book 30%]: 1 stock(s) ← ACTION NEEDED
+22:30:16  INFO      
+22:30:16  INFO      Writing outputs …
+22:30:17  INFO      Excel saved: Tactical_Model_UPDATED.xlsx
+22:30:17  INFO        CSV: Fact_Portfolio.csv  (10 rows)
+22:30:17  INFO        CSV: Dim_Stock.csv  (10 stocks)
+22:30:17  INFO        CSV: Dim_Scenario.csv
+22:30:17  INFO        CSV: Fact_Prices.csv  (0 rows)
+22:30:17  INFO      Pipeline Status CSV saved: Pipeline_Status.csv
+22:30:17  INFO      HTML dashboard saved: tactical_dashboard.html
+22:30:17  INFO      Formula verification: Portfolio_Master G2 has formula =E2*1.06
+22:30:17  INFO      Formula verification: Stock_Visualization_Data G2 has formula =XLOOKUP(A2, Portfolio_Master!$A:$A, Portfolio_Master!$I:$I)
+22:30:17  INFO      
+22:30:17  INFO      ============================================================
+22:30:17  INFO      BUILD COMPLETE in 0.30 seconds
+22:30:17  INFO        Excel   : Tactical_Model_UPDATED.xlsx
+22:30:17  INFO        HTML    : tactical_dashboard.html
+22:30:17  INFO        Status  : Pipeline_Status.csv
+22:30:17  INFO        CSVs    : Fact_Portfolio | Dim_Stock | Dim_Scenario | Fact_Prices
+22:30:17  INFO        Log     : build_model.log
+22:30:17  INFO      ============================================================
+22:33:01  INFO      ============================================================
+22:33:01  INFO      Tactical Trading Analytics — Build Pipeline
+22:33:01  INFO      ============================================================
+22:33:01  INFO      Pre-flight OK — source file accessible
+22:33:01  INFO      Backup created: Tactical_Model_INSTITUTIONAL_20260302.xlsx
+22:33:01  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+22:33:01  INFO        Loaded 12 stocks from 'Fact_Portfolio'
+22:33:01  WARNING     [PMC Fincorp] Current Price is blank — using Entry Price (1.72) as fallback
+22:33:01  WARNING     [Trident] Current Price is blank — using Entry Price (26.57) as fallback
+22:33:01  INFO      
+22:33:01  INFO      ── Portfolio Snapshot ──────────────
+22:33:01  INFO        Stocks   : 12
+22:33:01  INFO        Invested : ₹97,564.90
+22:33:01  INFO        Value    : ₹99,335.93
+22:33:01  INFO        P&L      : ₹+1,771.03 (1.82%)
+22:33:01  INFO        Heat     : 4.30% [Warning]
+22:33:01  INFO      
+22:33:01  INFO        Action [Hold]: 9 stock(s)
+22:33:01  INFO        Action [EXIT NOW]: 1 stock(s) ← ACTION NEEDED
+22:33:01  INFO        Action [Reduce 30%]: 1 stock(s) ← ACTION NEEDED
+22:33:01  INFO        Action [Book 30%]: 1 stock(s) ← ACTION NEEDED
+22:33:01  INFO      
+22:33:01  INFO      Writing outputs …
+22:33:01  INFO      Excel saved: Tactical_Model_UPDATED.xlsx
+22:33:01  INFO        CSV: Fact_Portfolio.csv  (12 rows)
+22:33:01  INFO        CSV: Dim_Stock.csv  (12 stocks)
+22:33:01  INFO        CSV: Dim_Scenario.csv
+22:33:01  INFO        CSV: Fact_Prices.csv  (0 rows)
+22:33:01  INFO      Pipeline Status CSV saved: Pipeline_Status.csv
+22:33:01  INFO      HTML dashboard saved: tactical_dashboard.html
+22:33:01  INFO      Formula verification: Portfolio_Master G2 has formula =E2*1.06
+22:33:01  INFO      Formula verification: Stock_Visualization_Data G2 has formula =XLOOKUP(A2, Portfolio_Master!$A:$A, Portfolio_Master!$I:$I)
+22:33:01  INFO      
+22:33:01  INFO      ============================================================
+22:33:01  INFO      BUILD COMPLETE in 0.37 seconds
+22:33:01  INFO        Excel   : Tactical_Model_UPDATED.xlsx
+22:33:01  INFO        HTML    : tactical_dashboard.html
+22:33:01  INFO        Status  : Pipeline_Status.csv
+22:33:01  INFO        CSVs    : Fact_Portfolio | Dim_Stock | Dim_Scenario | Fact_Prices
+22:33:01  INFO        Log     : build_model.log
+22:33:01  INFO      ============================================================
+22:36:14  INFO      ============================================================
+22:36:14  INFO      Tactical Trading Analytics — Build Pipeline
+22:36:14  INFO      ============================================================
+22:36:14  INFO      Pre-flight OK — source file accessible
+22:36:14  INFO      Backup already exists for today: Tactical_Model_INSTITUTIONAL_20260302.xlsx
+22:36:14  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+22:36:14  INFO        Loaded 12 stocks from 'Fact_Portfolio'
+22:36:14  WARNING     [PMC Fincorp] Current Price is blank — using Entry Price (1.72) as fallback
+22:36:14  WARNING     [Trident] Current Price is blank — using Entry Price (26.57) as fallback
+22:36:14  INFO      
+22:36:14  INFO      ── Portfolio Snapshot ──────────────
+22:36:14  INFO        Stocks   : 12
+22:36:14  INFO        Invested : ₹97,564.90
+22:36:14  INFO        Value    : ₹99,335.93
+22:36:14  INFO        P&L      : ₹+1,771.03 (1.82%)
+22:36:14  INFO        Heat     : 4.30% [Warning]
+22:36:14  INFO      
+22:36:14  INFO        Action [Hold]: 9 stock(s)
+22:36:14  INFO        Action [EXIT NOW]: 1 stock(s) ← ACTION NEEDED
+22:36:14  INFO        Action [Reduce 30%]: 1 stock(s) ← ACTION NEEDED
+22:36:14  INFO        Action [Book 30%]: 1 stock(s) ← ACTION NEEDED
+22:36:14  INFO      
+22:36:14  INFO      Writing outputs …
+22:36:14  INFO      Excel saved: Tactical_Model_UPDATED.xlsx
+22:36:14  INFO        CSV: Fact_Portfolio.csv  (12 rows)
+22:36:14  INFO        CSV: Dim_Stock.csv  (12 stocks)
+22:36:14  INFO        CSV: Dim_Scenario.csv
+22:36:14  INFO        CSV: Fact_Prices.csv  (0 rows)
+22:36:14  INFO      Pipeline Status CSV saved: Pipeline_Status.csv
+22:36:14  INFO      HTML dashboard saved: tactical_dashboard.html
+22:36:14  INFO      Formula verification: Portfolio_Master G2 has formula =E2*1.06
+22:36:14  INFO      Formula verification: Stock_Visualization_Data G2 has formula =XLOOKUP(A2, Portfolio_Master!$A:$A, Portfolio_Master!$I:$I)
+22:36:14  INFO      
+22:36:14  INFO      ============================================================
+22:36:14  INFO      BUILD COMPLETE in 0.28 seconds
+22:36:14  INFO        Excel   : Tactical_Model_UPDATED.xlsx
+22:36:14  INFO        HTML    : tactical_dashboard.html
+22:36:14  INFO        Status  : Pipeline_Status.csv
+22:36:14  INFO        CSVs    : Fact_Portfolio | Dim_Stock | Dim_Scenario | Fact_Prices
+22:36:14  INFO        Log     : build_model.log
+22:36:14  INFO      ============================================================
+22:42:12  INFO      ============================================================
+22:42:12  INFO      Tactical Trading Analytics — Build Pipeline
+22:42:12  INFO      ============================================================
+22:42:12  INFO      Pre-flight OK — source file accessible
+22:42:12  INFO      Backup already exists for today: Tactical_Model_INSTITUTIONAL_20260302.xlsx
+22:42:12  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+22:42:12  INFO        Loaded 12 stocks from 'Fact_Portfolio'
+22:42:12  WARNING     [PMC Fincorp] Stop Loss blank — auto-set to -5% of Entry (1.63)
+22:42:12  WARNING     [PMC Fincorp] Target 1 blank — auto-set to +6% of Entry (1.82)
+22:42:12  WARNING     [PMC Fincorp] Target 2 blank — auto-set to +10% of Entry (1.89)
+22:42:12  WARNING     [PMC Fincorp] Target 3 blank — auto-set to +15% of Entry (1.98)
+22:42:12  WARNING     [PMC Fincorp] Current Price is blank — using Entry Price (1.72) as fallback
+22:42:12  WARNING     [Trident] Stop Loss blank — auto-set to -5% of Entry (25.24)
+22:42:12  WARNING     [Trident] Target 1 blank — auto-set to +6% of Entry (28.16)
+22:42:12  WARNING     [Trident] Target 2 blank — auto-set to +10% of Entry (29.23)
+22:42:12  WARNING     [Trident] Target 3 blank — auto-set to +15% of Entry (30.56)
+22:42:12  WARNING     [Trident] Current Price is blank — using Entry Price (26.57) as fallback
+22:42:12  INFO      
+22:42:12  INFO      ── Portfolio Snapshot ──────────────
+22:42:12  INFO        Stocks   : 12
+22:42:12  INFO        Invested : ₹97,564.90
+22:42:12  INFO        Value    : ₹99,335.93
+22:42:12  INFO        P&L      : ₹+1,771.03 (1.82%)
+22:42:12  INFO        Heat     : 4.32% [Warning]
+22:42:12  INFO      
+22:42:12  INFO        Action [Hold]: 9 stock(s)
+22:42:12  INFO        Action [EXIT NOW]: 1 stock(s) ← ACTION NEEDED
+22:42:12  INFO        Action [Reduce 30%]: 1 stock(s) ← ACTION NEEDED
+22:42:12  INFO        Action [Book 30%]: 1 stock(s) ← ACTION NEEDED
+22:42:12  INFO      
+22:42:12  INFO      Writing outputs …
+22:42:12  INFO      Excel saved: Tactical_Model_UPDATED.xlsx
+22:42:12  INFO        CSV: Fact_Portfolio.csv  (12 rows)
+22:42:12  INFO        CSV: Dim_Stock.csv  (12 stocks)
+22:42:12  INFO        CSV: Dim_Scenario.csv
+22:42:12  INFO        CSV: Fact_Prices.csv  (0 rows)
+22:42:12  INFO      Pipeline Status CSV saved: Pipeline_Status.csv
+22:42:12  INFO      HTML dashboard saved: tactical_dashboard.html
+22:42:12  INFO      Formula verification: Portfolio_Master G2 has formula =E2*1.06
+22:42:12  INFO      Formula verification: Stock_Visualization_Data G2 has formula =XLOOKUP(A2, Portfolio_Master!$A:$A, Portfolio_Master!$I:$I)
+22:42:12  INFO      
+22:42:12  INFO      ============================================================
+22:42:12  INFO      BUILD COMPLETE in 0.36 seconds
+22:42:12  INFO        Excel   : Tactical_Model_UPDATED.xlsx
+22:42:12  INFO        HTML    : tactical_dashboard.html
+22:42:12  INFO        Status  : Pipeline_Status.csv
+22:42:12  INFO        CSVs    : Fact_Portfolio | Dim_Stock | Dim_Scenario | Fact_Prices
+22:42:12  INFO        Log     : build_model.log
+22:42:12  INFO      ============================================================
+22:48:03  INFO      ============================================================
+22:48:03  INFO      Tactical Trading Analytics — Build Pipeline
+22:48:03  INFO      ============================================================
+22:48:03  INFO      Pre-flight OK — source file accessible
+22:48:03  INFO      Backup already exists for today: Tactical_Model_INSTITUTIONAL_20260302.xlsx
+22:48:03  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+22:48:04  INFO        Loaded 12 stocks from 'Fact_Portfolio'
+22:48:04  WARNING     [PMC Fincorp] Current Price is blank — using Entry Price (1.72) as fallback
+22:48:04  WARNING     [Trident] Current Price is blank — using Entry Price (26.57) as fallback
+22:48:04  INFO      
+22:48:04  INFO      ── Portfolio Snapshot ──────────────
+22:48:04  INFO        Stocks   : 12
+22:48:04  INFO        Invested : ₹97,564.90
+22:48:04  INFO        Value    : ₹99,335.93
+22:48:04  INFO        P&L      : ₹+1,771.03 (1.82%)
+22:48:04  INFO        Heat     : 4.32% [Warning]
+22:48:04  INFO      
+22:48:04  INFO        Action [Hold]: 9 stock(s)
+22:48:04  INFO        Action [EXIT NOW]: 1 stock(s) ← ACTION NEEDED
+22:48:04  INFO        Action [Reduce 30%]: 1 stock(s) ← ACTION NEEDED
+22:48:04  INFO        Action [Book 30%]: 1 stock(s) ← ACTION NEEDED
+22:48:04  INFO      
+22:48:04  INFO      Writing outputs …
+22:48:04  INFO      Excel saved: Tactical_Model_UPDATED.xlsx
+22:48:04  INFO        CSV: Fact_Portfolio.csv  (12 rows)
+22:48:04  INFO        CSV: Dim_Stock.csv  (12 stocks)
+22:48:04  INFO        CSV: Dim_Scenario.csv
+22:48:04  INFO        CSV: Fact_Prices.csv  (0 rows)
+22:48:04  INFO      Pipeline Status CSV saved: Pipeline_Status.csv
+22:48:04  INFO      HTML dashboard saved: tactical_dashboard.html
+22:48:04  INFO      Formula verification: Portfolio_Master G2 has formula =E2*1.06
+22:48:04  INFO      Formula verification: Stock_Visualization_Data G2 has formula =XLOOKUP(A2, Portfolio_Master!$A:$A, Portfolio_Master!$I:$I)
+22:48:04  INFO      
+22:48:04  INFO      ============================================================
+22:48:04  INFO      BUILD COMPLETE in 0.30 seconds
+22:48:04  INFO        Excel   : Tactical_Model_UPDATED.xlsx
+22:48:04  INFO        HTML    : tactical_dashboard.html
+22:48:04  INFO        Status  : Pipeline_Status.csv
+22:48:04  INFO        CSVs    : Fact_Portfolio | Dim_Stock | Dim_Scenario | Fact_Prices
+22:48:04  INFO        Log     : build_model.log
+22:48:04  INFO      ============================================================
+22:51:51  INFO      ============================================================
+22:51:51  INFO      Tactical Trading Analytics — Build Pipeline
+22:51:51  INFO      ============================================================
+22:51:51  INFO      Pre-flight OK — source file accessible
+22:51:51  INFO      Backup already exists for today: Tactical_Model_INSTITUTIONAL_20260302.xlsx
+22:51:51  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+22:51:51  INFO        Loaded 12 stocks from 'Fact_Portfolio'
+22:51:51  WARNING     [PMC Fincorp] Stop Loss blank — auto-set to -5% of Entry (1.63)
+22:51:51  WARNING     [PMC Fincorp] Target 1 blank — auto-set to +6% of Entry (1.82)
+22:51:51  WARNING     [PMC Fincorp] Target 2 blank — auto-set to +10% of Entry (1.89)
+22:51:51  WARNING     [PMC Fincorp] Target 3 blank — auto-set to +15% of Entry (1.98)
+22:51:51  WARNING     [PMC Fincorp] Current Price is blank — using Entry Price (1.72) as fallback
+22:51:51  WARNING     [Trident] Stop Loss blank — auto-set to -5% of Entry (25.24)
+22:51:51  WARNING     [Trident] Target 1 blank — auto-set to +6% of Entry (28.16)
+22:51:51  WARNING     [Trident] Target 2 blank — auto-set to +10% of Entry (29.23)
+22:51:51  WARNING     [Trident] Target 3 blank — auto-set to +15% of Entry (30.56)
+22:51:51  WARNING     [Trident] Current Price is blank — using Entry Price (26.57) as fallback
+22:51:51  INFO      
+22:51:51  INFO      ── Portfolio Snapshot ──────────────
+22:51:51  INFO        Stocks   : 12
+22:51:51  INFO        Invested : ₹97,564.90
+22:51:51  INFO        Value    : ₹99,335.93
+22:51:51  INFO        P&L      : ₹+1,771.03 (1.82%)
+22:51:51  INFO        Heat     : 4.32% [Warning]
+22:51:51  INFO      
+22:51:51  INFO        Action [Hold]: 9 stock(s)
+22:51:51  INFO        Action [EXIT NOW]: 1 stock(s) ← ACTION NEEDED
+22:51:51  INFO        Action [Reduce 30%]: 1 stock(s) ← ACTION NEEDED
+22:51:51  INFO        Action [Book 30%]: 1 stock(s) ← ACTION NEEDED
+22:51:51  INFO      
+22:51:51  INFO      Writing outputs …
+22:51:52  INFO      Excel saved: Tactical_Model_UPDATED.xlsx
+22:51:52  INFO        CSV: Fact_Portfolio.csv  (12 rows)
+22:51:52  INFO        CSV: Dim_Stock.csv  (12 stocks)
+22:51:52  INFO        CSV: Dim_Scenario.csv
+22:51:52  INFO        CSV: Fact_Prices.csv  (0 rows)
+22:51:52  INFO      Pipeline Status CSV saved: Pipeline_Status.csv
+22:51:52  INFO      HTML dashboard saved: tactical_dashboard.html
+22:51:52  INFO      Formula verification: Portfolio_Master G2 has formula =E2*1.06
+22:51:52  INFO      Formula verification: Stock_Visualization_Data G2 has formula =XLOOKUP(A2, Portfolio_Master!$A:$A, Portfolio_Master!$I:$I)
+22:51:52  INFO      
+22:51:52  INFO      ============================================================
+22:51:52  INFO      BUILD COMPLETE in 0.30 seconds
+22:51:52  INFO        Excel   : Tactical_Model_UPDATED.xlsx
+22:51:52  INFO        HTML    : tactical_dashboard.html
+22:51:52  INFO        Status  : Pipeline_Status.csv
+22:51:52  INFO        CSVs    : Fact_Portfolio | Dim_Stock | Dim_Scenario | Fact_Prices
+22:51:52  INFO        Log     : build_model.log
+22:51:52  INFO      ============================================================
+22:52:34  INFO      ============================================================
+22:52:34  INFO      Tactical Trading Analytics — Build Pipeline
+22:52:34  INFO      ============================================================
+22:52:34  INFO      Pre-flight OK — source file accessible
+22:52:34  INFO      Backup already exists for today: Tactical_Model_INSTITUTIONAL_20260302.xlsx
+22:52:34  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+22:52:34  INFO        Loaded 12 stocks from 'Fact_Portfolio'
+22:52:34  WARNING     [PMC Fincorp] Stop Loss blank — auto-set to -5% of Entry (1.63)
+22:52:34  WARNING     [PMC Fincorp] Target 1 blank — auto-set to +6% of Entry (1.82)
+22:52:34  WARNING     [PMC Fincorp] Target 2 blank — auto-set to +10% of Entry (1.89)
+22:52:34  WARNING     [PMC Fincorp] Target 3 blank — auto-set to +15% of Entry (1.98)
+22:52:34  WARNING     [PMC Fincorp] Current Price is blank — using Entry Price (1.72) as fallback
+22:52:34  WARNING     [Trident] Stop Loss blank — auto-set to -5% of Entry (25.24)
+22:52:34  WARNING     [Trident] Target 1 blank — auto-set to +6% of Entry (28.16)
+22:52:34  WARNING     [Trident] Target 2 blank — auto-set to +10% of Entry (29.23)
+22:52:34  WARNING     [Trident] Target 3 blank — auto-set to +15% of Entry (30.56)
+22:52:34  WARNING     [Trident] Current Price is blank — using Entry Price (26.57) as fallback
+22:52:34  INFO      
+22:52:34  INFO      ── Portfolio Snapshot ──────────────
+22:52:34  INFO        Stocks   : 12
+22:52:34  INFO        Invested : ₹97,564.90
+22:52:34  INFO        Value    : ₹99,335.93
+22:52:34  INFO        P&L      : ₹+1,771.03 (1.82%)
+22:52:34  INFO        Heat     : 4.32% [Warning]
+22:52:34  INFO      
+22:52:34  INFO        Action [Hold]: 9 stock(s)
+22:52:34  INFO        Action [EXIT NOW]: 1 stock(s) ← ACTION NEEDED
+22:52:34  INFO        Action [Reduce 30%]: 1 stock(s) ← ACTION NEEDED
+22:52:34  INFO        Action [Book 30%]: 1 stock(s) ← ACTION NEEDED
+22:52:34  INFO      
+22:52:34  INFO      Writing outputs …
+22:52:34  INFO      Excel saved: Tactical_Model_UPDATED.xlsx
+22:52:34  INFO        CSV: Fact_Portfolio.csv  (12 rows)
+22:52:34  INFO        CSV: Dim_Stock.csv  (12 stocks)
+22:52:34  INFO        CSV: Dim_Scenario.csv
+22:52:34  INFO        CSV: Fact_Prices.csv  (0 rows)
+22:52:34  INFO      Pipeline Status CSV saved: Pipeline_Status.csv
+22:52:34  INFO      HTML dashboard saved: tactical_dashboard.html
+22:52:34  INFO      Formula verification: Portfolio_Master G2 has formula =E2*1.06
+22:52:34  INFO      Formula verification: Stock_Visualization_Data G2 has formula =XLOOKUP(A2, Portfolio_Master!$A:$A, Portfolio_Master!$I:$I)
+22:52:34  INFO      
+22:52:34  INFO      ============================================================
+22:52:34  INFO      BUILD COMPLETE in 0.29 seconds
+22:52:34  INFO        Excel   : Tactical_Model_UPDATED.xlsx
+22:52:34  INFO        HTML    : tactical_dashboard.html
+22:52:34  INFO        Status  : Pipeline_Status.csv
+22:52:34  INFO        CSVs    : Fact_Portfolio | Dim_Stock | Dim_Scenario | Fact_Prices
+22:52:34  INFO        Log     : build_model.log
+22:52:34  INFO      ============================================================
+22:57:27  INFO      ============================================================
+22:57:27  INFO      Tactical Trading Analytics — Build Pipeline
+22:57:27  INFO      ============================================================
+22:57:27  INFO      Pre-flight OK — source file accessible
+22:57:27  INFO      Backup already exists for today: Tactical_Model_INSTITUTIONAL_20260302.xlsx
+22:57:27  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+22:57:28  INFO        Loaded 12 stocks from 'Fact_Portfolio'
+22:57:28  WARNING     [PMC Fincorp] Stop Loss blank — auto-set to -5% of Entry (1.63)
+22:57:28  WARNING     [PMC Fincorp] Target 1 blank — auto-set to +6% of Entry (1.82)
+22:57:28  WARNING     [PMC Fincorp] Target 2 blank — auto-set to +10% of Entry (1.89)
+22:57:28  WARNING     [PMC Fincorp] Target 3 blank — auto-set to +15% of Entry (1.98)
+22:57:28  WARNING     [Trident] Stop Loss blank — auto-set to -5% of Entry (25.24)
+22:57:28  WARNING     [Trident] Target 1 blank — auto-set to +6% of Entry (28.16)
+22:57:28  WARNING     [Trident] Target 2 blank — auto-set to +10% of Entry (29.23)
+22:57:28  WARNING     [Trident] Target 3 blank — auto-set to +15% of Entry (30.56)
+22:57:28  INFO      
+22:57:28  INFO      ── Portfolio Snapshot ──────────────
+22:57:28  INFO        Stocks   : 12
+22:57:28  INFO        Invested : ₹97,564.90
+22:57:28  INFO        Value    : ₹99,354.50
+22:57:28  INFO        P&L      : ₹+1,789.60 (1.83%)
+22:57:28  INFO        Heat     : 4.32% [Warning]
+22:57:28  INFO      
+22:57:28  INFO        Action [Hold]: 7 stock(s)
+22:57:28  INFO        Action [EXIT NOW]: 2 stock(s) ← ACTION NEEDED
+22:57:28  INFO        Action [Reduce 30%]: 1 stock(s) ← ACTION NEEDED
+22:57:28  INFO        Action [Book 30%]: 2 stock(s) ← ACTION NEEDED
+22:57:28  INFO      
+22:57:28  INFO      Writing outputs …
+22:57:28  INFO      Excel saved: Tactical_Model_UPDATED.xlsx
+22:57:28  INFO        CSV: Fact_Portfolio.csv  (12 rows)
+22:57:28  INFO        CSV: Dim_Stock.csv  (12 stocks)
+22:57:28  INFO        CSV: Dim_Scenario.csv
+22:57:28  INFO        CSV: Fact_Prices.csv  (0 rows)
+22:57:28  INFO      Pipeline Status CSV saved: Pipeline_Status.csv
+22:57:28  INFO      HTML dashboard saved: tactical_dashboard.html
+22:57:28  INFO      Formula verification: Portfolio_Master G2 has formula =E2*1.06
+22:57:28  INFO      Formula verification: Stock_Visualization_Data G2 has formula =XLOOKUP(A2, Portfolio_Master!$A:$A, Portfolio_Master!$I:$I)
+22:57:28  INFO      
+22:57:28  INFO      ============================================================
+22:57:28  INFO      BUILD COMPLETE in 0.31 seconds
+22:57:28  INFO        Excel   : Tactical_Model_UPDATED.xlsx
+22:57:28  INFO        HTML    : tactical_dashboard.html
+22:57:28  INFO        Status  : Pipeline_Status.csv
+22:57:28  INFO        CSVs    : Fact_Portfolio | Dim_Stock | Dim_Scenario | Fact_Prices
+22:57:28  INFO        Log     : build_model.log
+22:57:28  INFO      ============================================================
+23:07:24  INFO      ============================================================
+23:07:24  INFO      Tactical Trading Analytics — Build Pipeline
+23:07:24  INFO      ============================================================
+23:07:24  INFO      Pre-flight OK — source file accessible
+23:07:24  INFO      Backup already exists for today: Tactical_Model_INSTITUTIONAL_20260302.xlsx
+23:07:24  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+23:07:24  INFO        Loaded 12 stocks from 'Fact_Portfolio'
+23:07:24  WARNING     [PMC Fincorp] Stop Loss blank — auto-set to -5% of Entry (1.63)
+23:07:24  WARNING     [PMC Fincorp] Target 1 blank — auto-set to +6% of Entry (1.82)
+23:07:24  WARNING     [PMC Fincorp] Target 2 blank — auto-set to +10% of Entry (1.89)
+23:07:24  WARNING     [PMC Fincorp] Target 3 blank — auto-set to +15% of Entry (1.98)
+23:07:24  WARNING     [Trident] Stop Loss blank — auto-set to -5% of Entry (25.24)
+23:07:24  WARNING     [Trident] Target 1 blank — auto-set to +6% of Entry (28.16)
+23:07:24  WARNING     [Trident] Target 2 blank — auto-set to +10% of Entry (29.23)
+23:07:24  WARNING     [Trident] Target 3 blank — auto-set to +15% of Entry (30.56)
+23:07:24  INFO      
+23:07:24  INFO      ── Portfolio Snapshot ──────────────
+23:07:24  INFO        Stocks   : 12
+23:07:24  INFO        Invested : ₹97,564.90
+23:07:24  INFO        Value    : ₹99,354.50
+23:07:24  INFO        P&L      : ₹+1,789.60 (1.83%)
+23:07:24  INFO        Heat     : 4.32% [Warning]
+23:07:24  INFO      
+23:07:24  INFO        Action [Hold]: 7 stock(s)
+23:07:24  INFO        Action [EXIT NOW]: 2 stock(s) ← ACTION NEEDED
+23:07:24  INFO        Action [Reduce 30%]: 1 stock(s) ← ACTION NEEDED
+23:07:24  INFO        Action [Book 30%]: 2 stock(s) ← ACTION NEEDED
+23:07:24  INFO      
+23:07:24  INFO      Writing outputs …
+23:07:24  INFO      Excel saved: Tactical_Model_UPDATED.xlsx
+23:07:24  INFO        CSV: Fact_Portfolio.csv  (12 rows)
+23:07:24  INFO        CSV: Dim_Stock.csv  (12 stocks)
+23:07:24  INFO        CSV: Dim_Scenario.csv
+23:07:24  INFO        CSV: Fact_Prices.csv  (0 rows)
+23:07:24  INFO      Pipeline Status CSV saved: Pipeline_Status.csv
+23:07:24  INFO      HTML dashboard saved: tactical_dashboard.html
+23:07:24  INFO      Source write-back: 12 stocks updated in Tactical_Model_INSTITUTIONAL.xlsx
+23:07:24  INFO      Formula verification: Portfolio_Master G2 has formula =E2*1.06
+23:07:24  INFO      Formula verification: Stock_Visualization_Data G2 has formula =XLOOKUP(A2, Portfolio_Master!$A:$A, Portfolio_Master!$I:$I)
+23:07:24  INFO      
+23:07:24  INFO      ============================================================
+23:07:24  INFO      BUILD COMPLETE in 0.47 seconds
+23:07:24  INFO        Excel   : Tactical_Model_UPDATED.xlsx
+23:07:24  INFO        HTML    : tactical_dashboard.html
+23:07:24  INFO        Status  : Pipeline_Status.csv
+23:07:24  INFO        CSVs    : Fact_Portfolio | Dim_Stock | Dim_Scenario | Fact_Prices
+23:07:24  INFO        Log     : build_model.log
+23:07:24  INFO      ============================================================
+23:09:39  INFO      ============================================================
+23:09:39  INFO      Tactical Trading Analytics — Build Pipeline
+23:09:39  INFO      ============================================================
+23:09:39  INFO      Pre-flight OK — source file accessible
+23:09:39  INFO      Backup already exists for today: Tactical_Model_INSTITUTIONAL_20260302.xlsx
+23:09:39  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+23:09:39  INFO        Loaded 12 stocks from 'Fact_Portfolio'
+23:09:39  INFO      
+23:09:39  INFO      ── Portfolio Snapshot ──────────────
+23:09:39  INFO        Stocks   : 12
+23:09:39  INFO        Invested : ₹97,564.90
+23:09:39  INFO        Value    : ₹99,354.50
+23:09:39  INFO        P&L      : ₹+1,789.60 (1.83%)
+23:09:39  INFO        Heat     : 4.32% [Warning]
+23:09:39  INFO      
+23:09:39  INFO        Action [Hold]: 7 stock(s)
+23:09:39  INFO        Action [EXIT NOW]: 2 stock(s) ← ACTION NEEDED
+23:09:39  INFO        Action [Reduce 30%]: 1 stock(s) ← ACTION NEEDED
+23:09:39  INFO        Action [Book 30%]: 2 stock(s) ← ACTION NEEDED
+23:09:39  INFO      
+23:09:39  INFO      Writing outputs …
+23:09:39  INFO      Excel saved: Tactical_Model_UPDATED.xlsx
+23:09:39  INFO        CSV: Fact_Portfolio.csv  (12 rows)
+23:09:39  INFO        CSV: Dim_Stock.csv  (12 stocks)
+23:09:39  INFO        CSV: Dim_Scenario.csv
+23:09:39  INFO        CSV: Fact_Prices.csv  (0 rows)
+23:09:39  INFO      Pipeline Status CSV saved: Pipeline_Status.csv
+23:09:39  INFO      HTML dashboard saved: tactical_dashboard.html
+23:09:39  INFO      Source write-back: 12 stocks updated in Tactical_Model_INSTITUTIONAL.xlsx
+23:09:39  INFO      Formula verification: Portfolio_Master G2 has formula =E2*1.06
+23:09:39  INFO      Formula verification: Stock_Visualization_Data G2 has formula =XLOOKUP(A2, Portfolio_Master!$A:$A, Portfolio_Master!$I:$I)
+23:09:39  INFO      
+23:09:39  INFO      ============================================================
+23:09:39  INFO      BUILD COMPLETE in 0.40 seconds
+23:09:39  INFO        Excel   : Tactical_Model_UPDATED.xlsx
+23:09:39  INFO        HTML    : tactical_dashboard.html
+23:09:39  INFO        Status  : Pipeline_Status.csv
+23:09:39  INFO        CSVs    : Fact_Portfolio | Dim_Stock | Dim_Scenario | Fact_Prices
+23:09:39  INFO        Log     : build_model.log
+23:09:39  INFO      ============================================================
+23:25:01  INFO      ============================================================
+23:25:01  INFO      Tactical Trading Analytics — Build Pipeline
+23:25:01  INFO      ============================================================
+23:25:01  INFO      Pre-flight OK — source file accessible
+23:25:01  INFO      Backup already exists for today: Tactical_Model_INSTITUTIONAL_20260302.xlsx
+23:25:01  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+23:25:01  INFO        Loaded 12 stocks from 'Fact_Portfolio'
+23:25:01  INFO      
+23:25:01  INFO      ── Portfolio Snapshot ──────────────
+23:25:01  INFO        Stocks   : 12
+23:25:01  INFO        Invested : ₹102,658.60
+23:25:01  INFO        Value    : ₹104,023.55
+23:25:01  INFO        P&L      : ₹+1,364.95 (1.33%)
+23:25:01  INFO        Heat     : 5.08% [Warning]
+23:25:01  INFO      
+23:25:01  INFO        Action [Hold]: 8 stock(s)
+23:25:01  INFO        Action [EXIT NOW]: 2 stock(s) ← ACTION NEEDED
+23:25:01  INFO        Action [Book 30%]: 1 stock(s) ← ACTION NEEDED
+23:25:01  INFO        Action [Reduce 30%]: 1 stock(s) ← ACTION NEEDED
+23:25:01  INFO      
+23:25:01  INFO      Writing outputs …
+23:25:02  INFO      Excel saved: Tactical_Model_UPDATED.xlsx
+23:25:02  INFO        CSV: Fact_Portfolio.csv  (12 rows)
+23:25:02  INFO        CSV: Dim_Stock.csv  (12 stocks)
+23:25:02  INFO        CSV: Dim_Scenario.csv
+23:25:02  INFO        CSV: Fact_Prices.csv  (0 rows)
+23:25:02  INFO      Pipeline Status CSV saved: Pipeline_Status.csv
+23:25:02  INFO      HTML dashboard saved: tactical_dashboard.html
+23:25:02  INFO      Source write-back: 12 stocks updated in Tactical_Model_INSTITUTIONAL.xlsx
+23:25:02  INFO      Formula verification: Portfolio_Master G2 has formula =E2*1.06
+23:25:02  INFO      Formula verification: Stock_Visualization_Data G2 has formula =XLOOKUP(A2, Portfolio_Master!$A:$A, Portfolio_Master!$I:$I)
+23:25:02  INFO      
+23:25:02  INFO      ============================================================
+23:25:02  INFO      BUILD COMPLETE in 0.57 seconds
+23:25:02  INFO        Excel   : Tactical_Model_UPDATED.xlsx
+23:25:02  INFO        HTML    : tactical_dashboard.html
+23:25:02  INFO        Status  : Pipeline_Status.csv
+23:25:02  INFO        CSVs    : Fact_Portfolio | Dim_Stock | Dim_Scenario | Fact_Prices
+23:25:02  INFO        Log     : build_model.log
+23:25:02  INFO      ============================================================
+23:27:58  INFO      ============================================================
+23:27:58  INFO      Tactical Trading Analytics — Build Pipeline
+23:27:58  INFO      ============================================================
+23:27:58  INFO      Pre-flight OK — source file accessible
+23:27:58  INFO      Backup already exists for today: Tactical_Model_INSTITUTIONAL_20260302.xlsx
+23:27:58  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+23:27:58  INFO        Loaded 12 stocks from 'Fact_Portfolio'
+23:27:58  INFO      
+23:27:58  INFO      ── Portfolio Snapshot ──────────────
+23:27:58  INFO        Stocks   : 12
+23:27:58  INFO        Invested : ₹102,658.60
+23:27:58  INFO        Value    : ₹104,023.55
+23:27:58  INFO        P&L      : ₹+1,364.95 (1.33%)
+23:27:58  INFO        Heat     : 5.08% [Warning]
+23:27:58  INFO      
+23:27:58  INFO        Action [Hold]: 8 stock(s)
+23:27:58  INFO        Action [EXIT NOW]: 2 stock(s) ← ACTION NEEDED
+23:27:58  INFO        Action [Book 30%]: 1 stock(s) ← ACTION NEEDED
+23:27:58  INFO        Action [Reduce 30%]: 1 stock(s) ← ACTION NEEDED
+23:27:58  INFO      
+23:27:58  INFO      Writing outputs …
+23:27:58  INFO      Excel saved: Tactical_Model_UPDATED.xlsx
+23:27:58  INFO        CSV: Fact_Portfolio.csv  (12 rows)
+23:27:58  INFO        CSV: Dim_Stock.csv  (12 stocks)
+23:27:58  INFO        CSV: Dim_Scenario.csv
+23:27:58  INFO        CSV: Fact_Prices.csv  (0 rows)
+23:27:58  INFO      Pipeline Status CSV saved: Pipeline_Status.csv
+23:27:58  INFO      HTML dashboard saved: tactical_dashboard.html
+23:27:58  INFO      Source write-back: 12 stocks updated in Tactical_Model_INSTITUTIONAL.xlsx
+23:27:58  INFO      Formula verification: Portfolio_Master G2 has formula =E2*1.06
+23:27:58  INFO      Formula verification: Stock_Visualization_Data G2 has formula =XLOOKUP(A2, Portfolio_Master!$A:$A, Portfolio_Master!$I:$I)
+23:27:58  INFO      
+23:27:58  INFO      ============================================================
+23:27:58  INFO      BUILD COMPLETE in 0.53 seconds
+23:27:58  INFO        Excel   : Tactical_Model_UPDATED.xlsx
+23:27:58  INFO        HTML    : tactical_dashboard.html
+23:27:58  INFO        Status  : Pipeline_Status.csv
+23:27:58  INFO        CSVs    : Fact_Portfolio | Dim_Stock | Dim_Scenario | Fact_Prices
+23:27:58  INFO        Log     : build_model.log
+23:27:58  INFO      ============================================================
+23:29:43  INFO      ============================================================
+23:29:43  INFO      Tactical Trading Analytics — Build Pipeline
+23:29:43  INFO      ============================================================
+23:29:43  INFO      Pre-flight OK — source file accessible
+23:29:43  INFO      Backup already exists for today: Tactical_Model_INSTITUTIONAL_20260302.xlsx
+23:29:43  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+23:29:43  INFO        Loaded 12 stocks from 'Fact_Portfolio'
+23:29:43  INFO      
+23:29:43  INFO      ── Portfolio Snapshot ──────────────
+23:29:43  INFO        Stocks   : 12
+23:29:43  INFO        Invested : ₹102,658.60
+23:29:43  INFO        Value    : ₹104,023.55
+23:29:43  INFO        P&L      : ₹+1,364.95 (1.33%)
+23:29:43  INFO        Heat     : 5.08% [Warning]
+23:29:43  INFO      
+23:29:43  INFO        Action [Hold]: 8 stock(s)
+23:29:43  INFO        Action [EXIT NOW]: 2 stock(s) ← ACTION NEEDED
+23:29:43  INFO        Action [Book 30%]: 1 stock(s) ← ACTION NEEDED
+23:29:43  INFO        Action [Reduce 30%]: 1 stock(s) ← ACTION NEEDED
+23:29:43  INFO      
+23:29:43  INFO      Writing outputs …
+23:29:44  INFO      Excel saved: Tactical_Model_UPDATED.xlsx
+23:29:44  INFO        CSV: Fact_Portfolio.csv  (12 rows)
+23:29:44  INFO        CSV: Dim_Stock.csv  (12 stocks)
+23:29:44  INFO        CSV: Dim_Scenario.csv
+23:29:44  INFO        CSV: Fact_Prices.csv  (0 rows)
+23:29:44  INFO      Pipeline Status CSV saved: Pipeline_Status.csv
+23:29:44  INFO      HTML dashboard saved: tactical_dashboard.html
+23:29:44  INFO      Source write-back: 12 stocks updated in Tactical_Model_INSTITUTIONAL.xlsx
+23:29:44  INFO      Formula verification: Portfolio_Master G2 has formula =E2*1.06
+23:29:44  INFO      Formula verification: Stock_Visualization_Data G2 has formula =XLOOKUP(A2, Portfolio_Master!$A:$A, Portfolio_Master!$I:$I)
+23:29:44  INFO      
+23:29:44  INFO      ============================================================
+23:29:44  INFO      BUILD COMPLETE in 0.39 seconds
+23:29:44  INFO        Excel   : Tactical_Model_UPDATED.xlsx
+23:29:44  INFO        HTML    : tactical_dashboard.html
+23:29:44  INFO        Status  : Pipeline_Status.csv
+23:29:44  INFO        CSVs    : Fact_Portfolio | Dim_Stock | Dim_Scenario | Fact_Prices
+23:29:44  INFO        Log     : build_model.log
+23:29:44  INFO      ============================================================
+23:33:16  INFO      ============================================================
+23:33:16  INFO      Tactical Trading Analytics — Build Pipeline
+23:33:16  INFO      ============================================================
+23:33:16  INFO      Pre-flight OK — source file accessible
+23:33:16  INFO      Backup already exists for today: Tactical_Model_INSTITUTIONAL_20260302.xlsx
+23:33:16  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+23:33:16  INFO        Loaded 12 stocks from 'Fact_Portfolio'
+23:33:16  INFO      
+23:33:16  INFO      ── Portfolio Snapshot ──────────────
+23:33:16  INFO        Stocks   : 12
+23:33:16  INFO        Invested : ₹102,658.60
+23:33:16  INFO        Value    : ₹104,023.55
+23:33:16  INFO        P&L      : ₹+1,364.95 (1.33%)
+23:33:16  INFO        Heat     : 5.08% [Warning]
+23:33:16  INFO      
+23:33:16  INFO        Action [Hold]: 8 stock(s)
+23:33:16  INFO        Action [EXIT NOW]: 2 stock(s) ← ACTION NEEDED
+23:33:16  INFO        Action [Book 30%]: 1 stock(s) ← ACTION NEEDED
+23:33:16  INFO        Action [Reduce 30%]: 1 stock(s) ← ACTION NEEDED
+23:33:16  INFO      
+23:33:16  INFO      Writing outputs …
+23:33:16  INFO      Excel saved: Tactical_Model_UPDATED.xlsx
+23:33:16  INFO        CSV: Fact_Portfolio.csv  (12 rows)
+23:33:16  INFO        CSV: Dim_Stock.csv  (12 stocks)
+23:33:16  INFO        CSV: Dim_Scenario.csv
+23:33:16  INFO        CSV: Fact_Prices.csv  (0 rows)
+23:33:16  INFO      Pipeline Status CSV saved: Pipeline_Status.csv
+23:33:16  INFO      HTML dashboard saved: tactical_dashboard.html
+23:33:16  INFO      Source write-back: 12 stocks updated in Tactical_Model_INSTITUTIONAL.xlsx
+23:33:16  INFO      Formula verification: Portfolio_Master G2 has formula =E2*1.06
+23:33:16  INFO      Formula verification: Stock_Visualization_Data G2 has formula =XLOOKUP(A2, Portfolio_Master!$A:$A, Portfolio_Master!$I:$I)
+23:33:16  INFO      
+23:33:16  INFO      ============================================================
+23:33:16  INFO      BUILD COMPLETE in 0.41 seconds
+23:33:16  INFO        Excel   : Tactical_Model_UPDATED.xlsx
+23:33:16  INFO        HTML    : tactical_dashboard.html
+23:33:16  INFO        Status  : Pipeline_Status.csv
+23:33:16  INFO        CSVs    : Fact_Portfolio | Dim_Stock | Dim_Scenario | Fact_Prices
+23:33:16  INFO        Log     : build_model.log
+23:33:16  INFO      ============================================================
+23:33:48  INFO      ============================================================
+23:33:48  INFO      Tactical Trading Analytics — Build Pipeline
+23:33:48  INFO      ============================================================
+23:33:48  INFO      Pre-flight OK — source file accessible
+23:33:48  INFO      Backup already exists for today: Tactical_Model_INSTITUTIONAL_20260302.xlsx
+23:33:48  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+23:33:48  INFO        Loaded 12 stocks from 'Fact_Portfolio'
+23:33:48  INFO      
+23:33:48  INFO      ── Portfolio Snapshot ──────────────
+23:33:48  INFO        Stocks   : 12
+23:33:48  INFO        Invested : ₹102,658.60
+23:33:48  INFO        Value    : ₹104,023.55
+23:33:48  INFO        P&L      : ₹+1,364.95 (1.33%)
+23:33:48  INFO        Heat     : 5.08% [Warning]
+23:33:48  INFO      
+23:33:48  INFO        Action [Hold]: 8 stock(s)
+23:33:48  INFO        Action [EXIT NOW]: 2 stock(s) ← ACTION NEEDED
+23:33:48  INFO        Action [Book 30%]: 1 stock(s) ← ACTION NEEDED
+23:33:48  INFO        Action [Reduce 30%]: 1 stock(s) ← ACTION NEEDED
+23:33:48  INFO      
+23:33:48  INFO      Writing outputs …
+23:33:48  INFO      Excel saved: Tactical_Model_UPDATED.xlsx
+23:33:48  INFO        CSV: Fact_Portfolio.csv  (12 rows)
+23:33:48  INFO        CSV: Dim_Stock.csv  (12 stocks)
+23:33:48  INFO        CSV: Dim_Scenario.csv
+23:33:48  INFO        CSV: Fact_Prices.csv  (0 rows)
+23:33:48  INFO      Pipeline Status CSV saved: Pipeline_Status.csv
+23:33:48  INFO      HTML dashboard saved: tactical_dashboard.html
+23:33:48  INFO      Source write-back: 12 stocks updated in Tactical_Model_INSTITUTIONAL.xlsx
+23:33:48  INFO      Formula verification: Portfolio_Master G2 has formula =E2*1.06
+23:33:48  INFO      Formula verification: Stock_Visualization_Data G2 has formula =XLOOKUP(A2, Portfolio_Master!$A:$A, Portfolio_Master!$I:$I)
+23:33:48  INFO      
+23:33:48  INFO      ============================================================
+23:33:48  INFO      BUILD COMPLETE in 0.41 seconds
+23:33:48  INFO        Excel   : Tactical_Model_UPDATED.xlsx
+23:33:48  INFO        HTML    : tactical_dashboard.html
+23:33:48  INFO        Status  : Pipeline_Status.csv
+23:33:48  INFO        CSVs    : Fact_Portfolio | Dim_Stock | Dim_Scenario | Fact_Prices
+23:33:48  INFO        Log     : build_model.log
+23:33:48  INFO      ============================================================
+11:09:16  INFO      ============================================================
+11:09:16  INFO      Tactical Trading Analytics — Build Pipeline
+11:09:16  INFO      ============================================================
+11:09:16  INFO      Pre-flight OK — source file accessible
+11:09:16  INFO      Backup created: Tactical_Model_INSTITUTIONAL_20260304.xlsx
+11:09:16  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+11:09:17  INFO        Loaded 12 stocks from 'Fact_Portfolio'
+11:09:17  INFO      
+11:09:17  INFO      ── Portfolio Snapshot ──────────────
+11:09:17  INFO        Stocks   : 12
+11:09:17  INFO        Invested : ₹102,658.60
+11:09:17  INFO        Value    : ₹100,269.73
+11:09:17  INFO        P&L      : ₹-2,388.87 (-2.33%)
+11:09:17  INFO        Heat     : 5.08% [Warning]
+11:09:17  INFO      
+11:09:17  INFO        Action [Hold]: 7 stock(s)
+11:09:17  INFO        Action [EXIT NOW]: 4 stock(s) ← ACTION NEEDED
+11:09:17  INFO        Action [Reduce 30%]: 1 stock(s) ← ACTION NEEDED
+11:09:17  INFO      
+11:09:17  INFO      Writing outputs …
+11:09:17  INFO      Excel saved: Tactical_Model_UPDATED.xlsx
+11:09:17  INFO        CSV: Fact_Portfolio.csv  (12 rows)
+11:09:17  INFO        CSV: Dim_Stock.csv  (12 stocks)
+11:09:17  INFO        CSV: Dim_Scenario.csv
+11:09:17  INFO        CSV: Fact_Prices.csv  (0 rows)
+11:09:17  INFO      Pipeline Status CSV saved: Pipeline_Status.csv
+11:09:17  INFO      HTML dashboard saved: tactical_dashboard.html
+11:09:17  INFO      Source write-back: 12 stocks updated in Tactical_Model_INSTITUTIONAL.xlsx
+11:09:17  INFO      Formula verification: Portfolio_Master G2 has formula =E2*1.06
+11:09:17  INFO      Formula verification: Stock_Visualization_Data G2 has formula =XLOOKUP(A2, Portfolio_Master!$A:$A, Portfolio_Master!$I:$I)
+11:09:17  INFO      
+11:09:17  INFO      ============================================================
+11:09:17  INFO      BUILD COMPLETE in 0.55 seconds
+11:09:17  INFO        Excel   : Tactical_Model_UPDATED.xlsx
+11:09:17  INFO        HTML    : tactical_dashboard.html
+11:09:17  INFO        Status  : Pipeline_Status.csv
+11:09:17  INFO        CSVs    : Fact_Portfolio | Dim_Stock | Dim_Scenario | Fact_Prices
+11:09:17  INFO        Log     : build_model.log
+11:09:17  INFO      ============================================================
+11:13:43  INFO      ============================================================
+11:13:43  INFO      Tactical Trading Analytics — Build Pipeline
+11:13:43  INFO      ============================================================
+11:13:43  INFO      Pre-flight OK — source file accessible
+11:13:43  INFO      Backup already exists for today: Tactical_Model_INSTITUTIONAL_20260304.xlsx
+11:13:43  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+11:13:43  INFO        Loaded 12 stocks from 'Fact_Portfolio'
+11:13:43  INFO      
+11:13:43  INFO      ── Portfolio Snapshot ──────────────
+11:13:43  INFO        Stocks   : 12
+11:13:43  INFO        Invested : ₹102,658.60
+11:13:43  INFO        Value    : ₹100,269.73
+11:13:43  INFO        P&L      : ₹-2,388.87 (-2.33%)
+11:13:43  INFO        Heat     : 5.08% [Warning]
+11:13:43  INFO      
+11:13:43  INFO        Action [Hold]: 7 stock(s)
+11:13:43  INFO        Action [EXIT NOW]: 4 stock(s) ← ACTION NEEDED
+11:13:43  INFO        Action [Reduce 30%]: 1 stock(s) ← ACTION NEEDED
+11:13:43  INFO      
+11:13:43  INFO      Writing outputs …
+11:13:44  INFO      Excel saved: Tactical_Model_UPDATED.xlsx
+11:13:44  INFO        CSV: Fact_Portfolio.csv  (12 rows)
+11:13:44  INFO        CSV: Dim_Stock.csv  (12 stocks)
+11:13:44  INFO        CSV: Dim_Scenario.csv
+11:13:44  INFO        CSV: Fact_Prices.csv  (0 rows)
+11:13:44  INFO      Pipeline Status CSV saved: Pipeline_Status.csv
+11:13:44  INFO      HTML dashboard saved: tactical_dashboard.html
+11:13:44  INFO      Source write-back: 12 stocks updated in Tactical_Model_INSTITUTIONAL.xlsx
+11:13:44  INFO      Formula verification: Portfolio_Master G2 has formula =E2*1.06
+11:13:44  INFO      Formula verification: Stock_Visualization_Data G2 has formula =XLOOKUP(A2, Portfolio_Master!$A:$A, Portfolio_Master!$I:$I)
+11:13:44  INFO      
+11:13:44  INFO      ============================================================
+11:13:44  INFO      BUILD COMPLETE in 0.54 seconds
+11:13:44  INFO        Excel   : Tactical_Model_UPDATED.xlsx
+11:13:44  INFO        HTML    : tactical_dashboard.html
+11:13:44  INFO        Status  : Pipeline_Status.csv
+11:13:44  INFO        CSVs    : Fact_Portfolio | Dim_Stock | Dim_Scenario | Fact_Prices
+11:13:44  INFO        Log     : build_model.log
+11:13:44  INFO      ============================================================
+11:17:08  INFO      ============================================================
+11:17:08  INFO      Tactical Trading Analytics — Build Pipeline
+11:17:08  INFO      ============================================================
+11:17:08  INFO      Pre-flight OK — source file accessible
+11:17:08  INFO      Backup already exists for today: Tactical_Model_INSTITUTIONAL_20260304.xlsx
+11:17:08  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+11:17:08  INFO        Loaded 12 stocks from 'Fact_Portfolio'
+11:17:08  INFO      
+11:17:08  INFO      ── Portfolio Snapshot ──────────────
+11:17:08  INFO        Stocks   : 12
+11:17:08  INFO        Invested : ₹107,576.20
+11:17:08  INFO        Value    : ₹105,078.25
+11:17:08  INFO        P&L      : ₹-2,497.95 (-2.32%)
+11:17:08  INFO        Heat     : 5.23% [Warning]
+11:17:08  INFO      
+11:17:08  INFO        Action [Hold]: 7 stock(s)
+11:17:08  INFO        Action [EXIT NOW]: 4 stock(s) ← ACTION NEEDED
+11:17:08  INFO        Action [Reduce 30%]: 1 stock(s) ← ACTION NEEDED
+11:17:08  INFO      
+11:17:08  INFO      Writing outputs …
+11:17:08  INFO      Excel saved: Tactical_Model_UPDATED.xlsx
+11:17:08  INFO        CSV: Fact_Portfolio.csv  (12 rows)
+11:17:08  INFO        CSV: Dim_Stock.csv  (12 stocks)
+11:17:08  INFO        CSV: Dim_Scenario.csv
+11:17:08  INFO        CSV: Fact_Prices.csv  (0 rows)
+11:17:08  INFO      Pipeline Status CSV saved: Pipeline_Status.csv
+11:17:08  INFO      HTML dashboard saved: tactical_dashboard.html
+11:17:08  INFO      Source write-back: 12 stocks updated in Tactical_Model_INSTITUTIONAL.xlsx
+11:17:08  INFO      Formula verification: Portfolio_Master G2 has formula =E2*1.06
+11:17:08  INFO      Formula verification: Stock_Visualization_Data G2 has formula =XLOOKUP(A2, Portfolio_Master!$A:$A, Portfolio_Master!$I:$I)
+11:17:08  INFO      
+11:17:08  INFO      ============================================================
+11:17:08  INFO      BUILD COMPLETE in 0.49 seconds
+11:17:08  INFO        Excel   : Tactical_Model_UPDATED.xlsx
+11:17:08  INFO        HTML    : tactical_dashboard.html
+11:17:08  INFO        Status  : Pipeline_Status.csv
+11:17:08  INFO        CSVs    : Fact_Portfolio | Dim_Stock | Dim_Scenario | Fact_Prices
+11:17:08  INFO        Log     : build_model.log
+11:17:08  INFO      ============================================================
+17:24:35  INFO      ============================================================
+17:24:35  INFO      Tactical Trading Analytics — Build Pipeline
+17:24:35  INFO      ============================================================
+17:24:35  INFO      Pre-flight OK — source file accessible
+17:24:35  INFO      Backup created: Tactical_Model_INSTITUTIONAL_20260304.xlsx
+17:24:35  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+17:24:35  INFO        Loaded 9 stocks from 'Fact_Portfolio'
+17:24:35  INFO      
+17:24:35  INFO      ── Portfolio Snapshot ──────────────
+17:24:35  INFO        Stocks   : 9
+17:24:35  INFO        Invested : ₹70,637.59
+17:24:35  INFO        Value    : ₹71,128.82
+17:24:35  INFO        P&L      : ₹+491.23 (0.70%)
+17:24:35  INFO        Heat     : 4.02% [Warning]
+17:24:35  INFO      
+17:24:35  INFO        Action [Hold]: 7 stock(s)
+17:24:35  INFO        Action [Reduce 30%]: 1 stock(s) ← ACTION NEEDED
+17:24:35  INFO        Action [EXIT NOW]: 1 stock(s) ← ACTION NEEDED
+17:24:35  INFO      
+17:24:35  INFO      Writing outputs …
+17:24:35  INFO      Excel saved: Tactical_Model_UPDATED.xlsx
+17:24:35  INFO        CSV: Fact_Portfolio.csv  (9 rows)
+17:24:35  INFO        CSV: Dim_Stock.csv  (9 stocks)
+17:24:35  INFO        CSV: Dim_Scenario.csv
+17:24:35  INFO        CSV: Fact_Prices.csv  (0 rows)
+17:24:35  INFO      Pipeline Status CSV saved: Pipeline_Status.csv
+17:24:35  INFO      HTML dashboard saved: tactical_dashboard.html
+17:24:35  INFO      Source write-back: 9 stocks updated in Tactical_Model_INSTITUTIONAL.xlsx
+17:24:36  INFO      Formula verification: Portfolio_Master G2 has formula =E2*1.06
+17:24:36  INFO      Formula verification: Stock_Visualization_Data G2 has formula =XLOOKUP(A2, Portfolio_Master!$A:$A, Portfolio_Master!$I:$I)
+17:24:36  INFO      
+17:24:36  INFO      ============================================================
+17:24:36  INFO      BUILD COMPLETE in 0.85 seconds
+17:24:36  INFO        Excel   : Tactical_Model_UPDATED.xlsx
+17:24:36  INFO        HTML    : tactical_dashboard.html
+17:24:36  INFO        Status  : Pipeline_Status.csv
+17:24:36  INFO        CSVs    : Fact_Portfolio | Dim_Stock | Dim_Scenario | Fact_Prices
+17:24:36  INFO        Log     : build_model.log
+17:24:36  INFO      ============================================================
+17:31:03  INFO      ============================================================
+17:31:03  INFO      Tactical Trading Analytics — Build Pipeline
+17:31:03  INFO      ============================================================
+17:31:03  INFO      Pre-flight OK — source file accessible
+17:31:03  INFO      Backup already exists for today: Tactical_Model_INSTITUTIONAL_20260304.xlsx
+17:31:03  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+17:31:03  INFO        Loaded 9 stocks from 'Fact_Portfolio'
+17:31:03  INFO      
+17:31:03  INFO      ── Portfolio Snapshot ──────────────
+17:31:03  INFO        Stocks   : 9
+17:31:03  INFO        Invested : ₹70,637.59
+17:31:03  INFO        Value    : ₹70,607.65
+17:31:03  INFO        P&L      : ₹-29.94 (-0.04%)
+17:31:03  INFO        Heat     : 4.02% [Warning]
+17:31:03  INFO      
+17:31:03  INFO        Action [Hold]: 6 stock(s)
+17:31:03  INFO        Action [Book 30%]: 1 stock(s) ← ACTION NEEDED
+17:31:03  INFO        Action [Reduce 30%]: 1 stock(s) ← ACTION NEEDED
+17:31:03  INFO        Action [EXIT NOW]: 1 stock(s) ← ACTION NEEDED
+17:31:03  INFO      
+17:31:03  INFO      Writing outputs …
+17:31:03  INFO      Excel saved: Tactical_Model_UPDATED.xlsx
+17:31:03  INFO        CSV: Fact_Portfolio.csv  (9 rows)
+17:31:03  INFO        CSV: Dim_Stock.csv  (9 stocks)
+17:31:03  INFO        CSV: Dim_Scenario.csv
+17:31:03  INFO        CSV: Fact_Prices.csv  (0 rows)
+17:31:03  INFO      Pipeline Status CSV saved: Pipeline_Status.csv
+17:31:03  INFO      HTML dashboard saved: tactical_dashboard.html
+17:31:04  INFO      Source write-back: 9 stocks updated in Tactical_Model_INSTITUTIONAL.xlsx
+17:31:04  INFO      Formula verification: Portfolio_Master G2 has formula =E2*1.06
+17:31:04  INFO      Formula verification: Stock_Visualization_Data G2 has formula =XLOOKUP(A2, Portfolio_Master!$A:$A, Portfolio_Master!$I:$I)
+17:31:04  INFO      
+17:31:04  INFO      ============================================================
+17:31:04  INFO      BUILD COMPLETE in 0.82 seconds
+17:31:04  INFO        Excel   : Tactical_Model_UPDATED.xlsx
+17:31:04  INFO        HTML    : tactical_dashboard.html
+17:31:04  INFO        Status  : Pipeline_Status.csv
+17:31:04  INFO        CSVs    : Fact_Portfolio | Dim_Stock | Dim_Scenario | Fact_Prices
+17:31:04  INFO        Log     : build_model.log
+17:31:04  INFO      ============================================================
+17:34:46  INFO      ============================================================
+17:34:46  INFO      Tactical Trading Analytics — Build Pipeline
+17:34:46  INFO      ============================================================
+17:34:46  INFO      Pre-flight OK — source file accessible
+17:34:46  INFO      Backup already exists for today: Tactical_Model_INSTITUTIONAL_20260304.xlsx
+17:34:46  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+17:34:46  INFO        Loaded 9 stocks from 'Fact_Portfolio'
+17:34:46  INFO      
+17:34:46  INFO      ── Portfolio Snapshot ──────────────
+17:34:46  INFO        Stocks   : 9
+17:34:46  INFO        Invested : ₹71,005.83
+17:34:46  INFO        Value    : ₹70,607.65
+17:34:46  INFO        P&L      : ₹-398.18 (-0.56%)
+17:34:46  INFO        Heat     : 4.52% [Warning]
+17:34:46  INFO      
+17:34:46  INFO        Action [Hold]: 5 stock(s)
+17:34:46  INFO        Action [Book 30%]: 1 stock(s) ← ACTION NEEDED
+17:34:46  INFO        Action [Reduce 30%]: 1 stock(s) ← ACTION NEEDED
+17:34:46  INFO        Action [EXIT NOW]: 2 stock(s) ← ACTION NEEDED
+17:34:46  INFO      
+17:34:46  INFO      Writing outputs …
+17:34:47  INFO      Excel saved: Tactical_Model_UPDATED.xlsx
+17:34:47  INFO        CSV: Fact_Portfolio.csv  (9 rows)
+17:34:47  INFO        CSV: Dim_Stock.csv  (9 stocks)
+17:34:47  INFO        CSV: Dim_Scenario.csv
+17:34:47  INFO        CSV: Fact_Prices.csv  (0 rows)
+17:34:47  INFO      Pipeline Status CSV saved: Pipeline_Status.csv
+17:34:47  INFO      HTML dashboard saved: tactical_dashboard.html
+17:34:47  INFO      Source write-back: 9 stocks updated in Tactical_Model_INSTITUTIONAL.xlsx
+17:34:47  INFO      Formula verification: Portfolio_Master G2 has formula =E2*1.06
+17:34:47  INFO      Formula verification: Stock_Visualization_Data G2 has formula =XLOOKUP(A2, Portfolio_Master!$A:$A, Portfolio_Master!$I:$I)
+17:34:47  INFO      
+17:34:47  INFO      ============================================================
+17:34:47  INFO      BUILD COMPLETE in 0.67 seconds
+17:34:47  INFO        Excel   : Tactical_Model_UPDATED.xlsx
+17:34:47  INFO        HTML    : tactical_dashboard.html
+17:34:47  INFO        Status  : Pipeline_Status.csv
+17:34:47  INFO        CSVs    : Fact_Portfolio | Dim_Stock | Dim_Scenario | Fact_Prices
+17:34:47  INFO        Log     : build_model.log
+17:34:47  INFO      ============================================================
+17:59:50  INFO      ============================================================
+17:59:50  INFO      Tactical Trading Analytics — Build Pipeline
+17:59:50  INFO      ============================================================
+17:59:50  INFO      Pre-flight OK — source file accessible
+17:59:50  INFO      Backup already exists for today: Tactical_Model_INSTITUTIONAL_20260304.xlsx
+17:59:50  INFO      Loading source: E:\Stock Market\Analysis\Prompts\MAR_WEEK_1 Plan\Tactical_Model_INSTITUTIONAL.xlsx
+17:59:50  INFO        Loaded 9 stocks from 'Fact_Portfolio'
+17:59:50  INFO      
+17:59:50  INFO      ── Portfolio Snapshot ──────────────
+17:59:50  INFO        Stocks   : 9
+17:59:50  INFO        Invested : ₹71,005.83
+17:59:50  INFO        Value    : ₹70,607.65
+17:59:50  INFO        P&L      : ₹-398.18 (-0.56%)
+17:59:50  INFO        Heat     : 4.52% [Warning]
+17:59:50  INFO      
+17:59:50  INFO        Action [Hold]: 5 stock(s)
+17:59:50  INFO        Action [Book 30%]: 1 stock(s) ← ACTION NEEDED
+17:59:50  INFO        Action [Reduce 30%]: 1 stock(s) ← ACTION NEEDED
+17:59:50  INFO        Action [EXIT NOW]: 2 stock(s) ← ACTION NEEDED
+17:59:50  INFO      
+17:59:50  INFO      Writing outputs …
+17:59:50  INFO      Excel saved: Tactical_Model_UPDATED.xlsx
+17:59:50  INFO        CSV: Fact_Portfolio.csv  (9 rows)
+17:59:50  INFO        CSV: Dim_Stock.csv  (9 stocks)
+17:59:50  INFO        CSV: Dim_Scenario.csv
+17:59:50  INFO        CSV: Fact_Prices.csv  (0 rows)
+17:59:50  INFO      Pipeline Status CSV saved: Pipeline_Status.csv
+17:59:50  INFO      HTML dashboard saved: tactical_dashboard.html
+17:59:50  INFO      Source write-back: 9 stocks updated in Tactical_Model_INSTITUTIONAL.xlsx
+17:59:50  INFO      Formula verification: Portfolio_Master G2 has formula =E2*1.06
+17:59:50  INFO      Formula verification: Stock_Visualization_Data G2 has formula =XLOOKUP(A2, Portfolio_Master!$A:$A, Portfolio_Master!$I:$I)
+17:59:50  INFO      
+17:59:50  INFO      ============================================================
+17:59:50  INFO      BUILD COMPLETE in 0.67 seconds
+17:59:50  INFO        Excel   : Tactical_Model_UPDATED.xlsx
+17:59:50  INFO        HTML    : tactical_dashboard.html
+17:59:50  INFO        Status  : Pipeline_Status.csv
+17:59:50  INFO        CSVs    : Fact_Portfolio | Dim_Stock | Dim_Scenario | Fact_Prices
+17:59:50  INFO        Log     : build_model.log
+17:59:50  INFO      ============================================================

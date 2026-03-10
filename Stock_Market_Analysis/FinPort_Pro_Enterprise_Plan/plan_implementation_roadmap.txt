@@ -1,0 +1,911 @@
+================================================================================
+  IMPLEMENTATION ROADMAP — PART 1 (Phases 1-4, Sprints 1-8)
+  Tactical Financial Portfolio Management Platform
+  Version: 1.0 | Date: March 2026
+  Companion: plan_implementation_roadmap_part2.txt (Phases 5-8)
+================================================================================
+
+================================================================================
+ EXECUTIVE SUMMARY
+================================================================================
+
+Total Duration:      8 months (32 weeks)
+Sprint Model:        2-week sprints (16 sprints total)
+Team Size:           10 members
+Total Phases:        8 phases
+Services:            10 microservices
+Frontend:            Angular 18 + NgRx + ECharts
+Backend:             Spring Boot 3.x + Kafka + PostgreSQL
+
+Phase Overview:
+  Phase 1: Foundation & Architecture Setup        Sprints 1-2   (Weeks 1-4)
+  Phase 2: Core Backend Services                  Sprints 3-4   (Weeks 5-8)
+  Phase 3: Frontend Implementation                Sprints 5-6   (Weeks 9-12)
+  Phase 4: Event-Driven & Risk Engine             Sprints 7-8   (Weeks 13-16)
+  Phase 5: AI Integration & Advanced Analytics    Sprints 9-10  (Weeks 17-20)
+  Phase 6: Hardening, Testing & Prod Readiness    Sprints 11-12 (Weeks 21-24)
+  Phase 7: Deployment & Stabilization             Sprints 13-14 (Weeks 25-28)
+  Phase 8: Optimization & Monitoring              Sprints 15-16 (Weeks 29-32)
+
+================================================================================
+ 1. PHASE BREAKDOWN (HIGH-LEVEL)
+================================================================================
+
+--------------------------------------------------------------------
+PHASE 1: FOUNDATION & ARCHITECTURE SETUP (Weeks 1-4)
+--------------------------------------------------------------------
+Objective:
+  Establish the technical foundation. All repositories bootstrapped.
+  Local development environment running (bare-metal processes).
+  PostgreSQL schemas created. Kafka cluster operational.
+
+Key Deliverables:
+  - 10 Git repos initialized with standard project structure
+  - Local setup scripts (shell/powershell)
+  - Flyway migrations for all schemas
+  - API Gateway routing functional
+  - JWT auth flow (register/login/refresh) operational
+
+Exit Criteria:
+  - All 10 services boot locally (standard Java -jar execution)
+  - PostgreSQL schemas created (all 7 schemas)
+  - Kafka cluster running with 10 topics created
+  - API Gateway routes requests to User Service
+  - JWT login/register flow works end-to-end
+
+--------------------------------------------------------------------
+PHASE 2: CORE BACKEND SERVICES (Weeks 5-8)
+--------------------------------------------------------------------
+Objective:
+  Implement the three core CRUD services: Portfolio Service,
+  Market Data Service, and Scraper Service. End-to-end data flow
+  from scraper to database.
+
+Key Deliverables:
+  - Portfolio Service: Full CRUD with auto-fill defaults
+  - Market Data Service: Price ingestion + history + caching
+  - Scraper Service: NSE + MoneyControl + scheduling
+  - End-to-end: Scraper → Kafka → Market Data → DB
+
+Exit Criteria:
+  - Create plan + add holdings via REST API
+  - Scraper runs on schedule, prices appear in DB
+  - Price history queryable via API
+  - Redis caching operational for latest prices
+  - 80%+ unit test coverage on all three services
+
+--------------------------------------------------------------------
+PHASE 3: FRONTEND IMPLEMENTATION (Weeks 9-12)
+--------------------------------------------------------------------
+Objective:
+  Build the Angular application shell, authentication module,
+  and the two most critical screens: Plan List and Tactical Dashboard.
+
+Key Deliverables:
+  - Angular app shell with enterprise sidenav
+  - Login/Register flow (JWT integration)
+  - NgRx store (auth, plans, portfolio slices)
+  - Plan List screen (CRUD)
+  - Tactical Dashboard (KPIs, charts, risk table)
+  - WebSocket connection established
+
+Exit Criteria:
+  - User can log in and see their plans
+  - Tactical Dashboard renders live data from backend
+  - KPI cards, charts (ECharts), and risk table functional
+  - WebSocket receives price updates
+  - Responsive layout on desktop and tablet
+
+--------------------------------------------------------------------
+PHASE 4: EVENT-DRIVEN & RISK ENGINE (Weeks 13-16)
+--------------------------------------------------------------------
+Objective:
+  Bring the system to life with real-time event processing.
+  Risk Engine recalculates on every price update. Stop-loss
+  and target hit alerts flow to the UI.
+
+Key Deliverables:
+  - Risk Engine: Full calculation engine operational
+  - Notification Service: WebSocket push + email alerts
+  - Audit Service: Consuming all events, persisting logs
+  - End-to-end: Price change → Risk recalc → UI update
+
+Exit Criteria:
+  - Price update triggers risk recalculation within 10 seconds
+  - Stop-loss triggers produce a real-time alert in the UI
+  - Target hit triggers produce a notification
+  - Audit Service logs all events immutably
+  - Alert deduplication prevents duplicate notifications
+
+--------------------------------------------------------------------
+PHASES 5-8: SEE plan_implementation_roadmap_part2.txt
+--------------------------------------------------------------------
+
+
+================================================================================
+ 2. SPRINT-LEVEL BREAKDOWN
+================================================================================
+
+====================================================================
+ SPRINT 1 — FOUNDATION: REPOS, INFRA, DATABASE (Weeks 1-2)
+====================================================================
+
+Sprint Goal:
+  Bootstrap all repositories, establish local process runners for
+  development, create all PostgreSQL schemas, set up Kafka cluster.
+
+--------------------------------------------------------------------
+EPIC 1.1: Repository & Project Setup
+--------------------------------------------------------------------
+
+Story 1.1.1: Initialize all microservice repositories
+  Tasks:
+    [T] Create 10 Git repos with standard Spring Boot structure
+    [T] Configure pom.xml with common dependencies per service
+    [T] Write README.md with setup instructions per repo
+  Deliverable: 10 bootable Spring Boot apps
+  Acceptance: Each service starts on its designated port
+  Risk: Dependency version conflicts across repos
+
+Story 1.1.2: Initialize Angular frontend repository
+  Tasks:
+    [T] Create finport-ui repo with Angular CLI (ng new)
+    [T] Configure folder structure (core/shared/features/store)
+    [T] Add ESLint + Prettier + Husky pre-commit hooks
+    [T] Configure environment files (dev/staging/prod)
+  Deliverable: Angular app serving on localhost:4200
+  Acceptance: App loads with placeholder shell component
+
+Story 1.1.3: Create Local Process Manager (e.g., shell scripts)
+  Tasks:
+    [T] run-all.ps1 script to boot all 10 services + frontend
+    [T] Local PostgreSQL, Redis, Kafka installation guide
+    [T] Environment variable setup scripts
+  Deliverable: Ability to run the full stack locally without Docker
+  Acceptance: All services healthy and communicating locally
+
+--------------------------------------------------------------------
+EPIC 1.2: Database Schema Setup
+--------------------------------------------------------------------
+
+Story 1.2.1: Create Flyway migrations for all schemas
+  Tasks:
+    [T] V1__create_user_schema.sql (users, refresh_tokens, prefs)
+    [T] V1__create_portfolio_schema.sql (portfolios, holdings, history)
+    [T] V1__create_market_schema.sql (symbols, latest_prices,
+        price_history hypertable, news_sentiment)
+    [T] V1__create_risk_schema.sql (holding_risk_metrics, risk_events)
+    [T] V1__create_analytics_schema.sql (portfolio_kpis,
+        sector_exposure, performance_snapshots)
+    [T] V1__create_ai_schema.sql (analysis_snapshots)
+    [T] V1__create_audit_schema.sql (audit_log partitioned,
+        data_lineage)
+    [T] V2__add_indexes.sql for each schema
+    [T] V3__add_constraints_triggers.sql
+  Deliverable: All tables, indexes, constraints created
+  Acceptance: Flyway runs clean on fresh database
+  Dependency: PostgreSQL + TimescaleDB running
+
+Story 1.2.2: Seed master data
+  Tasks:
+    [T] Seed market_schema.symbols (500+ NSE/BSE stocks)
+    [T] Seed user_schema.users (admin account)
+    [T] Seed portfolio_schema.portfolios (import from current Excel)
+    [T] Seed portfolio_schema.holdings (12 stocks from current plan)
+  Deliverable: System boots with real data
+  Acceptance: GET /api/portfolios returns seeded plan
+
+--------------------------------------------------------------------
+EPIC 1.3: Kafka Cluster Setup
+--------------------------------------------------------------------
+
+Story 1.3.1: Configure Kafka topics and infrastructure
+  Tasks:
+    [T] Set up Kafka cluster (3 brokers, KRaft mode)
+    [T] Create 10 topics with correct partitions + replication
+    [T] Configure Dead Letter Topics (*.DLT) for each
+    [T] Test producer/consumer with simple test messages
+    [T] Document topic config in a kafka-topics.yml manifest
+  Deliverable: Kafka cluster with all topics ready
+  Acceptance: Producer sends + consumer receives on each topic
+  Risk: KRaft mode stability on local installation
+
+--------------------------------------------------------------------
+Testing Tasks (Sprint 1):
+  [T] Write ApplicationContextTest for each service (boots OK?)
+  [T] Write Flyway migration verification test
+  [T] Write Kafka connectivity smoke test
+  Coverage Target: 50% (infrastructure code only)
+--------------------------------------------------------------------
+
+
+====================================================================
+ SPRINT 2 — AUTH SERVICE + API GATEWAY (Weeks 3-4)
+====================================================================
+
+Sprint Goal:
+  Implement complete authentication flow. API Gateway routes and
+  validates JWT. CI pipeline green for all repos.
+
+--------------------------------------------------------------------
+EPIC 2.1: User Service — Authentication
+--------------------------------------------------------------------
+
+Story 2.1.1: Implement user registration
+  Tasks:
+    [T] RegisterRequest DTO with validation
+    [T] UserService.register() → BCrypt hash + save
+    [T] UserEventPublisher → publish user-registered to Kafka
+    [T] AuthController.register() endpoint
+    [T] EmailAlreadyExistsException handling
+  Deliverable: POST /api/auth/register creates user
+  Acceptance: User persisted in DB, event published to Kafka
+
+Story 2.1.2: Implement login + JWT generation
+  Tasks:
+    [T] JwtTokenProvider: RS256 key pair generation
+    [T] JwtTokenProvider.generateAccessToken() (15 min expiry)
+    [T] JwtTokenProvider.generateRefreshToken() (7 day)
+    [T] AuthService.login() → validate credentials → return tokens
+    [T] AuthController.login() endpoint
+    [T] RefreshToken persistence in DB
+    [T] Set refresh token as HttpOnly secure cookie
+  Deliverable: POST /api/auth/login returns JWT
+  Acceptance: Valid JWT returned, refresh token in cookie
+
+Story 2.1.3: Implement token refresh + logout
+  Tasks:
+    [T] AuthService.refresh() → validate refresh → new access token
+    [T] AuthController.refresh() endpoint
+    [T] TokenBlacklistService → Redis set with TTL
+    [T] AuthService.logout() → blacklist current token
+    [T] AuthController.logout() endpoint
+  Deliverable: Token lifecycle complete
+  Acceptance: Refresh works, logout invalidates token
+
+Story 2.1.4: Implement JWT auth filter
+  Tasks:
+    [T] JwtAuthFilter extends OncePerRequestFilter
+    [T] Extract token from Authorization header
+    [T] Validate signature + expiry + blacklist check
+    [T] Set SecurityContext with UserPrincipal
+    [T] Apply filter chain in SecurityConfig
+  Deliverable: Protected endpoints require valid JWT
+  Acceptance: 401 returned without token, 200 with valid token
+
+--------------------------------------------------------------------
+EPIC 2.2: API Gateway
+--------------------------------------------------------------------
+
+Story 2.2.1: Configure Spring Cloud Gateway routes
+  Tasks:
+    [T] Define routes in application.yml for all 10 services
+    [T] JwtValidationFilter (validate signature, inject headers)
+    [T] CorrelationIdFilter (generate X-Correlation-ID)
+    [T] RequestLoggingFilter (log method + path + duration)
+    [T] CorsFilter (configure allowed origins)
+  Deliverable: Gateway routes to downstream services
+  Acceptance: Request to /api/auth/login reaches User Service
+
+Story 2.2.2: Implement rate limiting
+  Tasks:
+    [T] RateLimiterConfig with Redis token bucket
+    [T] RateLimiterFilter (100 req/min per IP)
+    [T] Custom response on 429 Too Many Requests
+    [T] Admin override (1000 req/min)
+  Deliverable: Rate limiting active on all routes
+  Acceptance: 101st request within 1 min returns 429
+
+Story 2.2.3: Implement circuit breaker
+  Tasks:
+    [T] Resilience4j config per downstream service
+    [T] CircuitBreakerFilter with fallback response
+    [T] Health check aggregation endpoint
+  Deliverable: Circuit breaker protects against failing services
+  Acceptance: Service down → circuit opens → fallback response
+
+--------------------------------------------------------------------
+EPIC 2.3: Automated Test Verification (Local)
+--------------------------------------------------------------------
+
+Story 2.3.1: Automated Test Verification
+  Tasks:
+    [T] Configure local Maven/NPM test execution
+    [T] Set up test reporting tool (e.g., Surefire/Allure)
+    [T] Quality gate check via local static analysis (checkstyle)
+  Deliverable: Reliable local test execution across all repos
+  Acceptance: All tests pass locally via script
+
+--------------------------------------------------------------------
+Testing Tasks (Sprint 2):
+  [T] AuthControllerTest — MockMvc for all auth endpoints
+  [T] AuthServiceImplTest — Mockito for login/register/refresh
+  [T] JwtTokenProviderTest — token generation + validation
+  [T] JwtAuthFilterTest — filter chain behavior
+  [T] GatewayRoutingIntegrationTest — WireMock stubs
+  [T] RateLimiterFilterTest — TestContainers Redis
+  Coverage Target: 80% for User Service, 70% for Gateway
+--------------------------------------------------------------------
+
+
+====================================================================
+ SPRINT 3 — PORTFOLIO SERVICE (Weeks 5-6)
+====================================================================
+
+Sprint Goal:
+  Full Portfolio + Holding CRUD with auto-fill business rules.
+  Kafka event publishing on mutations.
+
+--------------------------------------------------------------------
+EPIC 3.1: Portfolio (Plan) CRUD
+--------------------------------------------------------------------
+
+Story 3.1.1: Create Plan API
+  Tasks:
+    [T] CreatePlanRequest DTO with validations
+    [T] PortfolioService.createPlan() → save + return
+    [T] PortfolioController POST /api/portfolios
+    [T] PlanResponse DTO + PortfolioMapper (MapStruct)
+    [T] Optimistic locking (version field)
+  Deliverable: POST creates a plan
+  Acceptance: Plan persisted, version=1, userId set from JWT
+
+Story 3.1.2: List / Get / Update / Delete Plan APIs
+  Tasks:
+    [T] GET /api/portfolios → list by userId (paginated)
+    [T] GET /api/portfolios/{id} → single plan with summary
+    [T] PUT /api/portfolios/{id} → update name/capital/risk
+    [T] DELETE /api/portfolios/{id} → soft delete
+    [T] PlanNotFoundException handling
+  Deliverable: Full Plan CRUD
+  Acceptance: All CRUD operations via Swagger
+
+--------------------------------------------------------------------
+EPIC 3.2: Holding CRUD with Auto-Fill
+--------------------------------------------------------------------
+
+Story 3.2.1: Add Holding with auto-fill defaults
+  Tasks:
+    [T] AddHoldingRequest DTO
+    [T] AutoFillDefaultsRule: T1=+6%, T2=+10%, T3=+15%, SL=-5%
+    [T] AllocationSyncRule: Allocation = Entry * Quantity
+    [T] HoldingValidationRule: SL < Entry < T1 < T2 < T3
+    [T] HoldingService.addHolding() → apply rules → save
+    [T] HoldingController POST /api/portfolios/{id}/holdings
+    [T] DuplicateHoldingException (one active per symbol)
+  Deliverable: Add holding with intelligent defaults
+  Acceptance: Blank T1/SL auto-filled, validation enforced
+
+Story 3.2.2: Holding List / Update / Delete
+  Tasks:
+    [T] GET /api/portfolios/{id}/holdings → list all
+    [T] PUT /api/portfolios/{id}/holdings/{hid} → update
+    [T] DELETE /api/portfolios/{id}/holdings/{hid} → soft delete
+    [T] HoldingHistory → record all changes (audit trail)
+  Deliverable: Full Holding CRUD
+  Acceptance: Update triggers history record
+
+--------------------------------------------------------------------
+EPIC 3.3: Portfolio Event Publishing
+--------------------------------------------------------------------
+
+Story 3.3.1: Publish portfolio-updated to Kafka
+  Tasks:
+    [T] PortfolioUpdatedEvent model (portfolioId, holdings[], ts)
+    [T] PortfolioEventPublisher using KafkaTemplate
+    [T] Publish on: add, update, delete holding
+    [T] Include full holdings snapshot in event payload
+    [T] Idempotent producer config (enable.idempotence=true)
+  Deliverable: Every holding mutation → Kafka event
+  Acceptance: Consumer receives event within 2 seconds
+
+--------------------------------------------------------------------
+EPIC 3.4: Portfolio Caching
+--------------------------------------------------------------------
+
+Story 3.4.1: Redis cache for portfolio list
+  Tasks:
+    [T] Cache key: portfolio:{userId}:list (10 min TTL)
+    [T] Cache-aside pattern: check cache → if miss → DB → cache
+    [T] Invalidate on portfolio-updated event
+    [T] @Cacheable annotation on service method
+  Deliverable: Second request served from Redis
+  Acceptance: Cache hit verified via Redis CLI
+
+--------------------------------------------------------------------
+Testing Tasks (Sprint 3):
+  [T] PortfolioControllerTest — MockMvc all endpoints
+  [T] HoldingControllerTest — MockMvc add/update/delete
+  [T] HoldingServiceImplTest — Mockito + rules verification
+  [T] AutoFillDefaultsRuleTest — ALL edge cases
+  [T] HoldingValidationRuleTest — boundary values
+  [T] PortfolioEventPublisherTest — @EmbeddedKafka
+  [T] HoldingRepositoryTest — @DataJpaTest
+  Coverage Target: 85% for Portfolio Service
+--------------------------------------------------------------------
+
+
+====================================================================
+ SPRINT 4 — MARKET DATA + SCRAPER (Weeks 7-8)
+====================================================================
+
+Sprint Goal:
+  Scraper fetching real prices. Market Data Service storing and
+  serving prices. End-to-end: Scrape → Kafka → DB → REST API.
+
+--------------------------------------------------------------------
+EPIC 4.1: Scraper Service — Source Adapters
+--------------------------------------------------------------------
+
+Story 4.1.1: Implement NSE API adapter
+  Tasks:
+    [T] NseApiAdapter implements SourceAdapter interface
+    [T] HTTP client with timeout + retry
+    [T] Parse response to RawPriceData model
+    [T] Error handling: SourceUnavailableException
+  Deliverable: NSE prices fetchable on demand
+
+Story 4.1.2: Implement MoneyControl web scraper
+  Tasks:
+    [T] MoneyControlScraper using Jsoup (HTML parsing)
+    [T] CSS selector-based price extraction
+    [T] Proxy rotation via ProxyRotator
+    [T] User-Agent rotation via UserAgentRotator
+  Deliverable: MoneyControl prices parseable
+
+Story 4.1.3: Implement scrape pipeline
+  Tasks:
+    [T] ScrapePipeline orchestrator (scrape → validate → dedup →
+        transform → publish)
+    [T] ValidationStage: price > 0, symbol in master list
+    [T] DeduplicationStage: Redis hash (symbol + timestamp)
+    [T] TransformationStage: normalize to PriceIngestedEvent
+    [T] PriceIngestedPublisher → Kafka topic
+  Deliverable: Pipeline processes raw data to Kafka events
+  Acceptance: Validated, deduped, normalized events published
+
+Story 4.1.4: Configure scheduling
+  Tasks:
+    [T] PriceScraperJob: every 5 min during market hours
+    [T] EodDataJob: 6 PM daily
+    [T] MarketHoursChecker: IST 9:15 AM - 3:30 PM
+    [T] DlqHandler: send to scrape-failed DLT after 3 retries
+  Deliverable: Automated scraping on schedule
+  Acceptance: Prices appear in Kafka every 5 min during market hrs
+
+--------------------------------------------------------------------
+EPIC 4.2: Market Data Service
+--------------------------------------------------------------------
+
+Story 4.2.1: Consume price-ingested events
+  Tasks:
+    [T] PriceIngestedConsumer → receive from Kafka
+    [T] Upsert latest_prices table
+    [T] Insert into price_history (TimescaleDB hypertable)
+    [T] Validate + deduplicate (DeduplicationService)
+    [T] Publish enriched price-updated event
+  Deliverable: Prices flow from Kafka to DB
+  Acceptance: price_history table grows with each scrape cycle
+
+Story 4.2.2: Price query REST APIs
+  Tasks:
+    [T] GET /api/prices/{symbol}/latest → from Redis cache
+    [T] GET /api/prices/{symbol}/history?from=&to=
+    [T] GET /api/prices/batch?symbols=BPCL,ONGC,...
+    [T] PriceCacheRedisAdapter → 60 sec TTL
+    [T] Cache-aside: Redis → if miss → DB → cache → respond
+  Deliverable: Price APIs serving from cache + DB
+  Acceptance: Latest price returns < 50ms (from Redis)
+
+Story 4.2.3: TimescaleDB setup
+  Tasks:
+    [T] Create hypertable on price_history
+    [T] Add compression policy (after 30 days)
+    [T] Add retention policy (3 years)
+    [T] Create continuous aggregate: price_weekly
+  Deliverable: Time-series optimized storage
+  Acceptance: 1 year of daily data queries < 200ms
+
+--------------------------------------------------------------------
+Testing Tasks (Sprint 4):
+  [T] NseApiAdapterTest — mock HTTP responses
+  [T] MoneyControlScraperTest — mock HTML
+  [T] ValidationStageTest — boundary cases
+  [T] DeduplicationStageTest — TestContainers Redis
+  [T] PriceIngestedConsumerTest — @EmbeddedKafka
+  [T] PriceQueryControllerTest — MockMvc
+  [T] PriceCacheRedisAdapterTest — TestContainers Redis
+  [T] TimescaleDB integration test — TestContainers PG
+  Coverage Target: 80% Scraper, 85% Market Data
+--------------------------------------------------------------------
+
+
+====================================================================
+ SPRINT 5 — ANGULAR SHELL + AUTH UI (Weeks 9-10)
+====================================================================
+
+Sprint Goal:
+  Angular app with dark theme, sidenav, login flow, and Plan List
+  screen. NgRx authenticated state management.
+
+--------------------------------------------------------------------
+EPIC 5.1: Angular App Shell
+--------------------------------------------------------------------
+
+Story 5.1.1: Design system setup
+  Tasks:
+    [T] _variables.scss — dark theme tokens from tactical_dashboard
+    [T] _typography.scss — Inter + JetBrains Mono fonts
+    [T] _mixins.scss — responsive breakpoints, animations
+    [T] global.scss — CSS reset + imports
+    [T] Install Angular Material + CDK
+  Deliverable: Design system ready
+  Acceptance: Consistent dark theme across app
+
+Story 5.1.2: App shell with sidenav
+  Tasks:
+    [T] AppComponent — sidenav + router-outlet layout
+    [T] Sidenav items: Dashboard, Plans, Tactical, Portfolio,
+        Risk, Market, Analytics, AI, Alerts, Admin
+    [T] routerLinkActive highlighting
+    [T] Responsive: collapsible sidenav on mobile
+    [T] Header bar with user avatar + notification bell
+  Deliverable: Navigation shell functional
+  Acceptance: Click sidenav → navigates to route
+
+Story 5.1.3: Core module setup
+  Tasks:
+    [T] CoreModule with providedIn: root guards + interceptors
+    [T] JwtInterceptor — attach Bearer token
+    [T] ErrorInterceptor — global HTTP error handling
+    [T] LoadingInterceptor — show/hide spinner
+    [T] AuthGuard + RoleGuard
+  Deliverable: All HTTP requests authenticated + error handled
+
+--------------------------------------------------------------------
+EPIC 5.2: Authentication UI
+--------------------------------------------------------------------
+
+Story 5.2.1: Login screen
+  Tasks:
+    [T] LoginComponent with form (email + password)
+    [T] AuthService.login() → POST /api/auth/login
+    [T] NgRx: Login action → LoginSuccess/Failure
+    [T] Store JWT in localStorage
+    [T] Redirect to /dashboard on success
+    [T] Error message display on failure
+  Deliverable: User can log in
+  Acceptance: Valid credentials → dashboard; invalid → error
+
+Story 5.2.2: NgRx Auth state
+  Tasks:
+    [T] AuthState interface (user, token, role, loading, error)
+    [T] auth.actions.ts (Login, LoginSuccess, Logout, Refresh)
+    [T] auth.reducer.ts
+    [T] auth.effects.ts (login$, refresh$, logout$)
+    [T] auth.selectors.ts (selectIsAuth, selectRole, selectUser)
+  Deliverable: Auth state managed in NgRx
+  Acceptance: Redux DevTools shows auth state transitions
+
+--------------------------------------------------------------------
+EPIC 5.3: Plan List Screen
+--------------------------------------------------------------------
+
+Story 5.3.1: Plan List page
+  Tasks:
+    [T] PlansModule (lazy-loaded)
+    [T] PlanListComponent — table with columns: Name, Capital,
+        Risk Profile, Active Stocks, Created At, Actions
+    [T] NgRx: planState (plans[], activePlanId, loading)
+    [T] PlanService.getPlans() → GET /api/portfolios
+    [T] Plan create dialog (name, capital, risk profile)
+    [T] Plan archive / delete actions
+  Deliverable: Plan CRUD from UI
+  Acceptance: Create plan → appears in list → click → navigates
+
+--------------------------------------------------------------------
+Testing Tasks (Sprint 5):
+  [T] LoginComponent unit test — form validation
+  [T] AuthService unit test — HTTP calls
+  [T] auth.reducer spec — state transitions
+  [T] auth.effects spec — API call handling
+  [T] PlanListComponent unit test
+  [T] E2E: Login flow (Cypress)
+  Coverage Target: 75% Angular code
+--------------------------------------------------------------------
+
+
+====================================================================
+ SPRINT 6 — TACTICAL DASHBOARD UI (Weeks 11-12)
+====================================================================
+
+Sprint Goal:
+  Build the centerpiece screen: Tactical Dashboard with KPIs, charts,
+  risk table, scenario cards, and WebSocket connection.
+
+--------------------------------------------------------------------
+EPIC 6.1: Tactical Dashboard — KPIs
+--------------------------------------------------------------------
+
+Story 6.1.1: KPI card row
+  Tasks:
+    [T] KpiCardComponent (shared) — icon, label, value, subtitle
+    [T] 6 KPI cards: Total Capital, Current Value, Total P&L,
+        Portfolio Heat, Capital After SL, Active Stocks
+    [T] Color-coded top borders (blue/green/red/gold)
+    [T] Currency pipe (₹ format), percent pipe
+    [T] NgRx selectors: selectPortfolioKpis
+  Deliverable: KPI row renders live data
+  Acceptance: Values match backend calculation
+
+--------------------------------------------------------------------
+EPIC 6.2: Tactical Dashboard — Charts
+--------------------------------------------------------------------
+
+Story 6.2.1: ECharts integration
+  Tasks:
+    [T] Install ngx-echarts + apache-echarts
+    [T] ChartWidgetComponent (shared wrapper)
+    [T] HeatGaugeComponent — doughnut 180° (portfolio heat)
+    [T] SectorDonutComponent — donut with legend
+    [T] ScenarioBarComponent — grouped bar (bull/bear/neutral)
+    [T] PnlBarChartComponent — horizontal bars (green/red)
+    [T] PriceLevelsChartComponent — grouped bar (Current/SL/T1)
+  Deliverable: 5 chart widgets rendering on dashboard
+  Acceptance: Charts respond to data changes
+
+--------------------------------------------------------------------
+EPIC 6.3: Tactical Dashboard — Risk Table
+--------------------------------------------------------------------
+
+Story 6.3.1: Risk holdings table
+  Tasks:
+    [T] DataTableComponent (shared, virtual scroll enabled)
+    [T] Columns: Stock, Sector, Entry, Current, P&L%,
+        Dist SL%, Dist T1%, R:R, Risk, Action
+    [T] ActionBadgeComponent — Hold/Exit/Book Profit badges
+    [T] Column sorting + sector filter dropdown
+    [T] Row color coding based on P&L%
+    [T] CdkVirtualScrollViewport for 100+ rows
+  Deliverable: Interactive risk table
+  Acceptance: Sort by any column, filter by sector
+
+--------------------------------------------------------------------
+EPIC 6.4: WebSocket Integration
+--------------------------------------------------------------------
+
+Story 6.4.1: WebSocket service + NgRx integration
+  Tasks:
+    [T] WebSocketService — connect/disconnect/reconnect
+    [T] Auto-reconnect with exponential backoff
+    [T] Heartbeat ping every 30 seconds
+    [T] Message routing to NgRx actions (by event type)
+    [T] Effects: price-updated → MarketActions.priceUpdated()
+    [T] Effects: risk-recalculated → RiskActions.riskRecalculated()
+    [T] Debounce incoming messages at 200ms
+  Deliverable: Real-time updates flowing to dashboard
+  Acceptance: Price change in backend → KPIs update in < 3s
+
+--------------------------------------------------------------------
+Testing Tasks (Sprint 6):
+  [T] KpiCardComponent unit test
+  [T] ChartWidgetComponent unit test (mock ECharts)
+  [T] DataTableComponent unit test (virtual scroll)
+  [T] WebSocketService unit test (mock WebSocket)
+  [T] portfolio.selectors spec — memoization verification
+  [T] E2E: Dashboard loads with data (Cypress)
+  Coverage Target: 75% Angular, 80% NgRx code
+--------------------------------------------------------------------
+
+
+====================================================================
+ SPRINT 7 — RISK ENGINE + NOTIFICATION (Weeks 13-14)
+====================================================================
+
+Sprint Goal:
+  Risk Engine processes price events, computes all metrics, triggers
+  alerts. Notification Service pushes real-time alerts to UI.
+
+--------------------------------------------------------------------
+EPIC 7.1: Risk Engine — Calculation Core
+--------------------------------------------------------------------
+
+Story 7.1.1: Implement calculation engine
+  Tasks:
+    [T] PnlCalculator: P&L Rs + P&L %
+    [T] RiskAmountCalculator: (Entry - SL) * Qty
+    [T] DistanceCalculator: Dist to SL%, Dist to T1%
+    [T] RewardRiskCalculator: (T1 - Entry) / (Entry - SL)
+    [T] ExpectedValueCalculator: RR * RiskAmount
+    [T] ActionResolver: Hold / Book Profit / Exit
+    [T] RiskCalculationEngine: orchestrate all calculators
+  Deliverable: All formulas implemented
+  Acceptance: Unit tests pass for 50+ test cases
+
+Story 7.1.2: Event consumers
+  Tasks:
+    [T] PriceUpdatedConsumer → find all holdings with symbol
+        → recalculate → persist → publish
+    [T] PortfolioUpdatedConsumer → recalculate all holdings
+        in portfolio → persist → publish
+    [T] EventIdempotencyService — Redis (skip if processed)
+    [T] Redis lock per holdingId (5 sec TTL, prevent double calc)
+  Deliverable: Risk Engine reacts to events
+  Acceptance: Price event → metrics updated in < 5 seconds
+
+Story 7.1.3: Threshold detectors
+  Tasks:
+    [T] StopLossTriggerDetector: current <= SL → publish event
+    [T] TargetHitDetector: current >= T1/T2/T3 → publish event
+    [T] RiskThresholdDetector: heat > 6% → publish warning
+    [T] Persist trigger events in risk_events_log
+  Deliverable: SL/Target triggers fire automatically
+  Acceptance: Price drops below SL → stoploss-triggered published
+
+--------------------------------------------------------------------
+EPIC 7.2: Notification Service
+--------------------------------------------------------------------
+
+Story 7.2.1: WebSocket push server
+  Tasks:
+    [T] WebSocketConfig with STOMP + SockJS
+    [T] WebSocketAuthInterceptor — JWT validation on handshake
+    [T] WebSocketSessionManager — track active user connections
+    [T] WebSocketPushService — send JSON to user's session
+  Deliverable: Server can push to connected clients
+  Acceptance: Client receives JSON within 1 second
+
+Story 7.2.2: Event consumers + dispatching
+  Tasks:
+    [T] StopLossConsumer → build alert → dispatch to channels
+    [T] TargetHitConsumer → build alert → dispatch to channels
+    [T] NotificationDispatcher → route to WebSocket + Email
+    [T] AlertDeduplicationService — Redis (skip if sent, 1h TTL)
+  Deliverable: Events become user notifications
+  Acceptance: SL trigger → in-app alert + email sent
+
+Story 7.2.3: Email notifications
+  Tasks:
+    [T] EmailChannel implements NotificationChannel
+    [T] Thymeleaf email templates: stoploss, target-hit
+    [T] AWS SES / SendGrid integration
+    [T] MailConfig with SMTP credentials from env vars
+  Deliverable: Email alerts sent for SL/Target
+  Acceptance: Email received within 30 seconds of trigger
+
+--------------------------------------------------------------------
+EPIC 7.3: Audit Service
+--------------------------------------------------------------------
+
+Story 7.3.1: Universal event consumer
+  Tasks:
+    [T] Consumers for ALL 8 Kafka topics
+    [T] EventToAuditLogTransformer — maps any event to audit row
+    [T] AuditPersistenceService — append to audit_log
+    [T] DataLineageService — source→target tracking
+  Deliverable: All events logged immutably
+  Acceptance: Every Kafka event has an audit_log entry
+
+Story 7.3.2: Audit query APIs
+  Tasks:
+    [T] GET /api/audit?entity=holding&id={uuid}&from=&to=
+    [T] GET /api/audit/lineage/{entityId}
+    [T] Read-only controller (NO POST/PUT/DELETE)
+    [T] Pagination support for large result sets
+  Deliverable: Audit trail queryable
+  Acceptance: Can trace holding changes from creation to present
+
+--------------------------------------------------------------------
+Testing Tasks (Sprint 7):
+  [T] RiskCalculationEngineTest — 50+ cases with known answers
+  [T] ActionResolverTest — Hold/Exit/BookProfit boundary cases
+  [T] StopLossTriggerDetectorTest
+  [T] PriceUpdatedConsumerTest — @EmbeddedKafka
+  [T] WebSocketPushServiceTest
+  [T] StopLossConsumerTest — @EmbeddedKafka
+  [T] AuditPersistenceServiceTest
+  [T] E2E: Price drop → Risk recalc → Alert in UI (manual)
+  Coverage Target: 90% Risk Engine, 80% Notification, 70% Audit
+--------------------------------------------------------------------
+
+
+====================================================================
+ SPRINT 8 — INTEGRATION + END-TO-END FLOW (Weeks 15-16)
+====================================================================
+
+Sprint Goal:
+  All services connected. End-to-end: Scraper → Market Data →
+  Risk Engine → Notification → UI. Full flow operational.
+
+--------------------------------------------------------------------
+EPIC 8.1: End-to-End Integration
+--------------------------------------------------------------------
+
+Story 8.1.1: Full event chain verification
+  Tasks:
+    [T] Trigger scraper manually → verify price-ingested event
+    [T] Verify Market Data consumes → price-updated published
+    [T] Verify Risk Engine consumes → risk-recalculated published
+    [T] Verify Notification consumes → WebSocket push to UI
+    [T] Verify Audit consumes → all 4 events logged
+    [T] Measure end-to-end latency (target < 10 seconds)
+  Deliverable: Complete event chain working
+  Acceptance: Price change at source → UI updates automatically
+
+Story 8.1.2: UI integration polish
+  Tasks:
+    [T] Dashboard KPIs update on WebSocket events
+    [T] Risk table rows update in real-time
+    [T] Chart data refreshes on portfolio/risk events
+    [T] Notification bell badge shows unread count
+    [T] Toast notifications for SL/Target alerts
+  Deliverable: UI feels alive with real-time updates
+  Acceptance: User sees changes without manual refresh
+
+--------------------------------------------------------------------
+EPIC 8.2: Additional UI Screens
+--------------------------------------------------------------------
+
+Story 8.2.1: Portfolio Holdings screen
+  Tasks:
+    [T] HoldingsGridComponent — full holding detail table
+    [T] AddHoldingDialog — form with validation
+    [T] HoldingDetailComponent — expanded view with chart
+    [T] Sector filter + column sorting
+  Deliverable: Separate holdings management screen
+
+Story 8.2.2: Risk Dashboard screen
+  Tasks:
+    [T] SL Tracker — sorted by distance to SL
+    [T] Target Tracker — sorted by distance to T1
+    [T] Risk distribution chart (Low/Medium/High)
+    [T] Near-SL warnings (highlighting stocks < 3% from SL)
+  Deliverable: Dedicated risk management screen
+
+Story 8.2.3: Alerts screen
+  Tasks:
+    [T] Alert list with severity badges
+    [T] Mark as read / Mark all read
+    [T] Filter by type (SL, Target, Warning)
+    [T] Alert detail view
+  Deliverable: Alert history + management
+
+--------------------------------------------------------------------
+EPIC 8.3: Integration Testing Suite
+--------------------------------------------------------------------
+
+Story 8.3.1: Contract testing between services
+  Tasks:
+    [T] Define Kafka event schemas as JSON Schema
+    [T] Producer tests: verify published events match schema
+    [T] Consumer tests: verify consumption of schema-valid events
+    [T] Document event contracts in shared wiki
+  Deliverable: Event contracts enforced automatically
+
+Story 8.3.2: End-to-end test suite
+  Tasks:
+    [T] Cypress E2E: Login → Create Plan → Add Holding →
+        See Dashboard → Verify KPIs
+    [T] Cypress E2E: Simulate price drop → SL alert appears
+    [T] API integration tests: full CRUD flow via Gateway
+  Deliverable: Automated E2E test suite
+  Acceptance: CI runs full E2E on staging
+
+--------------------------------------------------------------------
+Testing Tasks (Sprint 8):
+  [T] Full integration test suite
+  [T] Contract tests for all 8 event types
+  [T] Cypress E2E: 5 critical paths
+  [T] Load test: 100 concurrent API requests
+  Coverage Target: 80%+ all services, E2E green
+--------------------------------------------------------------------
+
+================================================================================
+ END OF PART 1 — SPRINTS 1-8 (Weeks 1-16)
+================================================================================
+
+ >>> CONTINUE IN: plan_implementation_roadmap_part2.txt
+     Covers: Sprints 9-16, Testing Strategy, CI/CD Plan, DevOps,
+     Security, Data Migration, Risk Mitigation, Team Structure,
+     Production Readiness Checklist
+================================================================================

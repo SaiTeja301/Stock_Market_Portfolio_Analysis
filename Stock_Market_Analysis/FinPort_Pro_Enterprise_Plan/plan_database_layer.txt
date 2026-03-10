@@ -1,0 +1,874 @@
+================================================================================
+  PART 3 — DATABASE & DATA ARCHITECTURE PLAN
+  Tactical Financial Portfolio Management Platform
+  Version: 1.0 | Date: March 2026
+================================================================================
+
+================================================================================
+ 1. ARCHITECTURE OVERVIEW
+================================================================================
+
+Database Layer Principles:
+  - Each microservice owns its schema exclusively
+  - NO cross-schema foreign keys (services are independent)
+  - PostgreSQL 16 as primary transactional database
+  - TimescaleDB extension for time-series stock data
+  - Redis for caching, session, rate limiting
+  - Flyway for version-controlled migrations
+  - Multi-tenancy ready via user_id isolation
+
+Strategy:
+  - 3NF normalization for OLTP schemas (user, portfolio, market)
+  - Controlled denormalization for analytics (read-optimized)
+  - Append-only pattern for audit and time-series data
+  - Soft deletes (deleted_at) — never hard delete
+
+================================================================================
+ 2. MULTI-SCHEMA DESIGN
+================================================================================
+
+PostgreSQL Instance Layout:
+--------------------------------------------------------------------
+Database: finport_db
+  ├── user_schema          → User Service (auth, RBAC)
+  ├── portfolio_schema     → Portfolio Service (plans, holdings)
+  ├── market_schema        → Market Data Service (prices, history)
+  ├── risk_schema          → Risk Engine Service (calculated metrics)
+  ├── analytics_schema     → Analytics Service (KPIs, reports)
+  ├── ai_schema            → AI Service (analysis snapshots)
+  └── audit_schema         → Cross-service audit trail
+--------------------------------------------------------------------
+
+Each schema is accessed ONLY by its owning service.
+Schema permissions enforced at the DB role level.
+
+================================================================================
+ 3. SCHEMA DEFINITIONS
+================================================================================
+
+====================================================================
+ 3.1 user_schema — User Service
+====================================================================
+
+--------------------------------------------------------------------
+TABLE: user_schema.users
+--------------------------------------------------------------------
+Column              Type                Constraints
+--------------------------------------------------------------------
+id                  UUID                PK, DEFAULT gen_random_uuid()
+email               VARCHAR(255)        NOT NULL, UNIQUE
+password_hash       TEXT                NOT NULL
+full_name           VARCHAR(255)        NOT NULL
+role                VARCHAR(50)         NOT NULL, DEFAULT 'USER'
+                                        CHECK (role IN ('ADMIN','MANAGER',
+                                               'TRADER','ANALYST','VIEWER'))
+is_active           BOOLEAN             NOT NULL, DEFAULT TRUE
+last_login_at       TIMESTAMPTZ         NULL
+created_at          TIMESTAMPTZ         NOT NULL, DEFAULT NOW()
+updated_at          TIMESTAMPTZ         NOT NULL, DEFAULT NOW()
+deleted_at          TIMESTAMPTZ         NULL (soft delete)
+--------------------------------------------------------------------
+
+INDEXES:
+  idx_users_email         → UNIQUE ON (email) WHERE deleted_at IS NULL
+  idx_users_role          → ON (role)
+  idx_users_active        → ON (is_active) WHERE deleted_at IS NULL
+
+--------------------------------------------------------------------
+TABLE: user_schema.refresh_tokens
+--------------------------------------------------------------------
+Column              Type                Constraints
+--------------------------------------------------------------------
+id                  UUID                PK, DEFAULT gen_random_uuid()
+user_id             UUID                NOT NULL, FK → users(id)
+token_hash          TEXT                NOT NULL, UNIQUE
+device_info         VARCHAR(255)        NULL (browser/device)
+expires_at          TIMESTAMPTZ         NOT NULL
+is_revoked          BOOLEAN             DEFAULT FALSE
+created_at          TIMESTAMPTZ         DEFAULT NOW()
+--------------------------------------------------------------------
+
+INDEXES:
+  idx_refresh_user        → ON (user_id)
+  idx_refresh_expires     → ON (expires_at) — for cleanup job
+
+--------------------------------------------------------------------
+TABLE: user_schema.user_preferences
+--------------------------------------------------------------------
+Column              Type                Constraints
+--------------------------------------------------------------------
+id                  UUID                PK
+user_id             UUID                NOT NULL, UNIQUE FK → users(id)
+theme               VARCHAR(20)         DEFAULT 'dark'
+default_plan_id     UUID                NULL
+table_columns       JSONB               DEFAULT '[]'
+notification_prefs  JSONB               DEFAULT '{}'
+created_at          TIMESTAMPTZ         DEFAULT NOW()
+updated_at          TIMESTAMPTZ         DEFAULT NOW()
+--------------------------------------------------------------------
+
+NORMALIZATION LEVEL: 3NF
+  - Preferences separated from users (1:1, optional data)
+  - Refresh tokens in separate table (1:many per user)
+
+
+====================================================================
+ 3.2 portfolio_schema — Portfolio Service
+====================================================================
+
+--------------------------------------------------------------------
+TABLE: portfolio_schema.portfolios
+--------------------------------------------------------------------
+Column              Type                Constraints
+--------------------------------------------------------------------
+id                  UUID                PK, DEFAULT gen_random_uuid()
+user_id             UUID                NOT NULL (ref only, no FK)
+name                VARCHAR(255)        NOT NULL
+description         TEXT                NULL
+total_capital       NUMERIC(20,2)       NOT NULL, DEFAULT 100000.00
+risk_profile        VARCHAR(50)         DEFAULT 'Moderate'
+                                        CHECK (risk_profile IN ('Conservative',
+                                               'Moderate','Aggressive'))
+is_active           BOOLEAN             DEFAULT TRUE
+version             INT                 NOT NULL, DEFAULT 1
+                                        (optimistic locking)
+created_at          TIMESTAMPTZ         NOT NULL, DEFAULT NOW()
+updated_at          TIMESTAMPTZ         NOT NULL, DEFAULT NOW()
+deleted_at          TIMESTAMPTZ         NULL (soft delete)
+--------------------------------------------------------------------
+
+INDEXES:
+  idx_portfolio_user      → ON (user_id)
+  idx_portfolio_active    → ON (user_id, is_active)
+                            WHERE deleted_at IS NULL
+  idx_portfolio_name      → ON (user_id, name)
+                            UNIQUE WHERE deleted_at IS NULL
+
+--------------------------------------------------------------------
+TABLE: portfolio_schema.holdings
+--------------------------------------------------------------------
+Column              Type                Constraints
+--------------------------------------------------------------------
+id                  UUID                PK, DEFAULT gen_random_uuid()
+portfolio_id        UUID                NOT NULL, FK → portfolios(id)
+                                        ON DELETE CASCADE
+symbol              VARCHAR(20)         NOT NULL
+sector              VARCHAR(100)        NOT NULL
+sub_sector          VARCHAR(100)        NULL
+entry_price         NUMERIC(12,2)       NOT NULL, CHECK (> 0)
+quantity            INT                 NOT NULL, CHECK (> 0)
+stop_loss           NUMERIC(12,2)       NULL (auto-filled if blank)
+target_1            NUMERIC(12,2)       NULL (auto-filled if blank)
+target_2            NUMERIC(12,2)       NULL (auto-filled if blank)
+target_3            NUMERIC(12,2)       NULL (auto-filled if blank)
+risk_level          VARCHAR(20)         DEFAULT 'Medium'
+                                        CHECK (risk_level IN ('Low',
+                                               'Medium','Medium-High','High'))
+strategic_role      VARCHAR(50)         DEFAULT 'Tactical Swing'
+volatility          VARCHAR(20)         DEFAULT 'Medium'
+entry_date          DATE                NOT NULL, DEFAULT CURRENT_DATE
+notes               TEXT                NULL
+is_active           BOOLEAN             DEFAULT TRUE
+version             INT                 NOT NULL, DEFAULT 1
+created_at          TIMESTAMPTZ         NOT NULL, DEFAULT NOW()
+updated_at          TIMESTAMPTZ         NOT NULL, DEFAULT NOW()
+deleted_at          TIMESTAMPTZ         NULL (soft delete)
+--------------------------------------------------------------------
+
+INDEXES:
+  idx_holdings_portfolio  → ON (portfolio_id)
+  idx_holdings_symbol     → ON (symbol)
+  idx_holdings_sector     → ON (sector)
+  uidx_holding_active     → UNIQUE ON (portfolio_id, symbol)
+                            WHERE deleted_at IS NULL
+                            (one active holding per symbol per plan)
+  idx_holdings_date       → ON (entry_date)
+
+BUSINESS RULES IN DB:
+  CONSTRAINT chk_sl_below_entry:
+    CHECK (stop_loss IS NULL OR stop_loss < entry_price)
+  CONSTRAINT chk_t1_above_entry:
+    CHECK (target_1 IS NULL OR target_1 > entry_price)
+
+TRIGGER:
+  before_update_holding → SET updated_at = NOW(), version = version + 1
+
+--------------------------------------------------------------------
+TABLE: portfolio_schema.holding_history
+--------------------------------------------------------------------
+Purpose: Track all changes to holdings for compliance/audit
+Column              Type                Constraints
+--------------------------------------------------------------------
+id                  BIGSERIAL           PK
+holding_id          UUID                NOT NULL
+action              VARCHAR(20)         NOT NULL
+                                        ('CREATED','UPDATED','DELETED')
+old_values          JSONB               NULL
+new_values          JSONB               NOT NULL
+changed_by          UUID                NOT NULL (user_id)
+changed_at          TIMESTAMPTZ         DEFAULT NOW()
+--------------------------------------------------------------------
+
+INDEXES:
+  idx_hold_hist_holding   → ON (holding_id)
+  idx_hold_hist_time      → ON (changed_at DESC)
+
+NORMALIZATION LEVEL: 3NF
+  - 1:many between portfolio and holdings
+  - History table is append-only (never updated)
+  - JSONB for flexible old/new value storage
+
+
+====================================================================
+ 3.3 market_schema — Market Data Service
+====================================================================
+
+--------------------------------------------------------------------
+TABLE: market_schema.symbols
+--------------------------------------------------------------------
+Purpose: Master list of tradeable symbols
+Column              Type                Constraints
+--------------------------------------------------------------------
+symbol              VARCHAR(20)         PK
+company_name        VARCHAR(255)        NOT NULL
+exchange            VARCHAR(10)         DEFAULT 'NSE'
+sector              VARCHAR(100)        NULL
+sub_sector          VARCHAR(100)        NULL
+is_active           BOOLEAN             DEFAULT TRUE
+created_at          TIMESTAMPTZ         DEFAULT NOW()
+--------------------------------------------------------------------
+
+--------------------------------------------------------------------
+TABLE: market_schema.latest_prices
+--------------------------------------------------------------------
+Purpose: Cache of most recent price per symbol
+Column              Type                Constraints
+--------------------------------------------------------------------
+symbol              VARCHAR(20)         PK, FK → symbols(symbol)
+price               NUMERIC(12,2)       NOT NULL, CHECK (> 0)
+open_price          NUMERIC(12,2)       NULL
+high_price          NUMERIC(12,2)       NULL
+low_price           NUMERIC(12,2)       NULL
+change_pct          NUMERIC(8,4)        NULL
+volume              BIGINT              NULL
+source              VARCHAR(50)         NOT NULL
+                                        ('nse','moneycontrol','groww')
+refreshed_at        TIMESTAMPTZ         NOT NULL, DEFAULT NOW()
+--------------------------------------------------------------------
+
+INDEXES:
+  idx_latest_refreshed    → ON (refreshed_at DESC)
+  idx_latest_source       → ON (source)
+
+--------------------------------------------------------------------
+TABLE: market_schema.price_history
+--------------------------------------------------------------------
+Purpose: Historical OHLCV data — TimescaleDB hypertable
+Column              Type                Constraints
+--------------------------------------------------------------------
+symbol              VARCHAR(20)         NOT NULL
+price_date          DATE                NOT NULL
+open_price          NUMERIC(12,2)       NOT NULL
+high_price          NUMERIC(12,2)       NOT NULL
+low_price           NUMERIC(12,2)       NOT NULL
+close_price         NUMERIC(12,2)       NOT NULL
+volume              BIGINT              DEFAULT 0
+source              VARCHAR(50)         DEFAULT 'nse'
+created_at          TIMESTAMPTZ         DEFAULT NOW()
+--------------------------------------------------------------------
+
+PRIMARY KEY: (symbol, price_date) — composite PK
+
+TIMESCALEDB HYPERTABLE:
+  SELECT create_hypertable('market_schema.price_history',
+    'price_date',
+    chunk_time_interval => INTERVAL '1 month');
+
+INDEXES:
+  idx_price_hist_symbol_date → ON (symbol, price_date DESC)
+  idx_price_hist_date        → ON (price_date DESC)
+
+PARTITIONING STRATEGY:
+  - TimescaleDB auto-creates monthly chunks
+  - Each chunk = one month of data for ALL symbols
+  - Chunk naming: _hyper_1_1_chunk, _hyper_1_2_chunk, ...
+
+RETENTION POLICY:
+  SELECT add_retention_policy('market_schema.price_history',
+    INTERVAL '3 years');
+  — Automatically drops chunks older than 3 years
+
+ARCHIVAL:
+  Before dropping, archive to S3 as Parquet files:
+  s3://finport-archive/price_history/year=2023/month=01/data.parquet
+  Archive job runs weekly (cron)
+
+COMPRESSION:
+  SELECT add_compression_policy('market_schema.price_history',
+    compress_after => INTERVAL '30 days');
+  — Data older than 30 days is compressed 10x
+
+CONTINUOUS AGGREGATES (Materialized Views):
+  -- Weekly OHLCV
+  CREATE MATERIALIZED VIEW market_schema.price_weekly
+  WITH (timescaledb.continuous) AS
+  SELECT
+    symbol,
+    time_bucket('1 week', price_date) AS week,
+    first(open_price, price_date)     AS open_price,
+    max(high_price)                   AS high_price,
+    min(low_price)                    AS low_price,
+    last(close_price, price_date)     AS close_price,
+    sum(volume)                       AS total_volume
+  FROM market_schema.price_history
+  GROUP BY symbol, time_bucket('1 week', price_date);
+
+  -- Monthly OHLCV (same pattern with '1 month' bucket)
+
+--------------------------------------------------------------------
+TABLE: market_schema.news_sentiment
+--------------------------------------------------------------------
+Purpose: Scraped news with sentiment scoring
+Column              Type                Constraints
+--------------------------------------------------------------------
+id                  BIGSERIAL           PK
+symbol              VARCHAR(20)         NOT NULL
+headline            TEXT                NOT NULL
+summary             TEXT                NULL
+sentiment           VARCHAR(20)         DEFAULT 'neutral'
+                                        ('positive','neutral','negative')
+sentiment_score     NUMERIC(5,4)        NULL (-1.0 to +1.0)
+source              VARCHAR(100)        NOT NULL
+published_at        TIMESTAMPTZ         NOT NULL
+scraped_at          TIMESTAMPTZ         DEFAULT NOW()
+--------------------------------------------------------------------
+
+INDEXES:
+  idx_news_symbol_date    → ON (symbol, published_at DESC)
+  idx_news_sentiment      → ON (sentiment)
+
+
+====================================================================
+ 3.4 risk_schema — Risk Engine Service
+====================================================================
+
+--------------------------------------------------------------------
+TABLE: risk_schema.holding_risk_metrics
+--------------------------------------------------------------------
+Purpose: Latest calculated risk metrics per holding
+Column              Type                Constraints
+--------------------------------------------------------------------
+id                  UUID                PK, DEFAULT gen_random_uuid()
+holding_id          UUID                NOT NULL, UNIQUE
+portfolio_id        UUID                NOT NULL
+user_id             UUID                NOT NULL
+symbol              VARCHAR(20)         NOT NULL
+entry_price         NUMERIC(12,2)       NOT NULL
+quantity            INT                 NOT NULL
+stop_loss           NUMERIC(12,2)       NOT NULL
+target_1            NUMERIC(12,2)       NOT NULL
+current_price       NUMERIC(12,2)       NOT NULL
+investment_value    NUMERIC(20,2)       NOT NULL
+current_value       NUMERIC(20,2)       NOT NULL
+pnl_rs              NUMERIC(20,2)       NOT NULL
+pnl_pct             NUMERIC(10,6)       NOT NULL
+risk_amount         NUMERIC(20,2)       NOT NULL
+sl_exit_value       NUMERIC(20,2)       NOT NULL
+dist_to_sl_pct      NUMERIC(10,6)       NOT NULL
+dist_to_t1_pct      NUMERIC(10,6)       NOT NULL
+reward_risk_ratio   NUMERIC(8,2)        NOT NULL
+expected_value      NUMERIC(20,2)       NOT NULL
+action              VARCHAR(50)         NOT NULL
+calculated_at       TIMESTAMPTZ         NOT NULL, DEFAULT NOW()
+version             INT                 NOT NULL, DEFAULT 1
+--------------------------------------------------------------------
+
+INDEXES:
+  uidx_risk_holding       → UNIQUE ON (holding_id)
+  idx_risk_portfolio      → ON (portfolio_id)
+  idx_risk_user           → ON (user_id)
+  idx_risk_symbol         → ON (symbol)
+  idx_risk_action         → ON (action) — for quick EXIT/BOOK queries
+  idx_risk_calculated     → ON (calculated_at DESC)
+
+--------------------------------------------------------------------
+TABLE: risk_schema.risk_events_log
+--------------------------------------------------------------------
+Purpose: History of SL triggers and target hits
+Column              Type                Constraints
+--------------------------------------------------------------------
+id                  BIGSERIAL           PK
+holding_id          UUID                NOT NULL
+portfolio_id        UUID                NOT NULL
+event_type          VARCHAR(30)         NOT NULL
+                                        ('STOPLOSS_TRIGGERED',
+                                         'TARGET_1_HIT',
+                                         'TARGET_2_HIT',
+                                         'TARGET_3_HIT')
+trigger_price       NUMERIC(12,2)       NOT NULL
+threshold_price     NUMERIC(12,2)       NOT NULL
+symbol              VARCHAR(20)         NOT NULL
+event_at            TIMESTAMPTZ         NOT NULL, DEFAULT NOW()
+acknowledged        BOOLEAN             DEFAULT FALSE
+--------------------------------------------------------------------
+
+INDEXES:
+  idx_risk_events_holding → ON (holding_id, event_at DESC)
+  idx_risk_events_type    → ON (event_type)
+  idx_risk_events_time    → ON (event_at DESC)
+
+NORMALIZATION LEVEL: Intentionally denormalized
+  - Copies symbol, portfolio_id from other schemas
+  - Reason: Risk Engine must be FAST — no cross-schema joins
+
+
+====================================================================
+ 3.5 analytics_schema — Analytics Service
+====================================================================
+
+--------------------------------------------------------------------
+TABLE: analytics_schema.portfolio_kpis
+--------------------------------------------------------------------
+Purpose: Denormalized portfolio-level KPI snapshot
+Column              Type                Constraints
+--------------------------------------------------------------------
+id                  UUID                PK, DEFAULT gen_random_uuid()
+portfolio_id        UUID                NOT NULL, UNIQUE
+user_id             UUID                NOT NULL
+total_invested      NUMERIC(20,2)       NOT NULL
+total_current_value NUMERIC(20,2)       NOT NULL
+total_pnl_rs        NUMERIC(20,2)       NOT NULL
+total_pnl_pct       NUMERIC(10,4)       NOT NULL
+portfolio_heat_pct  NUMERIC(10,4)       NOT NULL
+total_risk_rs       NUMERIC(20,2)       NOT NULL
+capital_after_sl    NUMERIC(20,2)       NOT NULL
+active_stocks       INT                 NOT NULL
+hold_count          INT                 DEFAULT 0
+exit_count          INT                 DEFAULT 0
+book_profit_count   INT                 DEFAULT 0
+risk_status         VARCHAR(20)         NOT NULL
+                                        ('Safe','Warning','Hard Stop')
+sector_summary      JSONB               NOT NULL DEFAULT '{}'
+risk_distribution   JSONB               NOT NULL DEFAULT '{}'
+snapshot_at         TIMESTAMPTZ         NOT NULL, DEFAULT NOW()
+--------------------------------------------------------------------
+
+INDEXES:
+  uidx_kpis_portfolio     → UNIQUE ON (portfolio_id)
+  idx_kpis_user           → ON (user_id)
+  idx_kpis_snapshot       → ON (snapshot_at DESC)
+
+--------------------------------------------------------------------
+TABLE: analytics_schema.sector_exposure_history
+--------------------------------------------------------------------
+Purpose: Time-series tracking of sector allocation changes
+Column              Type                Constraints
+--------------------------------------------------------------------
+id                  UUID                PK
+portfolio_id        UUID                NOT NULL
+sector              VARCHAR(100)        NOT NULL
+exposure_pct        NUMERIC(8,4)        NOT NULL
+exposure_value      NUMERIC(20,2)       NOT NULL
+recorded_at         TIMESTAMPTZ         NOT NULL, DEFAULT NOW()
+--------------------------------------------------------------------
+
+INDEXES:
+  idx_sec_exp_portfolio   → ON (portfolio_id, recorded_at DESC)
+  idx_sec_exp_sector      → ON (sector)
+
+--------------------------------------------------------------------
+TABLE: analytics_schema.performance_snapshots
+--------------------------------------------------------------------
+Purpose: Daily portfolio value snapshots for performance charts
+Column              Type                Constraints
+--------------------------------------------------------------------
+id                  BIGSERIAL           PK
+portfolio_id        UUID                NOT NULL
+snapshot_date       DATE                NOT NULL
+portfolio_value     NUMERIC(20,2)       NOT NULL
+invested_value      NUMERIC(20,2)       NOT NULL
+pnl_rs              NUMERIC(20,2)       NOT NULL
+pnl_pct             NUMERIC(10,4)       NOT NULL
+--------------------------------------------------------------------
+
+PRIMARY KEY on (portfolio_id, snapshot_date) — natural key
+INDEXES:
+  idx_perf_portfolio_date → ON (portfolio_id, snapshot_date DESC)
+
+MATERIALIZED VIEWS:
+  mv_weekly_performance   → aggregated from daily snapshots
+  mv_monthly_performance  → aggregated from daily snapshots
+  Refreshed daily at 6:30 PM IST via scheduled job
+
+NORMALIZATION: Denormalized by design
+  - Duplicates data from risk_schema
+  - Reason: analytics queries must be fast, no cross-schema joins
+
+
+====================================================================
+ 3.6 ai_schema — AI Service
+====================================================================
+
+--------------------------------------------------------------------
+TABLE: ai_schema.analysis_snapshots
+--------------------------------------------------------------------
+Purpose: Store complete AI analysis results
+Column              Type                Constraints
+--------------------------------------------------------------------
+id                  UUID                PK, DEFAULT gen_random_uuid()
+portfolio_id        UUID                NOT NULL
+user_id             UUID                NOT NULL
+risk_profile        VARCHAR(50)         NOT NULL
+macro_context       JSONB               NOT NULL
+portfolio_summary   JSONB               NOT NULL
+stock_analysis      JSONB               NOT NULL
+scenario_analysis   JSONB               NOT NULL
+action_matrix       JSONB               NOT NULL
+model_version       VARCHAR(50)         NOT NULL
+analyzed_at         TIMESTAMPTZ         NOT NULL, DEFAULT NOW()
+--------------------------------------------------------------------
+
+INDEXES:
+  idx_ai_portfolio        → ON (portfolio_id, analyzed_at DESC)
+  idx_ai_user             → ON (user_id)
+
+RETENTION: Keep last 30 analyses per portfolio
+  DELETE FROM ai_schema.analysis_snapshots
+  WHERE id NOT IN (
+    SELECT id FROM ai_schema.analysis_snapshots
+    WHERE portfolio_id = $1
+    ORDER BY analyzed_at DESC
+    LIMIT 30
+  );
+
+
+====================================================================
+ 3.7 audit_schema — Cross-Service Audit
+====================================================================
+
+--------------------------------------------------------------------
+TABLE: audit_schema.audit_log
+--------------------------------------------------------------------
+Purpose: Compliance-ready, immutable audit trail
+Column              Type                Constraints
+--------------------------------------------------------------------
+id                  BIGSERIAL           PK
+event_id            UUID                NOT NULL, UNIQUE
+                                        (Kafka event ID for traceability)
+service_name        VARCHAR(100)        NOT NULL
+entity_type         VARCHAR(100)        NOT NULL
+                                        ('user','portfolio','holding',
+                                         'price','risk_metric')
+entity_id           UUID                NOT NULL
+action              VARCHAR(20)         NOT NULL
+                                        ('INSERT','UPDATE','DELETE',
+                                         'LOGIN','LOGOUT','SL_TRIGGER')
+changed_by          UUID                NOT NULL (user_id)
+old_values          JSONB               NULL
+new_values          JSONB               NULL
+ip_address          INET                NULL
+user_agent          TEXT                NULL
+correlation_id      UUID                NULL (distributed trace ID)
+created_at          TIMESTAMPTZ         NOT NULL, DEFAULT NOW()
+--------------------------------------------------------------------
+
+CONSTRAINTS:
+  This table is APPEND-ONLY — no UPDATE or DELETE allowed.
+  Enforced via: REVOKE UPDATE, DELETE ON audit_schema.audit_log
+
+INDEXES:
+  idx_audit_entity        → ON (entity_type, entity_id)
+  idx_audit_user          → ON (changed_by)
+  idx_audit_time          → ON (created_at DESC)
+  idx_audit_service       → ON (service_name)
+  idx_audit_action        → ON (action)
+
+PARTITIONING:
+  Range partition by created_at (monthly chunks)
+  CREATE TABLE audit_schema.audit_log (...)
+    PARTITION BY RANGE (created_at);
+
+  CREATE TABLE audit_log_2026_03
+    PARTITION OF audit_schema.audit_log
+    FOR VALUES FROM ('2026-03-01') TO ('2026-04-01');
+
+RETENTION: 7 years (regulatory compliance)
+ARCHIVAL: Monthly archive to S3 as Parquet
+
+--------------------------------------------------------------------
+TABLE: audit_schema.data_lineage
+--------------------------------------------------------------------
+Purpose: Track data flow across services
+Column              Type                Constraints
+--------------------------------------------------------------------
+id                  BIGSERIAL           PK
+source_service      VARCHAR(100)        NOT NULL
+source_entity       VARCHAR(100)        NOT NULL
+source_id           UUID                NOT NULL
+target_service      VARCHAR(100)        NOT NULL
+target_entity       VARCHAR(100)        NOT NULL
+target_id           UUID                NOT NULL
+transformation      VARCHAR(255)        NULL
+kafka_topic         VARCHAR(100)        NULL
+event_id            UUID                NULL
+created_at          TIMESTAMPTZ         DEFAULT NOW()
+--------------------------------------------------------------------
+
+INDEXES:
+  idx_lineage_source      → ON (source_service, source_id)
+  idx_lineage_target      → ON (target_service, target_id)
+
+
+================================================================================
+ 4. INDEXING STRATEGY
+================================================================================
+
+Index Type           When to Use
+--------------------------------------------------------------------
+B-tree (default)     Primary keys, foreign keys, equality/range queries
+Hash                 Exact equality lookups (symbol)
+GIN                  JSONB columns (sector_summary, analysis JSON)
+BRIN                 Large time-series tables (created_at ranges)
+Partial              Active records only (WHERE deleted_at IS NULL)
+Covering             High-read columns (INCLUDE clause)
+--------------------------------------------------------------------
+
+Naming Convention:
+  idx_{table}_{column}     → regular index
+  uidx_{table}_{column}    → unique index
+  gin_{table}_{column}     → GIN index on JSONB
+  brin_{table}_{column}    → BRIN for time-series
+
+================================================================================
+ 5. SCHEMA EVOLUTION STRATEGY
+================================================================================
+
+Migration Tool: Flyway
+  Location: src/main/resources/db/migration/
+  Naming:   V{version}__{description}.sql
+  Example:  V3__add_notes_to_holdings.sql
+
+Rules:
+  1. NEVER modify existing migration files
+  2. ALWAYS add new migration for schema changes
+  3. Backward-compatible changes preferred:
+     - Add column with DEFAULT value → safe
+     - Drop column → do in 2 phases:
+       Phase 1: Stop reading column (code change)
+       Phase 2: Drop column (migration)
+  4. Column type changes → add new column, migrate data, drop old
+  5. All migrations tested against staging DB before production
+
+Versioning:
+  Each schema version tracked in flyway_schema_history table
+  Rollback: undo migrations available in Flyway Teams edition
+
+================================================================================
+ 6. READ REPLICA STRATEGY
+================================================================================
+
+Architecture:
+  Primary (Write):  1 instance — all writes
+  Read Replicas:    2 instances — analytics/reporting queries
+
+Service → Database Routing:
+  Portfolio Service    → PRIMARY (writes) + REPLICA (reads)
+  Risk Engine          → PRIMARY (writes)
+  Analytics Service    → REPLICA only (read-heavy)
+  Market Data Service  → PRIMARY (writes) + REPLICA (reads)
+  AI Service           → REPLICA only
+
+Connection Pooling:
+  PgBouncer (transaction mode)
+  Max connections per service: 20 (to primary), 30 (to replica)
+  Total pool: ~200 connections
+
+Replication Lag:
+  Expected: < 100ms (synchronous streaming replication)
+  Monitoring: Prometheus metric pg_stat_replication_lag
+
+================================================================================
+ 7. BACKUP STRATEGY
+================================================================================
+
+Schedule:
+  Full backup:             Daily at 2:00 AM IST
+  Incremental (WAL):       Continuous WAL archiving
+  Point-in-time recovery:  Last 30 days
+
+Storage:
+  Primary backup:          S3 (same region)
+  Cross-region backup:     S3 (different region, weekly)
+
+Tools:
+  pg_basebackup for full backups
+  WAL-G for WAL archiving + incremental backups
+
+Testing:
+  Monthly restore test to staging environment
+  Verified via automated test suite
+
+================================================================================
+ 8. REDIS DESIGN
+================================================================================
+
+Redis Deployment: Redis Sentinel (3 nodes)
+
+Cluster Segregation:
+  Cluster 1 — Cache:
+    price:latest:{symbol}          TTL 60s
+    portfolio:{userId}:list        TTL 10m
+    analytics:kpis:{portfolioId}   TTL 5m
+    ai:analysis:{portfolioId}      TTL 30m
+
+  Cluster 2 — Sessions & Security:
+    jwt:blacklist:{tokenHash}      TTL = token expiry
+    rate:limit:{ip}                TTL 60s
+    event:processed:{eventId}      TTL 24h (idempotency)
+    alert:sent:{holdingId}:{type}  TTL 1h (dedup)
+
+  Cluster 3 — Real-time:
+    ws:connections:{userId}        TTL session lifetime
+    price:dedup:{symbol}:{hash}    TTL 10m (scraper dedup)
+
+Eviction Policy: allkeys-lfu (Least Frequently Used)
+
+================================================================================
+ 9. DATA GOVERNANCE & COMPLIANCE
+================================================================================
+
+Audit Trail:
+  - Every data mutation logged to audit_schema.audit_log
+  - Append-only — no updates or deletes allowed
+  - Includes: who, what, when, old value, new value, IP
+
+Data Lineage:
+  - audit_schema.data_lineage tracks cross-service data flow
+  - Example: Scraper → Market Data → Risk Engine
+  - Essential for debugging and regulatory review
+
+Soft Delete:
+  - All entities use deleted_at TIMESTAMPTZ column
+  - Queries filter: WHERE deleted_at IS NULL
+  - Data retained for compliance period (7 years)
+  - Background job: hard-delete after retention period
+
+PII Protection:
+  - Email encrypted at rest (PostgreSQL pgcrypto)
+  - Password hashed with BCrypt
+  - All PII columns marked in schema documentation
+  - GDPR Article 17: User deletion nullifies PII fields
+
+================================================================================
+ 10. SCALABILITY DESIGN
+================================================================================
+
+Vertical Scaling:
+  Start: 4 vCPU, 16 GB RAM, 500 GB SSD
+  Scale: 16 vCPU, 64 GB RAM, 2 TB SSD
+
+Horizontal Scaling:
+  Read Replicas: 2 → 5 (add as analytics load grows)
+  Table Partitioning: audit_log and price_history partitioned by month
+  Connection Pooling: PgBouncer scales to 2000+ client connections
+
+Scaling Triggers (Prometheus):
+  - CPU > 70% for 5 min → alert
+  - Connection count > 80% pool → alert
+  - Replication lag > 1s → critical alert
+  - Disk usage > 80% → add storage alert
+
+================================================================================
+ 11. REFERENTIAL BOUNDARIES ACROSS SERVICES
+================================================================================
+
+How we maintain data integrity WITHOUT cross-schema FKs:
+
+Pattern: Reference by ID + Eventual Consistency
+--------------------------------------------------------------------
+Scenario: Portfolio Service stores user_id
+  - user_id is a UUID, NOT a foreign key to user_schema.users
+  - Why: Portfolio Service cannot access user_schema
+  - Integrity: User Service publishes 'user-deleted' event
+              → Portfolio Service soft-deletes all portfolios for user
+
+Scenario: Risk Engine stores holding_id
+  - holding_id is a UUID copied from portfolio-updated event
+  - Why: Risk Engine cannot access portfolio_schema
+  - Integrity: Portfolio publishes 'holding-deleted' event
+              → Risk Engine deletes risk metrics for that holding
+
+Scenario: Analytics stores portfolio_id
+  - Copies data from risk-recalculated events
+  - Denormalized — contains fields from multiple services
+  - Why: Analytics is read-optimized, NO real-time writes
+
+Rule: If Service A needs data from Service B:
+  1. Service B publishes event with necessary data
+  2. Service A stores a LOCAL COPY of what it needs
+  3. Events keep local copies eventually consistent
+  4. NEVER query another service's database directly
+
+================================================================================
+ 12. FUTURE EXTENSIBILITY
+================================================================================
+
+Adding New Asset Type (e.g., Mutual Funds):
+--------------------------------------------------------------------
+1. Create new schema: mf_schema
+2. New tables: mf_holdings, mf_nav_history
+3. New Kafka topic: mf-nav-updated
+4. Existing schemas: ZERO changes
+5. Analytics: add mf_exposure column to portfolio_kpis
+
+Adding Options Trading:
+--------------------------------------------------------------------
+1. Create new schema: options_schema
+2. New tables: option_positions, option_chains, greeks_history
+3. New Kafka topic: options-expiry-triggered
+4. Risk Engine: add new consumer for options events
+5. Existing schemas: ZERO changes
+
+Adding ML Risk Scoring:
+--------------------------------------------------------------------
+1. Add table: risk_schema.ml_risk_scores
+2. New Kafka topic: ml-score-updated
+3. Analytics: add ml_score column to portfolio_kpis
+
+Key Principle: New features = NEW schemas + NEW topics.
+              NEVER modify existing schemas for new features.
+
+================================================================================
+ 13. MIGRATION STRATEGY (Day 1 — From Current Excel System)
+================================================================================
+
+Step 1: Bootstrap Schemas
+  - Run Flyway migrations for all schemas
+  - Create all indexes, constraints, triggers
+
+Step 2: Seed Master Data
+  - Load market_schema.symbols from NSE/BSE master list
+  - Load user_schema.users (admin account)
+
+Step 3: Migrate Current Portfolio
+  - Parse Tactical_Model_INSTITUTIONAL.xlsx
+  - Insert into portfolio_schema.portfolios (1 plan)
+  - Insert into portfolio_schema.holdings (12 stocks)
+
+Step 4: Initialize Risk Metrics
+  - Run Risk Engine against all holdings
+  - Populate risk_schema.holding_risk_metrics
+
+Step 5: Backfill Price History
+  - Scrape 1 year of historical OHLCV data
+  - Insert into market_schema.price_history
+
+Step 6: Generate Initial Analytics
+  - Compute portfolio KPIs
+  - Store in analytics_schema.portfolio_kpis
+
+Estimated Time: 2-3 hours for full migration
+
+================================================================================
+END OF PART 3 — DATABASE & DATA ARCHITECTURE PLAN
+================================================================================

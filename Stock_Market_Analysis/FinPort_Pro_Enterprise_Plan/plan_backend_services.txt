@@ -1,0 +1,1181 @@
+================================================================================
+  PART 2B — INDIVIDUAL SERVICE PROJECT STRUCTURES
+  Companion to plan_backend_layer.txt
+  Version: 1.1 | Date: March 2026
+================================================================================
+
+This document provides domain-specific project structures for each of
+the 10 microservices. Each structure is tailored to the service's unique
+responsibilities — NOT a copy of the generic template.
+
+================================================================================
+ SERVICE 1: API GATEWAY (finport-gateway)
+================================================================================
+
+Purpose:
+  Central entry point. Routes, authenticates, rate-limits, logs.
+  NO business logic. NO database.
+
+Architecture Style: Reactive Gateway (Spring Cloud Gateway - WebFlux)
+  WHY: Non-blocking I/O for high-throughput routing. Gateway handles
+  thousands of concurrent connections — blocking threads would bottleneck.
+
+Kafka Produces: NONE
+Kafka Consumes: NONE
+Database Schema: NONE
+Communication: REST (inbound) → REST (outbound routing)
+
+Project Structure:
+--------------------------------------------------------------------
+finport-gateway/
+├── src/main/java/com/finport/gateway/
+│   ├── GatewayApplication.java
+│   │
+│   ├── config/
+│   │   ├── GatewayRoutesConfig.java       # All route definitions
+│   │   ├── RateLimiterConfig.java         # Redis token bucket config
+│   │   ├── CorsConfig.java               # Allowed origins
+│   │   ├── SecurityConfig.java            # JWT public key config
+│   │   └── SwaggerAggregatorConfig.java   # Aggregate all service docs
+│   │
+│   ├── filter/
+│   │   ├── JwtValidationFilter.java       # Pre-filter: validate JWT
+│   │   ├── CorrelationIdFilter.java       # Inject X-Correlation-ID
+│   │   ├── RequestLoggingFilter.java      # Log method + path + duration
+│   │   ├── RateLimiterFilter.java         # Per-IP rate limiting
+│   │   └── CircuitBreakerFilter.java      # Resilience4j per-route
+│   │
+│   ├── security/
+│   │   ├── JwtUtils.java                  # RS256 public key verifier
+│   │   └── HeaderInjector.java            # X-User-Id, X-User-Role
+│   │
+│   ├── exception/
+│   │   ├── GatewayExceptionHandler.java   # JSON error responses
+│   │   └── RateLimitExceededException.java
+│   │
+│   └── health/
+│       └── ServiceHealthAggregator.java   # Pings all downstream
+│
+├── src/main/resources/
+│   ├── application.yml                    # Route definitions + Redis
+│   ├── application-dev.yml
+│   └── application-prod.yml
+│
+├── src/test/java/com/finport/gateway/
+│   ├── filter/
+│   │   ├── JwtValidationFilterTest.java
+│   │   └── RateLimiterFilterTest.java
+│   └── GatewayRoutingIntegrationTest.java
+│
+├── Dockerfile
+├── docker-compose.yml                     # Gateway + Redis + stubs
+├── pom.xml
+└── README.md
+--------------------------------------------------------------------
+
+Config Strategy:
+  - Routes defined in application.yml (declarative)
+  - JWT public key loaded from K8s Secret / env var
+  - Redis URL from ConfigMap
+  - Rate limits configurable per environment
+
+Exception Handling:
+  - All errors return JSON: { status, error, path, timestamp }
+  - 429 for rate limit, 401 for invalid JWT, 503 for circuit open
+
+Security:
+  - Validates JWT signature ONLY (no DB call)
+  - Injects X-User-Id, X-User-Role headers for downstream services
+  - Strips Authorization header before forwarding (optional)
+
+Testing:
+  - WireMock for downstream service stubs
+  - TestContainers for Redis
+  - Full route integration tests
+
+Scalability:
+  - Min 3 pods (always available)
+  - HPA on active connections (not CPU)
+  - Stateless — scales horizontally without limit
+
+
+================================================================================
+ SERVICE 2: USER SERVICE (finport-user-service)
+================================================================================
+
+Purpose:
+  Authentication, authorization, user CRUD, JWT lifecycle.
+
+Architecture Style: Layered Architecture
+  WHY: Simple CRUD + auth logic. No complex domain. Layered is clean
+  and well-understood for this bounded context.
+
+Kafka Produces: user-events (user-registered, user-role-changed)
+Kafka Consumes: NONE
+Database Schema: user_schema
+Communication: REST (inbound from Gateway)
+
+Project Structure:
+--------------------------------------------------------------------
+finport-user-service/
+├── src/main/java/com/finport/user/
+│   ├── UserServiceApplication.java
+│   │
+│   ├── config/
+│   │   ├── SecurityConfig.java            # BCrypt + filter chain
+│   │   ├── JwtConfig.java                 # RSA key pair config
+│   │   ├── RedisConfig.java               # Token blacklist cache
+│   │   └── KafkaProducerConfig.java
+│   │
+│   ├── controller/
+│   │   ├── AuthController.java            # login, register, refresh
+│   │   ├── UserController.java            # profile, update
+│   │   └── AdminUserController.java       # role management (ADMIN)
+│   │
+│   ├── service/
+│   │   ├── AuthService.java               # Interface
+│   │   ├── AuthServiceImpl.java           # Login, register, refresh
+│   │   ├── UserService.java               # Interface
+│   │   ├── UserServiceImpl.java           # Profile CRUD
+│   │   └── TokenBlacklistService.java     # Redis-based revocation
+│   │
+│   ├── repository/
+│   │   ├── UserRepository.java
+│   │   ├── RefreshTokenRepository.java
+│   │   └── UserPreferencesRepository.java
+│   │
+│   ├── entity/
+│   │   ├── User.java                      # @Entity
+│   │   ├── RefreshToken.java              # @Entity
+│   │   └── UserPreferences.java           # @Entity
+│   │
+│   ├── dto/
+│   │   ├── request/
+│   │   │   ├── LoginRequest.java          # email + password
+│   │   │   ├── RegisterRequest.java       # email + password + name
+│   │   │   └── RoleChangeRequest.java     # userId + newRole
+│   │   └── response/
+│   │       ├── AuthResponse.java          # accessToken + user
+│   │       ├── UserResponse.java          # id, email, name, role
+│   │       └── TokenRefreshResponse.java
+│   │
+│   ├── mapper/
+│   │   └── UserMapper.java               # MapStruct: Entity<->DTO
+│   │
+│   ├── security/
+│   │   ├── JwtTokenProvider.java         # Generate + validate JWT
+│   │   ├── JwtAuthFilter.java            # OncePerRequestFilter
+│   │   └── UserPrincipal.java            # UserDetails impl
+│   │
+│   ├── event/
+│   │   ├── publisher/
+│   │   │   └── UserEventPublisher.java   # Publish to user-events
+│   │   └── model/
+│   │       └── UserRegisteredEvent.java
+│   │
+│   ├── exception/
+│   │   ├── GlobalExceptionHandler.java
+│   │   ├── EmailAlreadyExistsException.java
+│   │   ├── InvalidCredentialsException.java
+│   │   └── TokenExpiredException.java
+│   │
+│   ├── validation/
+│   │   ├── PasswordStrengthValidator.java # Min 8 chars, 1 upper, etc.
+│   │   └── EmailFormatValidator.java
+│   │
+│   └── util/
+│       └── Constants.java
+│
+├── src/main/resources/
+│   ├── application.yml
+│   ├── application-dev.yml
+│   ├── application-prod.yml
+│   ├── logback-spring.xml                # JSON structured logging
+│   └── db/migration/
+│       ├── V1__create_users_table.sql
+│       ├── V2__create_refresh_tokens.sql
+│       └── V3__create_user_preferences.sql
+│
+├── src/test/java/com/finport/user/
+│   ├── controller/AuthControllerTest.java    # MockMvc
+│   ├── service/AuthServiceImplTest.java      # Mockito
+│   ├── repository/UserRepositoryTest.java    # @DataJpaTest
+│   └── security/JwtTokenProviderTest.java
+│
+├── Dockerfile
+├── docker-compose.yml                     # PG + Redis + Kafka
+├── pom.xml
+└── README.md
+--------------------------------------------------------------------
+
+
+================================================================================
+ SERVICE 3: PORTFOLIO SERVICE (finport-portfolio-service)
+================================================================================
+
+Purpose:
+  Manages Plans (portfolios) and Holdings. Core CRUD aggregate.
+  Publishes portfolio-updated events on every mutation.
+
+Architecture Style: Domain-Driven Design (DDD) with Aggregates
+  WHY: Portfolio has complex business rules (auto-fill defaults,
+  validation constraints). DDD aggregates enforce invariants cleanly.
+
+Kafka Produces: portfolio-updated
+Kafka Consumes: NONE (produces only)
+Database Schema: portfolio_schema
+Communication: REST (inbound) + Kafka (outbound events)
+
+Project Structure:
+--------------------------------------------------------------------
+finport-portfolio-service/
+├── src/main/java/com/finport/portfolio/
+│   ├── PortfolioServiceApplication.java
+│   │
+│   ├── config/
+│   │   ├── SecurityConfig.java
+│   │   ├── KafkaProducerConfig.java
+│   │   ├── RedisConfig.java
+│   │   └── SwaggerConfig.java
+│   │
+│   ├── controller/
+│   │   ├── PortfolioController.java       # CRUD /api/portfolios
+│   │   └── HoldingController.java         # CRUD /api/portfolios/{id}/holdings
+│   │
+│   ├── domain/                            # DDD AGGREGATE ROOT
+│   │   ├── aggregate/
+│   │   │   ├── PlanAggregate.java         # Portfolio + Holdings aggregate
+│   │   │   └── HoldingAggregate.java      # Holding with business rules
+│   │   ├── valueobject/
+│   │   │   ├── TargetLevels.java          # T1, T2, T3 (immutable VO)
+│   │   │   ├── StopLossLevel.java         # SL price (immutable VO)
+│   │   │   ├── AllocationAmount.java      # Entry * Qty (computed VO)
+│   │   │   └── RiskProfile.java           # Conservative/Moderate/Aggressive
+│   │   └── rule/
+│   │       ├── AutoFillDefaultsRule.java  # Auto-fill T1/T2/T3/SL
+│   │       ├── AllocationSyncRule.java    # Allocation = Entry * Qty
+│   │       └── HoldingValidationRule.java # SL < Entry < T1 < T2 < T3
+│   │
+│   ├── service/
+│   │   ├── PortfolioService.java          # Interface
+│   │   ├── PortfolioServiceImpl.java      # Plan CRUD
+│   │   ├── HoldingService.java            # Interface
+│   │   └── HoldingServiceImpl.java        # Holding CRUD + auto-fill
+│   │
+│   ├── repository/
+│   │   ├── PortfolioRepository.java       # JPA
+│   │   ├── HoldingRepository.java         # JPA
+│   │   └── HoldingHistoryRepository.java  # Audit trail
+│   │
+│   ├── entity/
+│   │   ├── Portfolio.java                 # @Entity — plan
+│   │   ├── Holding.java                   # @Entity — stock holding
+│   │   └── HoldingHistory.java            # @Entity — change log
+│   │
+│   ├── dto/
+│   │   ├── request/
+│   │   │   ├── CreatePlanRequest.java
+│   │   │   ├── UpdatePlanRequest.java
+│   │   │   ├── AddHoldingRequest.java
+│   │   │   └── UpdateHoldingRequest.java
+│   │   └── response/
+│   │       ├── PlanResponse.java
+│   │       ├── PlanSummaryResponse.java
+│   │       ├── HoldingResponse.java
+│   │       └── HoldingListResponse.java
+│   │
+│   ├── mapper/
+│   │   ├── PortfolioMapper.java           # MapStruct
+│   │   └── HoldingMapper.java             # MapStruct
+│   │
+│   ├── event/
+│   │   ├── publisher/
+│   │   │   └── PortfolioEventPublisher.java
+│   │   └── model/
+│   │       ├── PortfolioUpdatedEvent.java
+│   │       └── HoldingChangedEvent.java
+│   │
+│   ├── exception/
+│   │   ├── GlobalExceptionHandler.java
+│   │   ├── PlanNotFoundException.java
+│   │   ├── HoldingNotFoundException.java
+│   │   ├── DuplicateHoldingException.java
+│   │   └── InvalidTargetConfigException.java
+│   │
+│   ├── validation/
+│   │   ├── HoldingValidator.java          # SL < Entry < T1
+│   │   └── PortfolioCapValidator.java     # Total alloc <= capital
+│   │
+│   └── util/
+│       └── FinancialConstants.java        # DEFAULT_SL=-5%, T1=+6%...
+│
+├── src/main/resources/
+│   ├── application.yml
+│   ├── logback-spring.xml
+│   └── db/migration/
+│       ├── V1__create_portfolios_table.sql
+│       ├── V2__create_holdings_table.sql
+│       ├── V3__create_holding_history.sql
+│       └── V4__add_indexes.sql
+│
+├── src/test/java/com/finport/portfolio/
+│   ├── controller/PortfolioControllerTest.java
+│   ├── controller/HoldingControllerTest.java
+│   ├── service/HoldingServiceImplTest.java
+│   ├── domain/rule/AutoFillDefaultsRuleTest.java  # Critical test
+│   ├── repository/HoldingRepositoryTest.java
+│   └── event/PortfolioEventPublisherTest.java
+│
+├── Dockerfile
+├── docker-compose.yml
+├── pom.xml
+└── README.md
+--------------------------------------------------------------------
+
+WHY DDD here:
+  AutoFillDefaultsRule encapsulates: "If T1 blank, set Entry*1.06".
+  HoldingValidationRule enforces: SL < Entry < T1 < T2 < T3.
+  AllocationSyncRule enforces: Allocation = Entry * Quantity.
+  These rules live in domain/rule/, NOT in the controller or service.
+
+
+================================================================================
+ SERVICE 4: MARKET DATA SERVICE (finport-market-service)
+================================================================================
+
+Purpose:
+  Stores live + historical stock prices. Caches latest prices in Redis.
+  Converts raw scraper data into enriched price events.
+
+Architecture Style: Hexagonal Architecture (Ports & Adapters)
+  WHY: Multiple external integrations (scraper input, TimescaleDB,
+  Redis cache, Kafka output). Hexagonal isolates core from adapters.
+
+Kafka Produces: price-updated
+Kafka Consumes: price-ingested (from Scraper)
+Database Schema: market_schema (TimescaleDB)
+Communication: REST (query APIs) + Kafka (in + out)
+
+Project Structure:
+--------------------------------------------------------------------
+finport-market-service/
+├── src/main/java/com/finport/market/
+│   ├── MarketServiceApplication.java
+│   │
+│   ├── config/
+│   │   ├── TimescaleConfig.java           # Hypertable setup
+│   │   ├── RedisConfig.java               # Price cache config
+│   │   ├── KafkaConfig.java               # Consumer + Producer
+│   │   └── SwaggerConfig.java
+│   │
+│   ├── adapter/                           # HEXAGONAL: Adapters
+│   │   ├── inbound/
+│   │   │   ├── rest/
+│   │   │   │   └── PriceQueryController.java  # GET /api/prices/...
+│   │   │   └── kafka/
+│   │   │       └── PriceIngestedConsumer.java  # Consumes price-ingested
+│   │   └── outbound/
+│   │       ├── persistence/
+│   │       │   ├── LatestPriceJpaAdapter.java
+│   │       │   └── PriceHistoryJpaAdapter.java
+│   │       ├── cache/
+│   │       │   └── PriceCacheRedisAdapter.java # Redis latest price
+│   │       └── kafka/
+│   │           └── PriceUpdatedPublisher.java  # Publishes price-updated
+│   │
+│   ├── port/                              # HEXAGONAL: Ports (interfaces)
+│   │   ├── inbound/
+│   │   │   ├── PriceQueryPort.java        # Query latest/history
+│   │   │   └── PriceIngestionPort.java    # Receive raw price
+│   │   └── outbound/
+│   │       ├── PricePersistencePort.java  # Save to DB
+│   │       ├── PriceCachePort.java        # Redis operations
+│   │       └── PriceEventPort.java        # Publish to Kafka
+│   │
+│   ├── domain/                            # Core business logic
+│   │   ├── model/
+│   │   │   ├── LatestPrice.java           # Domain model (not JPA)
+│   │   │   ├── PriceHistory.java          # OHLCV domain model
+│   │   │   └── Symbol.java                # Symbol master
+│   │   ├── service/
+│   │   │   ├── PriceIngestionService.java # Validate + dedup + store
+│   │   │   └── PriceQueryService.java     # Query logic (cache-first)
+│   │   └── validation/
+│   │       ├── PriceValidator.java        # price > 0, < 100K
+│   │       └── DeduplicationService.java  # Redis hash check
+│   │
+│   ├── entity/                            # JPA entities (persistence)
+│   │   ├── LatestPriceEntity.java
+│   │   ├── PriceHistoryEntity.java
+│   │   ├── SymbolEntity.java
+│   │   └── NewsSentimentEntity.java
+│   │
+│   ├── repository/
+│   │   ├── LatestPriceRepository.java
+│   │   ├── PriceHistoryRepository.java
+│   │   ├── SymbolRepository.java
+│   │   └── NewsSentimentRepository.java
+│   │
+│   ├── dto/
+│   │   ├── response/
+│   │   │   ├── LatestPriceResponse.java
+│   │   │   ├── PriceHistoryResponse.java
+│   │   │   └── BatchPriceResponse.java
+│   │   └── event/
+│   │       ├── PriceIngestedEvent.java    # Inbound from Scraper
+│   │       └── PriceUpdatedEvent.java     # Outbound enriched
+│   │
+│   ├── mapper/
+│   │   └── PriceMapper.java
+│   │
+│   └── exception/
+│       ├── GlobalExceptionHandler.java
+│       ├── SymbolNotFoundException.java
+│       └── StalePriceException.java
+│
+├── src/main/resources/
+│   ├── application.yml
+│   ├── logback-spring.xml
+│   └── db/migration/
+│       ├── V1__create_symbols_table.sql
+│       ├── V2__create_latest_prices.sql
+│       ├── V3__create_price_history_hypertable.sql
+│       ├── V4__create_news_sentiment.sql
+│       └── V5__add_compression_retention.sql
+│
+├── src/test/java/com/finport/market/
+│   ├── adapter/inbound/PriceQueryControllerTest.java
+│   ├── domain/service/PriceIngestionServiceTest.java
+│   ├── domain/validation/DeduplicationServiceTest.java
+│   └── adapter/outbound/PriceCacheRedisAdapterTest.java
+│
+├── Dockerfile
+├── docker-compose.yml
+├── pom.xml
+└── README.md
+--------------------------------------------------------------------
+
+WHY Hexagonal here:
+  Core domain (validate, dedup, enrich) is isolated from:
+  - Inbound: REST vs Kafka consumer (same port, different adapter)
+  - Outbound: PostgreSQL vs Redis vs Kafka (swappable adapters)
+  Easy to add new data source later without touching core.
+
+
+================================================================================
+ SERVICE 5: RISK ENGINE SERVICE (finport-risk-engine)
+================================================================================
+
+Purpose:
+  Pure computation engine. Recalculates P&L, RR, SL distance, EV.
+  Event-driven ONLY. No REST endpoints. No UI logic.
+
+Architecture Style: Event-Driven Processor (CQRS-inspired)
+  WHY: No user-facing API. Reacts to events, computes, publishes.
+  Separation of read (lookups) and write (metrics persist).
+
+Kafka Produces: risk-recalculated, stoploss-triggered, target-hit
+Kafka Consumes: price-updated, portfolio-updated
+Database Schema: risk_schema
+Communication: Kafka ONLY (pure event processor)
+
+Project Structure:
+--------------------------------------------------------------------
+finport-risk-engine/
+├── src/main/java/com/finport/risk/
+│   ├── RiskEngineApplication.java
+│   │
+│   ├── config/
+│   │   ├── KafkaConsumerConfig.java
+│   │   ├── KafkaProducerConfig.java
+│   │   ├── RedisConfig.java               # Idempotency store
+│   │   └── DataSourceConfig.java          # risk_schema connection
+│   │
+│   ├── consumer/                          # EVENT CONSUMERS
+│   │   ├── PriceUpdatedConsumer.java      # Reacts to price change
+│   │   └── PortfolioUpdatedConsumer.java  # Reacts to holding change
+│   │
+│   ├── engine/                            # PURE CALCULATION
+│   │   ├── RiskCalculationEngine.java     # ALL formulas here
+│   │   ├── PnlCalculator.java            # P&L Rs + P&L %
+│   │   ├── RiskAmountCalculator.java      # (Entry - SL) * Qty
+│   │   ├── DistanceCalculator.java        # Dist to SL%, Dist to T1%
+│   │   ├── RewardRiskCalculator.java      # (T1 - Entry) / (Entry - SL)
+│   │   ├── ExpectedValueCalculator.java   # RR * Risk Amount
+│   │   └── ActionResolver.java            # Hold / Book / Exit logic
+│   │
+│   ├── trigger/                           # THRESHOLD DETECTORS
+│   │   ├── StopLossTriggerDetector.java   # current <= SL?
+│   │   ├── TargetHitDetector.java         # current >= T1/T2/T3?
+│   │   └── RiskThresholdDetector.java     # portfolio heat > 6%?
+│   │
+│   ├── service/
+│   │   ├── RiskRecalculationService.java  # Orchestrates calculation
+│   │   └── HoldingLookupService.java      # Gets holdings by symbol
+│   │
+│   ├── repository/
+│   │   ├── HoldingRiskMetricsRepository.java  # JPA
+│   │   └── RiskEventsLogRepository.java       # SL/Target event log
+│   │
+│   ├── entity/
+│   │   ├── HoldingRiskMetrics.java        # Persisted risk snapshot
+│   │   └── RiskEventLog.java              # SL trigger / target hit
+│   │
+│   ├── publisher/
+│   │   ├── RiskRecalculatedPublisher.java
+│   │   ├── StopLossTriggeredPublisher.java
+│   │   └── TargetHitPublisher.java
+│   │
+│   ├── event/model/
+│   │   ├── PriceUpdatedEvent.java         # Inbound
+│   │   ├── PortfolioUpdatedEvent.java     # Inbound
+│   │   ├── RiskRecalculatedEvent.java     # Outbound
+│   │   ├── StopLossTriggeredEvent.java    # Outbound
+│   │   └── TargetHitEvent.java            # Outbound
+│   │
+│   ├── idempotency/
+│   │   └── EventIdempotencyService.java   # Redis: skip if processed
+│   │
+│   ├── exception/
+│   │   ├── RiskCalculationException.java
+│   │   └── HoldingDataMissingException.java
+│   │
+│   └── util/
+│       └── FinancialMath.java             # Rounding, precision utils
+│
+├── src/main/resources/
+│   ├── application.yml
+│   ├── logback-spring.xml
+│   └── db/migration/
+│       ├── V1__create_holding_risk_metrics.sql
+│       └── V2__create_risk_events_log.sql
+│
+├── src/test/java/com/finport/risk/
+│   ├── engine/RiskCalculationEngineTest.java     # Unit: formulas
+│   ├── engine/ActionResolverTest.java             # Unit: Hold/Exit/Book
+│   ├── trigger/StopLossTriggerDetectorTest.java   # Unit
+│   ├── consumer/PriceUpdatedConsumerTest.java     # @EmbeddedKafka
+│   └── service/RiskRecalculationServiceTest.java  # Integration
+│
+├── Dockerfile
+├── pom.xml
+└── README.md
+--------------------------------------------------------------------
+
+WHY this structure:
+  engine/ package contains PURE functions — no I/O, no DB, no Kafka.
+  Fully unit-testable with simple inputs and outputs.
+  trigger/ detects threshold breaches — separate from calculation.
+  consumer/ handles Kafka — delegates to service, never calculates.
+
+
+================================================================================
+ SERVICE 6: SCRAPER SERVICE (finport-scraper-service)
+================================================================================
+
+Purpose:
+  Scrapes stock prices and news from external sources.
+  Validates, deduplicates, publishes to Kafka. No database.
+
+Architecture Style: Pipeline Architecture
+  WHY: Data flows through stages: Scrape → Validate → Dedup →
+  Transform → Publish. Pipeline pattern is the natural fit.
+
+Kafka Produces: price-ingested, scrape-failed (DLT)
+Kafka Consumes: NONE
+Database Schema: NONE (stateless)
+Communication: Kafka (outbound only)
+
+Project Structure:
+--------------------------------------------------------------------
+finport-scraper-service/
+├── src/main/java/com/finport/scraper/
+│   ├── ScraperServiceApplication.java
+│   │
+│   ├── config/
+│   │   ├── KafkaProducerConfig.java
+│   │   ├── SchedulerConfig.java           # Quartz + Spring Scheduler
+│   │   ├── RedisConfig.java               # Dedup cache
+│   │   ├── ProxyConfig.java               # Rotating proxy pool
+│   │   └── SourceRegistryConfig.java      # Enable/disable sources
+│   │
+│   ├── scheduler/                         # SCHEDULED JOBS
+│   │   ├── PriceScraperJob.java           # Every 5 min (market hrs)
+│   │   ├── EodDataJob.java                # 6 PM daily OHLCV
+│   │   ├── NewsScraperJob.java            # Every 60 min
+│   │   └── MarketHoursChecker.java        # Is market open?
+│   │
+│   ├── source/                            # SOURCE ADAPTERS
+│   │   ├── SourceAdapter.java             # Interface (contract)
+│   │   ├── nse/
+│   │   │   └── NseApiAdapter.java         # NSE official API
+│   │   ├── moneycontrol/
+│   │   │   └── MoneyControlScraper.java   # Web scraping
+│   │   ├── groww/
+│   │   │   └── GrowwApiAdapter.java       # REST API
+│   │   ├── economictimes/
+│   │   │   └── EtRssFeedParser.java       # RSS feed
+│   │   ├── mint/
+│   │   │   └── MintRssFeedParser.java     # RSS feed
+│   │   ├── cnbc/
+│   │   │   └── CnbcApiAdapter.java        # REST API
+│   │   └── way2news/
+│   │       └── Way2NewsApiAdapter.java    # News API
+│   │
+│   ├── pipeline/                          # DATA PIPELINE STAGES
+│   │   ├── ScrapePipeline.java            # Orchestrates all stages
+│   │   ├── stage/
+│   │   │   ├── ValidationStage.java       # price>0, symbol exists
+│   │   │   ├── DeduplicationStage.java    # Redis hash check
+│   │   │   ├── TransformationStage.java   # Normalize to schema
+│   │   │   └── EnrichmentStage.java       # Add metadata
+│   │   └── model/
+│   │       └── RawPriceData.java          # Pre-transform model
+│   │
+│   ├── publisher/
+│   │   ├── PriceIngestedPublisher.java    # Kafka: price-ingested
+│   │   └── ScrapeFailedPublisher.java     # Kafka: scrape-failed DLT
+│   │
+│   ├── retry/
+│   │   ├── RetryHandler.java             # 3x exponential backoff
+│   │   └── DlqHandler.java              # Send to DLT after retries
+│   │
+│   ├── proxy/
+│   │   ├── ProxyRotator.java             # Round-robin proxy pool
+│   │   └── UserAgentRotator.java         # Random UA strings
+│   │
+│   ├── exception/
+│   │   ├── SourceUnavailableException.java
+│   │   ├── ScrapingBlockedException.java
+│   │   └── InvalidPriceDataException.java
+│   │
+│   └── util/
+│       ├── HtmlParserUtils.java
+│       └── DateTimeUtils.java
+│
+├── src/main/resources/
+│   ├── application.yml
+│   ├── logback-spring.xml
+│   ├── proxies.yml                        # Proxy list config
+│   └── user-agents.txt                    # UA strings
+│
+├── src/test/java/com/finport/scraper/
+│   ├── source/NseApiAdapterTest.java
+│   ├── pipeline/ValidationStageTest.java
+│   ├── pipeline/DeduplicationStageTest.java
+│   └── scheduler/PriceScraperJobTest.java
+│
+├── Dockerfile
+├── docker-compose.yml
+├── pom.xml
+└── README.md
+--------------------------------------------------------------------
+
+
+================================================================================
+ SERVICE 7: ANALYTICS SERVICE (finport-analytics-service)
+================================================================================
+
+Purpose:
+  Portfolio-level KPI aggregation, sector exposure, performance.
+  Read-optimized, denormalized. Serves dashboards.
+
+Architecture Style: CQRS (Read Side)
+  WHY: This is purely a read-model service. Event consumers build
+  denormalized views. REST endpoints serve pre-aggregated data.
+
+Kafka Produces: NONE
+Kafka Consumes: risk-recalculated, portfolio-updated
+Database Schema: analytics_schema (denormalized)
+Communication: REST (queries) + Kafka (inbound events)
+
+Project Structure:
+--------------------------------------------------------------------
+finport-analytics-service/
+├── src/main/java/com/finport/analytics/
+│   ├── AnalyticsServiceApplication.java
+│   │
+│   ├── config/
+│   │   ├── KafkaConsumerConfig.java
+│   │   ├── RedisConfig.java
+│   │   ├── SchedulerConfig.java           # EOD snapshot jobs
+│   │   └── SwaggerConfig.java
+│   │
+│   ├── controller/
+│   │   ├── PortfolioKpiController.java    # GET /analytics/.../summary
+│   │   ├── SectorExposureController.java  # GET /analytics/.../sector
+│   │   ├── PerformanceController.java     # GET /analytics/.../performance
+│   │   └── RiskDistributionController.java
+│   │
+│   ├── consumer/
+│   │   ├── RiskRecalculatedConsumer.java  # Rebuild KPI snapshot
+│   │   └── PortfolioUpdatedConsumer.java  # Update sector exposure
+│   │
+│   ├── aggregator/                        # AGGREGATION LOGIC
+│   │   ├── PortfolioKpiAggregator.java    # Compute total PnL, heat
+│   │   ├── SectorExposureAggregator.java  # Group by sector
+│   │   ├── RiskDistributionAggregator.java# Count by risk level
+│   │   └── PerformanceSnapshotBuilder.java# Daily snapshot builder
+│   │
+│   ├── service/
+│   │   ├── KpiQueryService.java
+│   │   ├── SectorQueryService.java
+│   │   └── PerformanceQueryService.java
+│   │
+│   ├── repository/
+│   │   ├── PortfolioKpisRepository.java
+│   │   ├── SectorExposureRepository.java
+│   │   └── PerformanceSnapshotRepository.java
+│   │
+│   ├── entity/
+│   │   ├── PortfolioKpis.java
+│   │   ├── SectorExposureHistory.java
+│   │   └── PerformanceSnapshot.java
+│   │
+│   ├── dto/response/
+│   │   ├── KpiSummaryResponse.java
+│   │   ├── SectorExposureResponse.java
+│   │   ├── RiskDistributionResponse.java
+│   │   └── PerformanceResponse.java
+│   │
+│   ├── scheduler/
+│   │   ├── DailySnapshotJob.java          # EOD performance capture
+│   │   └── MaterializedViewRefresher.java # Refresh mat views
+│   │
+│   └── exception/
+│       └── GlobalExceptionHandler.java
+│
+├── src/main/resources/
+│   ├── application.yml
+│   ├── logback-spring.xml
+│   └── db/migration/
+│       ├── V1__create_portfolio_kpis.sql
+│       ├── V2__create_sector_exposure.sql
+│       ├── V3__create_performance_snapshots.sql
+│       └── V4__create_materialized_views.sql
+│
+├── Dockerfile
+├── pom.xml
+└── README.md
+--------------------------------------------------------------------
+
+
+================================================================================
+ SERVICE 8: NOTIFICATION SERVICE (finport-notification-svc)
+================================================================================
+
+Purpose:
+  Sends alerts via Email, WebSocket push, future Push notifications.
+  Pure event consumer. Template-driven notifications.
+
+Architecture Style: Event-Driven Consumer + Strategy Pattern
+  WHY: Multiple delivery channels (email, WS, push). Strategy pattern
+  allows adding new channels without modifying existing logic.
+
+Kafka Produces: NONE
+Kafka Consumes: stoploss-triggered, target-hit, risk-recalculated
+Database Schema: NONE (stateless, dedup via Redis)
+Communication: Kafka (inbound) + WebSocket (outbound to UI)
+
+Project Structure:
+--------------------------------------------------------------------
+finport-notification-svc/
+├── src/main/java/com/finport/notification/
+│   ├── NotificationServiceApplication.java
+│   │
+│   ├── config/
+│   │   ├── KafkaConsumerConfig.java
+│   │   ├── WebSocketConfig.java           # STOMP + SockJS
+│   │   ├── RedisConfig.java               # Dedup store
+│   │   └── EmailConfig.java               # SES / SendGrid
+│   │
+│   ├── consumer/
+│   │   ├── StopLossConsumer.java
+│   │   ├── TargetHitConsumer.java
+│   │   └── RiskThresholdConsumer.java
+│   │
+│   ├── dispatcher/                        # CHANNEL STRATEGY
+│   │   ├── NotificationDispatcher.java    # Routes to channels
+│   │   ├── channel/
+│   │   │   ├── NotificationChannel.java   # Interface
+│   │   │   ├── WebSocketChannel.java      # Push to connected client
+│   │   │   ├── EmailChannel.java          # Send via SES/SendGrid
+│   │   │   └── PushNotificationChannel.java  # Firebase (future)
+│   │   └── registry/
+│   │       └── ChannelRegistry.java       # Which channels per type
+│   │
+│   ├── template/                          # NOTIFICATION TEMPLATES
+│   │   ├── TemplateEngine.java            # Thymeleaf-based
+│   │   ├── StopLossTemplate.java
+│   │   ├── TargetHitTemplate.java
+│   │   └── RiskWarningTemplate.java
+│   │
+│   ├── websocket/
+│   │   ├── WebSocketSessionManager.java   # Track active connections
+│   │   ├── WebSocketAuthInterceptor.java  # JWT on WS handshake
+│   │   └── WebSocketPushService.java      # Push JSON to user
+│   │
+│   ├── dedup/
+│   │   └── AlertDeduplicationService.java # Redis: skip if sent
+│   │
+│   ├── model/
+│   │   ├── Alert.java                     # Internal alert model
+│   │   ├── AlertSeverity.java             # CRITICAL, WARNING, INFO
+│   │   └── NotificationPayload.java       # Channel-agnostic payload
+│   │
+│   └── exception/
+│       ├── NotificationDeliveryException.java
+│       └── WebSocketConnectionException.java
+│
+├── src/main/resources/
+│   ├── application.yml
+│   ├── logback-spring.xml
+│   └── templates/
+│       ├── stoploss-email.html            # Thymeleaf email template
+│       ├── target-hit-email.html
+│       └── risk-warning-email.html
+│
+├── Dockerfile
+├── pom.xml
+└── README.md
+--------------------------------------------------------------------
+
+
+================================================================================
+ SERVICE 9: AI SERVICE (finport-ai-service)
+================================================================================
+
+Purpose:
+  Portfolio intelligence analysis. Classifies stocks, generates
+  scenarios, provides action matrix. Uses external LLM for reasoning.
+
+Architecture Style: Orchestrator + Adapter Pattern
+  WHY: Orchestrates multiple steps (enrich → build prompt → call LLM
+  → parse response → validate JSON → publish). Adapter isolates LLM.
+
+Kafka Produces: ai-analysis-completed
+Kafka Consumes: portfolio-snapshot-requested (or REST trigger)
+Database Schema: ai_schema
+Communication: REST (trigger) + Kafka (inbound/outbound)
+
+Project Structure:
+--------------------------------------------------------------------
+finport-ai-service/
+├── src/main/java/com/finport/ai/
+│   ├── AiServiceApplication.java
+│   │
+│   ├── config/
+│   │   ├── KafkaConfig.java
+│   │   ├── LlmClientConfig.java           # OpenAI / Gemini config
+│   │   ├── RedisConfig.java
+│   │   └── SwaggerConfig.java
+│   │
+│   ├── controller/
+│   │   ├── AiAnalysisController.java      # POST /api/ai/analyze
+│   │   └── AiResultController.java        # GET /api/ai/analysis/latest
+│   │
+│   ├── orchestrator/
+│   │   └── AnalysisOrchestrator.java      # Step-by-step pipeline
+│   │
+│   ├── enricher/                          # DATA ENRICHMENT
+│   │   ├── HoldingEnricher.java           # Add sector sentiment
+│   │   ├── MacroContextEnricher.java      # Crude, gold, USD trends
+│   │   └── NewsEnricher.java              # Recent news per stock
+│   │
+│   ├── prompt/                            # LLM PROMPT ENGINEERING
+│   │   ├── PromptBuilder.java             # Builds system + user msg
+│   │   ├── SystemPromptTemplate.java      # AI agent persona prompt
+│   │   └── HoldingDataFormatter.java      # Format JSON for LLM
+│   │
+│   ├── llm/                              # LLM CLIENT ADAPTERS
+│   │   ├── LlmClient.java                # Interface
+│   │   ├── OpenAiClient.java             # OpenAI GPT-4 adapter
+│   │   ├── GeminiClient.java             # Google Gemini adapter
+│   │   └── LocalModelClient.java         # Self-hosted (Llama)
+│   │
+│   ├── parser/                           # RESPONSE PARSING
+│   │   ├── AiResponseParser.java         # Extract JSON from LLM
+│   │   ├── JsonSchemaValidator.java       # Validate response schema
+│   │   └── FallbackResponseBuilder.java   # If LLM returns junk
+│   │
+│   ├── service/
+│   │   ├── AnalysisService.java
+│   │   └── AnalysisSnapshotService.java   # Save/retrieve results
+│   │
+│   ├── repository/
+│   │   └── AnalysisSnapshotRepository.java
+│   │
+│   ├── entity/
+│   │   └── AnalysisSnapshot.java          # Full JSON + metadata
+│   │
+│   ├── dto/
+│   │   ├── request/AnalysisRequest.java
+│   │   └── response/AnalysisResponse.java
+│   │
+│   ├── event/
+│   │   ├── consumer/
+│   │   │   └── PortfolioSnapshotConsumer.java
+│   │   ├── publisher/
+│   │   │   └── AiAnalysisPublisher.java
+│   │   └── model/
+│   │       └── AiAnalysisCompletedEvent.java
+│   │
+│   └── exception/
+│       ├── GlobalExceptionHandler.java
+│       ├── LlmUnavailableException.java
+│       ├── InvalidAiResponseException.java
+│       └── AnalysisTimeoutException.java
+│
+├── src/main/resources/
+│   ├── application.yml
+│   ├── logback-spring.xml
+│   ├── prompts/
+│   │   ├── system-prompt.txt              # AI agent persona
+│   │   └── analysis-template.txt          # Structured analysis ask
+│   └── db/migration/
+│       └── V1__create_analysis_snapshots.sql
+│
+├── Dockerfile
+├── pom.xml
+└── README.md
+--------------------------------------------------------------------
+
+WHY this structure:
+  prompt/ builds the LLM input — separated from business logic.
+  llm/ adapters are swappable (OpenAI today, local model tomorrow).
+  parser/ validates LLM output — LLMs can return malformed JSON.
+  enricher/ adds context before sending to LLM.
+  NO calculations happen here — all numbers arrive pre-calculated.
+
+
+================================================================================
+ SERVICE 10: AUDIT SERVICE (finport-audit-service)  [NEW]
+================================================================================
+
+Purpose:
+  Subscribes to ALL domain events. Persists immutable audit records.
+  Never exposes mutation APIs. Read-only query for compliance.
+
+Architecture Style: Event Sink (Append-Only Log)
+  WHY: This service ONLY receives and stores. No business logic.
+  Append-only tables ensure compliance-grade immutability.
+
+Kafka Produces: NONE
+Kafka Consumes: ALL topics (portfolio-updated, price-updated,
+  risk-recalculated, stoploss-triggered, target-hit,
+  ai-analysis-completed, user-events)
+Database Schema: audit_schema
+Communication: Kafka (consume only) + REST (read-only queries)
+
+Project Structure:
+--------------------------------------------------------------------
+finport-audit-service/
+├── src/main/java/com/finport/audit/
+│   ├── AuditServiceApplication.java
+│   │
+│   ├── config/
+│   │   ├── KafkaConsumerConfig.java       # Subscribe to ALL topics
+│   │   ├── DataSourceConfig.java          # audit_schema (append-only)
+│   │   └── SwaggerConfig.java
+│   │
+│   ├── consumer/                          # ONE CONSUMER PER TOPIC
+│   │   ├── PortfolioEventConsumer.java
+│   │   ├── PriceEventConsumer.java
+│   │   ├── RiskEventConsumer.java
+│   │   ├── StopLossEventConsumer.java
+│   │   ├── TargetHitEventConsumer.java
+│   │   ├── AiEventConsumer.java
+│   │   └── UserEventConsumer.java
+│   │
+│   ├── transformer/
+│   │   └── EventToAuditLogTransformer.java   # Converts any event → AuditLog
+│   │
+│   ├── service/
+│   │   ├── AuditPersistenceService.java   # Append to audit_log
+│   │   ├── AuditQueryService.java         # Read-only queries
+│   │   └── DataLineageService.java        # Track source→target flow
+│   │
+│   ├── controller/
+│   │   ├── AuditQueryController.java      # GET /api/audit/...
+│   │   └── LineageQueryController.java    # GET /api/audit/lineage/...
+│   │   # NO POST/PUT/DELETE endpoints — immutable by design
+│   │
+│   ├── repository/
+│   │   ├── AuditLogRepository.java        # @Query for filtered reads
+│   │   └── DataLineageRepository.java
+│   │
+│   ├── entity/
+│   │   ├── AuditLog.java                  # Immutable entity
+│   │   └── DataLineage.java               # Source → target tracking
+│   │
+│   ├── dto/response/
+│   │   ├── AuditLogResponse.java
+│   │   └── LineageResponse.java
+│   │
+│   └── exception/
+│       └── GlobalExceptionHandler.java
+│
+├── src/main/resources/
+│   ├── application.yml
+│   ├── logback-spring.xml
+│   └── db/migration/
+│       ├── V1__create_audit_log_partitioned.sql
+│       ├── V2__create_data_lineage.sql
+│       └── V3__revoke_update_delete.sql   # ENFORCE immutability
+│
+├── Dockerfile
+├── pom.xml
+└── README.md
+--------------------------------------------------------------------
+
+
+================================================================================
+ SECTION B: EVENT INTERACTION MATRIX
+================================================================================
+
+Producer →            price-   portfolio- risk-    stoploss- target-  ai-      user-
+Consumer ↓            ingested updated    recalc   triggered hit      analysis events
+--------------------------------------------------------------------
+API Gateway           .        .          .        .         .        .        .
+User Service          .        .          .        .         .        .        PUB
+Portfolio Service     .        PUB        .        .         .        .        .
+Market Data Svc       SUB      .          .        .         .        .        .
+                      PUB(*)   .          .        .         .        .        .
+Risk Engine           .        SUB        .        .         .        .        .
+                      SUB(*)   .          PUB      PUB       PUB      .        .
+Scraper Service       PUB      .          .        .         .        .        .
+Analytics Service     .        SUB        SUB      .         .        .        .
+Notification Svc      .        .          SUB      SUB       SUB      .        .
+AI Service            .        .          SUB      .         .        PUB      .
+Audit Service         SUB      SUB        SUB      SUB       SUB      SUB      SUB
+--------------------------------------------------------------------
+PUB = Producer | SUB = Consumer | (*) = price-updated (enriched)
+
+
+================================================================================
+ SECTION C: SERVICE COMMUNICATION DIAGRAM
+================================================================================
+
+  ┌──────────┐        REST          ┌──────────────┐
+  │  Angular │ ◄──────────────────► │  API Gateway  │
+  │  UI App  │      WebSocket       │  (JWT + Rate) │
+  └──────────┘                      └──────┬───────┘
+                                           │ Routes to:
+              ┌────────────────────────────┬┴───────────────┐
+              │                            │                │
+       ┌──────┴──────┐            ┌────────┴────┐   ┌──────┴───────┐
+       │ User Service │            │  Portfolio  │   │   Market     │
+       │ (Auth+JWT)   │            │  Service    │   │   Data Svc   │
+       └──────────────┘            └──────┬─────┘   └──────┬───────┘
+                                          │                │
+                             Kafka:portfolio-updated  Kafka:price-updated
+                                          │                │
+                                    ┌─────┴────────────────┴─────┐
+                                    │       RISK ENGINE          │
+                                    │  (Pure Event Processor)    │
+                                    └──────────┬─────────────────┘
+                                               │
+                          Kafka: risk-recalculated + stoploss + target
+                                               │
+              ┌────────────────────────────────┬┴──────────────┐
+              │                                │               │
+       ┌──────┴──────┐                 ┌───────┴────┐  ┌───────┴─────┐
+       │  Analytics  │                 │ Notification│  │  AI Service │
+       │  Service    │                 │ Service     │  │  (LLM)      │
+       └─────────────┘                 └────────────┘  └─────────────┘
+                                                              │
+              ┌──────────┐                                    │
+              │  Scraper  │──── Kafka:price-ingested ─────►Market Data
+              │  Service  │
+              └──────────┘
+
+              ┌──────────┐
+              │  Audit   │◄──── Subscribes to ALL Kafka topics
+              │  Service  │
+              └──────────┘
+
+
+================================================================================
+ SECTION D: DEPLOYMENT SEPARATION STRATEGY
+================================================================================
+
+Each service is deployed independently:
+
+Service                 Replicas(min)  Replicas(max)  HPA Trigger
+--------------------------------------------------------------------
+API Gateway             3              10             Active connections
+User Service            2              5              CPU 70%
+Portfolio Service       2              8              CPU 70%
+Market Data Service     2              6              CPU 70%
+Risk Engine             3              15             Kafka consumer lag
+Scraper Service         2              4              CPU 70%
+Analytics Service       2              6              CPU 70%
+Notification Service    2              6              Kafka consumer lag
+AI Service              1              4              CPU + queue depth
+Audit Service           2              4              Kafka consumer lag
+--------------------------------------------------------------------
+
+Deployment Order (dependency chain):
+  1. Kafka cluster (prerequisite)
+  2. PostgreSQL + Redis (prerequisite)
+  3. API Gateway
+  4. User Service
+  5. Portfolio Service + Market Data Service (parallel)
+  6. Risk Engine
+  7. Analytics + Notification + AI + Audit (parallel)
+  8. Scraper Service (last — triggers data flow)
+
+
+================================================================================
+ SECTION E: SCALABILITY STRATEGY PER SERVICE
+================================================================================
+
+Service               Strategy
+--------------------------------------------------------------------
+API Gateway           Stateless. Add pods. Nginx ingress load balances.
+User Service          Stateless. Redis token cache shared across pods.
+Portfolio Service     Stateless. Redis cache invalidated via events.
+Market Data Service   Read replicas for history queries. Redis for latest.
+Risk Engine           Stateless. Scale by Kafka partitions (12 partitions
+                      = up to 12 parallel consumer instances).
+Scraper Service       Split symbol list across pods. Each pod scrapes a
+                      subset. Coordinated via Redis distributed lock.
+Analytics Service     Read replicas. Pre-computed materialized views.
+Notification Svc      Stateless. WebSocket sessions sticky via Redis.
+AI Service            Queue-based scaling. LLM calls are slow — scale
+                      based on pending analysis queue depth.
+Audit Service         Partitioned tables by month. Archival to S3.
+--------------------------------------------------------------------
+
+
+================================================================================
+ SECTION F: FUTURE EXTENSIBILITY STRATEGY
+================================================================================
+
+Adding new service (e.g., Options Trading):
+  1. Create new repo: finport-options-service
+  2. New Kafka topic: options-expiry-triggered
+  3. Risk Engine: add new consumer for options events
+  4. Analytics: add options exposure aggregator
+  5. UI: add new lazy module /features/options/
+  6. Gateway: add route /api/options/** → new service
+  7. ZERO changes to Portfolio, Market Data, User services
+
+Adding new scraper source:
+  1. Add new class in scraper/source/ (implements SourceAdapter)
+  2. Register in SourceRegistryConfig
+  3. ZERO changes to pipeline, publisher, or other sources
+
+Adding new notification channel (SMS):
+  1. Add SmsChannel.java (implements NotificationChannel)
+  2. Register in ChannelRegistry
+  3. ZERO changes to consumers or other channels
+
+Adding new AI model:
+  1. Add adapter in ai/llm/ (implements LlmClient)
+  2. Switch via config: llm.provider=gemini
+  3. ZERO changes to orchestrator, parser, or enricher
+
+================================================================================
+END OF PART 2B — INDIVIDUAL SERVICE PROJECT STRUCTURES
+================================================================================
