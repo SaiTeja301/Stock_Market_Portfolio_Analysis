@@ -633,4 +633,4 @@ Before emitting an analysis or screener query, the AI agent must verify:
 
 ---
 *Maintained by: AI Agent Skills & Architecture Registry*  
-*Location: `.skills/Stock_Market_Skills/stock_market_skills.md`*
+*Location: `.skills/.Stock_Market_Skills/stock_market_skills.md`*

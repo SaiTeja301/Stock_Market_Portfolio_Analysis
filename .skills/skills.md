@@ -2,7 +2,7 @@
 
 Welcome to the **Master AI Agent Skills Registry & Operational Router** for this enterprise engineering and quantitative trading environment.
 
-This registry organizes, governs, and indexes **15 specialized AI Agent Skills** into a modular, production-grade operating ecosystem. Any AI agent or subagent can dynamically adopt these persona instructions, execution pipelines, verification checklists, and domain knowledge bases.
+This registry organizes, governs, and indexes **16 specialized AI Agent Skills** into a modular, production-grade operating ecosystem. Any AI agent or subagent can dynamically adopt these persona instructions, execution pipelines, verification checklists, and domain knowledge bases.
 
 ---
 
@@ -24,7 +24,8 @@ This registry organizes, governs, and indexes **15 specialized AI Agent Skills**
 | 12 | **[`documentation-sync-skill.md`](file:///E:/Stock%20Market/Stock_Market_Portfolio_Analysis/.skills/.Documentation_Skills/documentation-sync-skill.md)** | Documentation Engineer | Universal 14-Phase Documentation Sync, Gap Analysis, Refactoring & Enrichment |
 | 13 | **[`mermaid-diagram-skill.md`](file:///E:/Stock%20Market/Stock_Market_Portfolio_Analysis/.skills/.Documentation_Skills/mermaid-diagram-skill.md)** | Mermaid Visualization Engineer | Enterprise System Diagrams, Dark/Light Mode Themes, Valid Mermaid Syntax |
 | 14 | **[`stock-market-analyst-skill.md`](file:///E:/Stock%20Market/Stock_Market_Portfolio_Analysis/.skills/.Stock_Market_Skills/stock-market-analyst-skill.md)** | Senior Quantitative Trading Analyst | Price Action, Candlestick Math, Confluence Engines, Risk/Reward (1:2+), RVOL |
-| 15 | **[`stock_market_skills.md`](file:///E:/Stock%20Market/Stock_Market_Portfolio_Analysis/.skills/Stock_Market_Skills/stock_market_skills.md)** | Master Stock Market Skills System | Master Technical Execution, Indian Screener.in Engine, U.S. StockSifting Engine, Prompt Meta-Skill |
+| 15 | **[`stock_market_skills.md`](file:///E:/Stock%20Market/Stock_Market_Portfolio_Analysis/.skills/.Stock_Market_Skills/stock_market_skills.md)** | Master Stock Market Skills System | Master Technical Execution, Indian Screener.in Engine, U.S. StockSifting Engine, Prompt Meta-Skill |
+| 16 | **[`TRM_Algorithm_Skill.md`](file:///E:/Stock%20Market/Stock_Market_Portfolio_Analysis/.skills/.Stock_Market_Skills/TRM_%20Strategies/TRM_Algorithm_Skill.md)** | Quantitative Recovery & Capital Allocation Architect | **Teja Recovery Model (user's original invention)** — All 4 editions (Original, V1, V2, V3); 100-period OLS Linear Regression Channel formulas; Mathematical Expectancy Engine E[R]; Zero-Cost Runner Retention (Current Price Law); Dimensional Integrity Enforcement; Step-by-Step Ledger Accounting Proofs; 6-Phase Execution Pipeline; 100-Point Scoring Rubric; 12 Edge-Case Protocols; Python & Java 17 Reference Engines; Case Studies (NSE & NASDAQ) |
 
 ---
 
@@ -62,8 +63,11 @@ When executing an engineering or analytical task, select the optimal skill(s) ba
    ├── "Synchronize Technical Documentation from Reference Notes"
    │    └── Adopt: .Documentation_Skills/documentation-sync-skill.md + mermaid-diagram-skill.md
    │
-   └── "Stock Market: Technical Analysis, Indian Screener.in, or U.S. StockSifting"
-        └── Adopt: Stock_Market_Skills/stock_market_skills.md (or stock-market-analyst-skill.md)
+   ├── "Stock Market: Technical Analysis, Indian Screener.in, or U.S. StockSifting"
+   │    └── Adopt: .Stock_Market_Skills/stock_market_skills.md (or stock-market-analyst-skill.md)
+   │
+   └── "TRM: Capital Allocation, Dip Averaging, Recovery Model, Position Sizing, Regression Channel, Runner Retention"
+        └── Adopt: .Stock_Market_Skills/TRM_ Strategies/TRM_Algorithm_Skill.md
 ```
 
 ---

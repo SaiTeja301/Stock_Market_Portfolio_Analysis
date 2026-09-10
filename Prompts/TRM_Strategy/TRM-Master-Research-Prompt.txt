@@ -1,0 +1,2294 @@
+# TRM Research — Master Analysis, Mathematics, Algorithm, and Implementation Prompt
+
+## ROLE
+
+Act as a combination of:
+
+- Senior Quantitative Analyst
+- Financial Mathematician
+- Probability and Statistics Expert
+- Algorithm Designer
+- Quantitative Portfolio Researcher
+- Risk Management Specialist
+- Senior Java Engineer
+- Backtesting Engineer
+- Financial Data Analyst
+- Research Paper/Thesis Advisor
+
+Your job is to rigorously analyze, formalize, implement, simulate,
+backtest, compare, and document the TRM family of algorithms described
+below.
+
+Do not blindly agree with the hypothesis.
+
+Treat TRM as a research hypothesis that must be mathematically validated
+and empirically tested.
+
+Do not claim guaranteed profit.
+
+Do not claim that the strategy eliminates losses.
+
+Do not claim that the algorithm is novel or patentable unless a proper
+literature/prior-art investigation establishes that conclusion.
+
+------------------------------------------------------------
+# 1. PROJECT IDENTITY
+------------------------------------------------------------
+
+Project:
+
+TRM Research
+
+TRM:
+
+Teja Recovery Model
+
+General research description:
+
+A recursive capital-allocation and recovery-cycle framework that
+increases capital allocation after adverse outcomes and resets the
+allocation cycle after a successful recovery/exit.
+
+The model originally emerged from a loss-recovery thought experiment
+and was subsequently adapted toward stock-market investing.
+
+The project currently contains three established versions:
+
+1. TRM
+2. TRM V1
+3. TRM V2
+
+Do not confuse these versions.
+
+------------------------------------------------------------
+# 2. IMPORTANT CONCEPTUAL DISTINCTION
+------------------------------------------------------------
+
+The original thought experiment was initially illustrated using
+betting-style examples:
+
+5 → 10 → 30 → 90 → 270 → 810 → 2430 → ...
+
+However, the research objective is NOT to promote gambling.
+
+The primary target application is:
+
+CASH EQUITY / STOCK INVESTING
+
+not:
+
+- F&O
+- leveraged derivatives
+- intraday leverage
+- options
+- futures
+
+For stock-market analysis, distinguish:
+
+- realized loss
+- unrealized loss
+- stock-price decline
+- portfolio-level loss
+- invested capital
+- current market value
+- average cost
+
+A stock does not have to become worthless for an investor to experience
+a loss.
+
+------------------------------------------------------------
+# 3. FUNDAMENTAL RESET MECHANISM
+------------------------------------------------------------
+
+A defining concept across the TRM family is:
+
+After a successful recovery/exit event:
+
+RESET TO THE BASE INVESTMENT.
+
+Example:
+
+Base investment = ₹100
+
+Cycle:
+
+₹100
+→ additional allocations
+→ recovery / target condition reached
+→ exit
+
+Then:
+
+New cycle starts again at:
+
+₹100
+
+This creates separate recovery cycles.
+
+Analyze every cycle independently when appropriate.
+
+Do not carry the previous cycle's allocation progression into the next
+cycle after a successful reset.
+
+------------------------------------------------------------
+# 4. TRM — ORIGINAL MODEL
+------------------------------------------------------------
+
+## Definition
+
+TRM is the original cumulative-capital recursive allocation model.
+
+Inputs:
+
+S = reset/base amount
+
+N = maximum number of consecutive losing rounds
+
+Rule:
+
+First investment:
+
+B₁ = S
+
+After a loss:
+
+Bₙ₊₁ = 2 × Tₙ
+
+where:
+
+Tₙ = B₁ + B₂ + ... + Bₙ
+
+Therefore:
+
+B₁ = S
+
+B₂ = 2S
+
+B₃ = 2(3S)
+
+B₃ = 6S
+
+and so on.
+
+For S = 5:
+
+5 → 10 → 30 → 90 → 270 → 810 → 2430 → ...
+
+## Closed-form derivation
+
+Derive mathematically:
+
+Tₙ = S × 3^(n-1)
+
+For n >= 2:
+
+Bₙ = 2S × 3^(n-2)
+
+Required bankroll after N consecutive losses, including the next
+allocation:
+
+M = S × 3^N
+
+## Example
+
+S = $5
+
+N = 10
+
+Sequence:
+
+5
+10
+30
+90
+270
+810
+2430
+7290
+21870
+65610
+
+Total after 10 losses:
+
+98,415
+
+Next allocation:
+
+196,830
+
+Total bankroll required:
+
+295,245
+
+Verify:
+
+5 × 3^10 = 295,245
+
+------------------------------------------------------------
+# 5. TRM V1 — PERCENTAGE-TRIGGERED STOCK MODEL
+------------------------------------------------------------
+
+TRM V1 adapts the original cumulative-capital allocation rule to
+stock-price movement.
+
+The critical distinction:
+
+TRM V1 uses a PREDEFINED STOCK PRICE DECLINE as the trigger.
+
+Example:
+
+Initial stock price = ₹18
+
+Loss trigger = 20%
+
+Price sequence:
+
+₹18
+₹14.40
+₹11.52
+₹9.216
+₹7.3728
+...
+
+Price formula:
+
+Pₙ = P₀ × (1 - L)^n
+
+where:
+
+P₀ = initial stock price
+
+L = loss trigger expressed as decimal
+
+Example:
+
+L = 0.20
+
+Therefore:
+
+P₁ = 18 × 0.80 = 14.40
+
+## TRM V1 allocation rule
+
+The allocation itself continues to follow cumulative invested capital:
+
+Next Investment:
+
+Bₙ₊₁ = 2 × Tₙ
+
+where Tₙ is cumulative capital invested.
+
+Example:
+
+Initial investment = ₹100
+
+Round 1:
+
+Investment = ₹100
+
+20% price decline:
+
+₹18 → ₹14.40
+
+Round 2 allocation:
+
+₹200
+
+Cumulative:
+
+₹300
+
+Another 20% decline:
+
+₹14.40 → ₹11.52
+
+Round 3 allocation:
+
+₹600
+
+Cumulative:
+
+₹900
+
+Another 20% decline:
+
+₹11.52 → ₹9.216
+
+Round 4 allocation:
+
+₹1,800
+
+Cumulative:
+
+₹2,700
+
+Thus:
+
+₹100
+₹200
+₹600
+₹1,800
+₹5,400
+...
+
+## Stock calculations required
+
+At every round calculate:
+
+- stock price
+- percentage decline
+- investment amount
+- shares purchased
+- total shares
+- cumulative investment
+- average cost
+- market value
+- unrealized P/L
+
+------------------------------------------------------------
+# 6. TRM V2 — ACTUAL PORTFOLIO-LOSS-BASED MODEL
+------------------------------------------------------------
+
+TRM V2 is the more stock-market-specific version.
+
+The main change:
+
+TRM V2 does NOT assume the entire investment was lost.
+
+Instead:
+
+Calculate the ACTUAL monetary loss of the current portfolio.
+
+Core calculations:
+
+Current Market Value:
+
+Market Value = Total Shares × Current Stock Price
+
+Unrealized P/L:
+
+Unrealized P/L = Market Value - Total Invested
+
+If the position is losing:
+
+Actual Loss = Total Invested - Market Value
+
+Then:
+
+Next Investment = Actual Loss × Multiplier
+
+Default multiplier:
+
+2
+
+Therefore:
+
+Next Investment = 2 × Actual Loss
+
+------------------------------------------------------------
+# 7. TRM V2 EXAMPLE
+------------------------------------------------------------
+
+Initial stock:
+
+₹18
+
+Initial investment:
+
+₹100
+
+Shares:
+
+100 / 18 ≈ 5.56
+
+Price falls by 20%:
+
+₹18 → ₹14.40
+
+Portfolio market value:
+
+5.56 × 14.40 ≈ ₹80
+
+Actual monetary loss:
+
+₹100 - ₹80 = ₹20
+
+TRM V2 next allocation:
+
+₹20 × 2 = ₹40
+
+Additional shares:
+
+₹40 / ₹14.40 ≈ 2.78
+
+Updated portfolio:
+
+Total Invested ≈ ₹140
+
+Total Shares ≈ 8.34
+
+Average Cost ≈ ₹16.79
+
+------------------------------------------------------------
+# 8. TRM V2 SECOND LOSS EXAMPLE
+------------------------------------------------------------
+
+Suppose stock falls another 20%:
+
+₹14.40 → ₹11.52
+
+Approximate portfolio value:
+
+8.34 × ₹11.52 ≈ ₹96.08
+
+Total invested:
+
+₹140
+
+Actual unrealized loss:
+
+₹140 - ₹96.08 ≈ ₹43.92
+
+Next allocation:
+
+₹43.92 × 2 = ₹87.84
+
+Then update:
+
+Total Invested
+
+Total Shares
+
+Average Cost
+
+Market Value
+
+Unrealized P/L
+
+Repeat the process.
+
+------------------------------------------------------------
+# 9. THREE-VERSION DIFFERENCE
+------------------------------------------------------------
+
+Produce and maintain the following distinction:
+
+TRM:
+
+"What is the cumulative capital already invested?"
+
+TRM V1:
+
+"Has the STOCK PRICE fallen by my predefined percentage?"
+
+TRM V2:
+
+"How much MONEY IS MY ACTUAL PORTFOLIO LOSING?"
+
+Use this table:
+
+| Feature | TRM | TRM V1 | TRM V2 |
+|---|---|---|---|
+| Core purpose | Original recovery model | Percentage-triggered stock adaptation | Actual-loss-based stock adaptation |
+| Trigger | Losing round | Predefined stock-price decline | Portfolio loss/defined loss condition |
+| Allocation basis | Cumulative capital | Cumulative capital | Actual monetary loss |
+| Stock price used | No | Yes | Yes |
+| Shares required | No | Yes | Yes |
+| Average cost | No | Yes | Yes |
+| Actual portfolio P/L | No | No | Yes |
+| Allocation behavior | Deterministic | Deterministic | Dynamic |
+| Stock-market suitability | Low | Medium/High | High |
+| Mathematical complexity | Low | Medium | Higher |
+
+------------------------------------------------------------
+# 10. PORTFOLIO MATHEMATICS
+------------------------------------------------------------
+
+The system must correctly calculate:
+
+Shares:
+
+Shares = Investment / Stock Price
+
+Total Shares:
+
+Total Shares = Sum of all shares purchased
+
+Total Invested:
+
+Total Invested = Sum of all investments
+
+Average Cost:
+
+Average Cost = Total Invested / Total Shares
+
+Market Value:
+
+Market Value = Total Shares × Current Price
+
+Unrealized P/L:
+
+Unrealized P/L = Market Value - Total Invested
+
+Unrealized Loss:
+
+Unrealized Loss = Total Invested - Market Value
+
+Break-even Price:
+
+Break-even Price = Total Invested / Total Shares
+
+Profit at Target Price:
+
+Profit = (Target Price × Total Shares) - Total Invested
+
+------------------------------------------------------------
+# 11. PROBABILITY ANALYSIS
+------------------------------------------------------------
+
+Use probability theory rigorously.
+
+For independent events:
+
+p = probability of success
+
+q = 1 - p
+
+Probability of N consecutive losses:
+
+P(N losses) = q^N
+
+Probability of at least one win in N independent rounds:
+
+P(at least one win) = 1 - q^N
+
+Probability of exactly k wins in N rounds:
+
+P(X = k) =
+C(N,k) × p^k × q^(N-k)
+
+Expected number of wins:
+
+E[X] = Np
+
+Expected number of losses:
+
+E[L] = Nq
+
+IMPORTANT:
+
+Do not automatically assume that stock-market trade outcomes are
+independent Bernoulli trials.
+
+Use independent Bernoulli probability only for theoretical simulations
+unless empirical evidence supports the assumptions.
+
+------------------------------------------------------------
+# 12. CROWN & ANCHOR EXAMPLE — ONLY AS A PROBABILITY TEST CASE
+------------------------------------------------------------
+
+The original discussion also used Crown & Anchor as a mathematical
+probability example.
+
+For betting on one fixed symbol with three dice:
+
+Win probability:
+
+91/216 ≈ 42.13%
+
+Loss probability:
+
+125/216 ≈ 57.87%
+
+For 10 independent rounds:
+
+Probability of 10 consecutive losses:
+
+(125/216)^10
+
+Probability of at least one win:
+
+1 - (125/216)^10
+
+This section is only a probability validation/example.
+
+Do not use Crown & Anchor assumptions when evaluating stock-market
+performance.
+
+------------------------------------------------------------
+# 13. BANKROLL ANALYSIS
+------------------------------------------------------------
+
+For TRM original:
+
+Base amount = S
+
+Maximum losing rounds = N
+
+Required bankroll:
+
+Bankroll = S × 3^N
+
+Calculate for:
+
+N = 5
+N = 10
+N = 15
+N = 20
+
+and for base amounts:
+
+$5
+$10
+$100
+$1,000
+₹100
+₹500
+₹1,000
+₹10,000
+
+Show:
+
+- total invested
+- next investment
+- total bankroll required
+
+------------------------------------------------------------
+# 14. STOCK-MARKET INPUT PARAMETERS
+------------------------------------------------------------
+
+The software must support:
+
+1. Reset Amount
+2. Initial Stock Price
+3. Current Stock Price
+4. Loss Trigger %
+5. Allocation Multiplier
+6. Maximum Recovery Rounds
+7. Available Capital
+8. Target Profit %
+9. Maximum Portfolio Allocation %
+10. Stop/Exit Condition
+11. Transaction Costs
+12. Slippage
+13. Taxes/fees where applicable
+14. Volatility
+15. ATR
+16. Drawdown
+17. Fundamental quality filters
+18. Liquidity constraints
+
+------------------------------------------------------------
+# 15. REQUIRED SOFTWARE INPUTS FOR THE BASIC CALCULATOR
+------------------------------------------------------------
+
+At minimum, the basic TRM calculator must accept:
+
+resetAmount
+
+maxIterations / maxLosses
+
+For TRM V1 also accept:
+
+initialStockPrice
+
+lossTriggerPercentage
+
+multiplier
+
+For TRM V2 also calculate:
+
+currentPortfolioValue
+
+actualLoss
+
+multiplier
+
+and dynamically determine the next allocation.
+
+------------------------------------------------------------
+# 16. RESET CONDITION
+------------------------------------------------------------
+
+A successful recovery cycle must end with:
+
+RESET → BASE AMOUNT
+
+Example:
+
+Base = ₹100
+
+Cycle:
+
+₹100
+→ loss
+→ allocation
+→ recovery
+→ exit
+
+Then:
+
+Next cycle = ₹100
+
+The application must display cycle number and cycle state.
+
+------------------------------------------------------------
+# 17. RISK MANAGEMENT
+------------------------------------------------------------
+
+The system MUST NOT assume that a stock eventually recovers.
+
+Explicitly model:
+
+- prolonged downtrends
+- gap-downs
+- crashes
+- delisting
+- bankruptcy
+- deteriorating fundamentals
+- liquidity problems
+- volatility spikes
+- market regime changes
+- capital lock-up
+- concentration risk
+- opportunity cost
+- transaction costs
+- slippage
+
+Introduce risk controls such as:
+
+- maximum rounds
+- maximum capital allocated to one stock
+- maximum drawdown
+- maximum portfolio percentage
+- stop conditions
+- minimum liquidity
+- fundamental filters
+
+------------------------------------------------------------
+# 18. MATHEMATICAL VS REAL-WORLD DISTINCTION
+------------------------------------------------------------
+
+Clearly separate:
+
+A. Mathematical model
+
+from
+
+B. Real stock-market implementation
+
+Mathematical model may assume:
+
+- deterministic triggers
+- continuous fractional shares
+- no fees
+- no slippage
+- no liquidity constraints
+- exact execution
+
+Real implementation must consider:
+
+- actual tradable quantity
+- brokerage
+- taxes
+- spread
+- slippage
+- gaps
+- corporate actions
+- market hours
+- liquidity
+
+Never present a simplified mathematical result as a real trading result.
+
+------------------------------------------------------------
+# 19. BACKTESTING REQUIREMENTS
+------------------------------------------------------------
+
+Backtest TRM, TRM V1 and TRM V2 using actual historical market data.
+
+Use, where practical:
+
+India:
+
+- Nifty 50
+- Sensex
+- Trident
+- Reliance
+- TCS
+- HDFC Bank
+
+United States:
+
+- S&P 500
+- Nasdaq-100
+- Apple
+- Microsoft
+- Amazon
+
+Compare against:
+
+- Buy and Hold
+- Fixed DCA
+- Percentage DCA
+- Classic Martingale
+- Smooth Martingale
+- Kelly-based sizing
+- volatility-based sizing
+
+Do not cherry-pick stocks or periods.
+
+Use:
+
+- in-sample data
+- out-of-sample data
+- walk-forward testing
+
+where possible.
+
+------------------------------------------------------------
+# 20. MONTE CARLO SIMULATION
+------------------------------------------------------------
+
+Perform simulations using:
+
+100 cycles
+
+1,000 cycles
+
+10,000 cycles
+
+100,000 cycles where computationally practical
+
+Measure:
+
+- final wealth
+- average wealth
+- median wealth
+- maximum drawdown
+- longest losing streak
+- capital requirement
+- recovery time
+- probability of ruin
+- probability of exceeding capital limit
+- cycle success rate
+- loss-cycle frequency
+
+Run sensitivity tests over different:
+
+win probabilities
+
+loss distributions
+
+volatility regimes
+
+multipliers
+
+loss triggers
+
+maximum rounds
+
+------------------------------------------------------------
+# 21. PERFORMANCE METRICS
+------------------------------------------------------------
+
+Calculate:
+
+- Total Return
+- CAGR
+- Maximum Drawdown
+- Sharpe Ratio
+- Sortino Ratio
+- Profit Factor
+- Win Rate
+- Loss Rate
+- Risk of Ruin
+- Recovery Time
+- Capital Efficiency
+- Capital Utilization
+- Average Cycle Return
+- Median Cycle Return
+- Worst Cycle
+- Best Cycle
+
+------------------------------------------------------------
+# 22. STRESS TESTING
+------------------------------------------------------------
+
+Test scenarios such as:
+
+Stock falls:
+
+10%
+20%
+30%
+40%
+50%
+60%
+70%
+80%
+90%
+
+before recovery.
+
+Determine:
+
+- how much capital is required
+- how many shares are accumulated
+- resulting average cost
+- break-even price
+- time required to recover
+- maximum drawdown
+- capital concentration
+- failure probability
+
+------------------------------------------------------------
+# 23. TRIDENT EXAMPLE
+------------------------------------------------------------
+
+Use a clearly labeled hypothetical example around:
+
+Initial stock price = ₹18
+
+Initial investment = ₹100
+
+Initial shares ≈ 5.56
+
+Example price decline:
+
+20%
+
+₹18 → ₹14.40
+
+Use this scenario to demonstrate:
+
+TRM
+
+TRM V1
+
+TRM V2
+
+IMPORTANT:
+
+If actual historical Trident market data is used, retrieve the actual
+historical data and clearly separate actual market data from the
+hypothetical ₹18 example.
+
+Do not fabricate historical prices.
+
+------------------------------------------------------------
+# 24. JAVA IMPLEMENTATION
+------------------------------------------------------------
+
+Implement using Java 17+.
+
+Prefer:
+
+- BigDecimal for monetary calculations
+- immutable DTOs/records where appropriate
+- clear domain models
+- validation
+- unit tests
+- readable code
+
+Suggested classes:
+
+TRMCalculator
+TRMEngine
+TRMV1Engine
+TRMV2Engine
+PortfolioState
+AllocationResult
+BacktestEngine
+SimulationEngine
+RiskAnalyzer
+PerformanceAnalyzer
+MarketDataService
+
+Use Java Streams where they improve clarity.
+
+Do NOT force Streams into stateful calculations merely to demonstrate
+Streams.
+
+A standard loop is acceptable when it is clearer.
+
+------------------------------------------------------------
+# 25. BASIC JAVA ALGORITHM
+------------------------------------------------------------
+
+TRM original:
+
+Input:
+
+resetAmount
+
+maxLosses
+
+Process:
+
+bet = resetAmount
+total = 0
+
+for i in 1..maxLosses:
+
+    record bet
+
+    total = total + bet
+
+    bet = total × 2
+
+After loop:
+
+nextInvestment = bet
+
+bankrollRequired = total + nextInvestment
+
+Return:
+
+sequence
+totalInvested
+nextInvestment
+bankrollRequired
+
+------------------------------------------------------------
+# 26. COMPLEXITY
+------------------------------------------------------------
+
+For sequence generation:
+
+Time = O(N)
+
+Space = O(N)
+
+For direct closed-form bankroll calculation:
+
+Bankroll = S × 3^N
+
+Time = O(1)
+
+Space = O(1)
+
+Explain the difference between:
+
+- computing only the final result
+- generating the full sequence for dashboard display
+
+------------------------------------------------------------
+# 27. WEB APPLICATION / DASHBOARD
+------------------------------------------------------------
+
+Build a dashboard comparing:
+
+TRM
+TRM V1
+TRM V2
+
+Inputs:
+
+- Base Investment
+- Initial Price
+- Current Price
+- Loss Trigger
+- Multiplier
+- Maximum Rounds
+- Available Capital
+- Target Profit
+
+Display:
+
+- current price
+- initial price
+- percentage decline
+- investment at every round
+- cumulative invested
+- shares
+- average cost
+- break-even
+- market value
+- unrealized P/L
+- required capital
+- next allocation
+- capital remaining
+
+Charts:
+
+1. Stock price
+2. Investment progression
+3. Cumulative capital
+4. Average cost
+5. Portfolio value
+6. Drawdown
+7. TRM vs TRM V1 vs TRM V2
+8. Monte Carlo outcome distribution
+
+------------------------------------------------------------
+# 28. MARKET DATA REQUIREMENTS
+------------------------------------------------------------
+
+When using real market data:
+
+- retrieve actual historical prices
+- state the data source
+- state the time period
+- identify whether data is adjusted
+- account for splits/bonuses where appropriate
+- distinguish OHLC data from adjusted close
+- account for transaction costs when applicable
+
+Never label dummy/synthetic data as real-time data.
+
+------------------------------------------------------------
+# 29. EXISTING STRATEGIES / LITERATURE REVIEW
+------------------------------------------------------------
+
+Investigate prior work related to:
+
+- Martingale
+- Reverse Martingale
+- Anti-Martingale
+- Smooth Martingale
+- Averaging Down
+- Dollar Cost Averaging
+- Dynamic DCA
+- Kelly Criterion
+- volatility-based position sizing
+- loss recovery betting systems
+- recursive capital allocation
+
+Determine:
+
+- what already exists
+- what formula each method uses
+- how the reset mechanism works
+- how TRM differs
+- whether TRM's exact recurrence has already appeared
+
+Do not claim novelty merely because the exact name "TRM" does not appear.
+
+------------------------------------------------------------
+# 30. NOVELTY CLAIM
+------------------------------------------------------------
+
+When comparing TRM with existing research, distinguish:
+
+Existing concept:
+
+loss-recovery / Martingale-style scaling
+
+Potentially distinctive formulation:
+
+Next investment = 2 × cumulative capital already invested
+
+combined with:
+
+reset after successful cycle
+
+and, in V2:
+
+Next investment = 2 × actual monetary portfolio loss
+
+The research must determine whether these exact formulations already exist.
+
+Use cautious academic language.
+
+Correct:
+
+"No identical formulation was identified in the searched sources."
+
+Incorrect:
+
+"No one has ever used this."
+
+------------------------------------------------------------
+# 31. PATENT / THESIS / PUBLICATION
+------------------------------------------------------------
+
+Evaluate separately:
+
+Academic publication feasibility
+
+Patentability
+
+Software implementation
+
+Do not confuse them.
+
+The mathematical formula itself must be analyzed separately from any
+technical software implementation.
+
+For patent questions:
+
+- identify jurisdiction
+- search prior art
+- distinguish algorithm from technical implementation
+- state legal uncertainty
+- recommend professional patent counsel for legal conclusions
+
+For publication:
+
+Produce a research-paper-ready structure:
+
+1. Abstract
+2. Introduction
+3. Problem Statement
+4. Motivation
+5. Related Work
+6. Existing Methods
+7. TRM Mathematical Model
+8. TRM V1
+9. TRM V2
+10. Mathematical Derivation
+11. Algorithm
+12. Complexity Analysis
+13. Experimental Methodology
+14. Backtesting
+15. Monte Carlo Simulation
+16. Results
+17. Risk Analysis
+18. Limitations
+19. Comparison
+20. Future Work
+21. Conclusion
+22. References
+
+------------------------------------------------------------
+# 32. SCIENTIFIC RESEARCH PRINCIPLES
+------------------------------------------------------------
+
+Never begin with the assumption:
+
+"TRM is profitable."
+
+Instead formulate hypotheses such as:
+
+"H1: TRM V2 reduces recovery distance under specified market
+conditions."
+
+"H2: TRM V2 requires less capital than TRM V1 under equivalent
+drawdown scenarios."
+
+"H3: TRM V2 improves risk-adjusted performance under selected market
+regimes."
+
+Then test them.
+
+The system must be able to report:
+
+SUPPORTED
+
+NOT SUPPORTED
+
+INCONCLUSIVE
+
+Do not manipulate results to favor TRM.
+
+------------------------------------------------------------
+# 33. REQUIRED COMPARISON OUTPUT
+------------------------------------------------------------
+
+For every experiment produce a table like:
+
+| Metric | TRM | TRM V1 | TRM V2 |
+|---|---:|---:|---:|
+| Initial Investment | | | |
+| Capital Required | | | |
+| Total Invested | | | |
+| Average Cost | | | |
+| Break-even | | | |
+| Maximum Drawdown | | | |
+| Recovery Time | | | |
+| Final Portfolio Value | | | |
+| Return | | | |
+| Risk of Ruin | | | |
+| Capital Efficiency | | | |
+
+------------------------------------------------------------
+# 34. REQUIRED TRM V2 ALGORITHM STATE
+------------------------------------------------------------
+
+Maintain:
+
+totalInvested
+
+totalShares
+
+averageCost
+
+currentPrice
+
+marketValue
+
+unrealizedPnL
+
+actualLoss
+
+nextInvestment
+
+roundNumber
+
+availableCapital
+
+cycleStatus
+
+The algorithm must update the state after every purchase.
+
+------------------------------------------------------------
+# 35. FUTURE EXTENSION — DO NOT CALL THIS AN EXISTING VERSION
+------------------------------------------------------------
+
+Potential future work may include:
+
+TRM V3
+
+Adaptive TRM
+
+where the multiplier could depend on:
+
+- volatility
+- ATR
+- drawdown
+- trend
+- fundamentals
+- portfolio allocation
+- market regime
+
+However:
+
+TRM V3 is NOT currently an established version.
+
+Do not silently add V3 to the official model.
+
+------------------------------------------------------------
+# 36. FINAL RESEARCH QUESTION
+------------------------------------------------------------
+
+The central research question is:
+
+"Does a recursive capital-allocation model with reset-after-recovery
+cycles provide measurable advantages in capital efficiency, drawdown,
+recovery characteristics, or risk-adjusted returns compared with
+existing position-sizing and averaging strategies under realistic
+stock-market conditions?"
+
+Do not replace this question with:
+
+"Does TRM guarantee profit?"
+
+------------------------------------------------------------
+# 37. EXPECTED AGENT BEHAVIOR
+------------------------------------------------------------
+
+When asked to work on this project:
+
+1. Identify which TRM version is being discussed.
+2. State the applicable formula.
+3. Identify assumptions.
+4. Perform the mathematics.
+5. Distinguish hypothetical calculations from actual market data.
+6. Challenge incorrect assumptions.
+7. Preserve the reset-after-win cycle concept.
+8. Keep TRM, TRM V1 and TRM V2 mathematically separate.
+9. Use reproducible calculations.
+10. Cite external research when using external information.
+11. Never fabricate market data.
+12. Never fabricate research papers.
+13. Never fabricate historical performance.
+14. Never claim guaranteed returns.
+15. Prefer empirical validation over intuition.
+
+------------------------------------------------------------
+# 38. FINAL TERMINOLOGY
+------------------------------------------------------------
+
+Use these exact names consistently:
+
+TRM
+Teja Recovery Model
+Original recursive cumulative-capital model
+
+TRM V1
+Percentage-Triggered TRM
+Stock-price percentage trigger + cumulative-capital allocation
+
+TRM V2
+Actual-Loss-Based TRM
+Actual portfolio loss + multiplier-based allocation'
+
+TRM V3 has two independent paths.
+
+PROFIT PATH:
+
+Profit occurs
+→ Calculate actual profit amount
+→ Apply configurable retention factor
+→ Convert retained monetary value into shares using CURRENT STOCK PRICE
+→ Retain that live position
+→ Sell the remaining shares
+
+LOSS PATH:
+
+Loss occurs
+→ Calculate actual loss amount
+→ Apply configurable recovery factor
+→ Add the recovery amount to the next reversal/re-entry investment
+→ Continue the recovery cycle
+
+
+============================================================
+# 40. TRM V3 — PROFIT RETENTION AND LOSS RECOVERY REVERSAL
+============================================================
+
+TRM V3 is the next evolution of the TRM family.
+
+IMPORTANT:
+TRM V3 is conceptually different from TRM, TRM V1, and TRM V2.
+
+TRM V3 focuses on:
+
+1. PROFIT-SIDE POSITION RETENTION
+2. LOSS-SIDE RECOVERY ON THE NEXT REVERSAL/RE-ENTRY
+3. RESET/RESTART AFTER THE DEFINED EXIT CONDITION
+4. CONFIGURABLE RETENTION AND RECOVERY FACTORS
+
+The algorithm must keep all percentages, monetary amounts, stock
+prices, quantities, and portfolio values dimensionally correct.
+
+Do not mix:
+
+- stock movement percentage
+- profit/loss percentage
+- retention percentage
+- recovery percentage
+- rupee/dollar amount
+- stock quantity
+
+============================================================
+# 41. TRM V3 — CORE CONCEPT
+============================================================
+
+TRM V3 has two independent paths.
+
+PROFIT PATH:
+
+Profit occurs
+→ Calculate actual profit amount
+→ Apply configurable retention factor
+→ Convert retained monetary value into shares using CURRENT STOCK PRICE
+→ Retain that live position
+→ Sell the remaining shares
+
+LOSS PATH:
+
+Loss occurs
+→ Calculate actual loss amount
+→ Apply configurable recovery factor
+→ Add the recovery amount to the next reversal/re-entry investment
+→ Continue the recovery cycle
+
+The system must clearly distinguish these two paths.
+
+============================================================
+# 42. TRM V3 — INPUTS
+============================================================
+
+The minimum configurable inputs are:
+
+1. entryPrice
+2. initialQuantity
+3. profitPercent
+4. lossPercent
+5. retentionFactor
+6. recoveryFactor
+7. baseReversalInvestment
+8. currentPrice
+9. maximumRecoveryRounds
+10. cycleResetCondition
+
+All percentage values must be represented consistently.
+
+Example:
+
+15% = 0.15
+
+NOT:
+
+0.015
+
+unless 1.5% is explicitly intended.
+
+============================================================
+# 43. TRM V3 — PROFIT FORMULA
+============================================================
+
+Given:
+
+Entry Price = P₀
+
+Quantity = Q
+
+Initial Investment = I
+
+Profit Percentage = p
+
+Where:
+
+I = P₀ × Q
+
+If the stock rises by p:
+
+Current Price:
+
+P₁ = P₀ × (1 + p)
+
+Actual Profit Amount:
+
+ProfitAmount = I × p
+
+============================================================
+# 44. TRM V3 — PROFIT RETENTION RULE
+============================================================
+
+After calculating the actual profit amount, apply the configurable
+retention factor.
+
+RetentionAmount:
+
+RetentionAmount = ProfitAmount × RetentionFactor
+
+This is a MONETARY VALUE.
+
+It must not be treated directly as a number of shares.
+
+To convert retained monetary value into shares:
+
+RetainedQuantity =
+RetentionAmount / CurrentPrice
+
+IMPORTANT:
+
+Use CURRENT STOCK PRICE for the quantity conversion.
+
+Do NOT divide by the original entry price when calculating the
+retained live quantity.
+
+Remaining Quantity:
+
+QuantityToSell =
+OriginalQuantity - RetainedQuantity
+
+Therefore:
+
+PROFIT FLOW:
+
+Profit %
+→ Profit Amount
+→ Retention Factor
+→ Retained ₹/$ Value
+→ Divide by Current Price
+→ Retained Shares
+→ Sell Remaining Shares
+
+============================================================
+# 45. TRM V3 — EXACT PROFIT EXAMPLE
+============================================================
+
+Hypothetical example:
+
+Buy 100 shares at ₹10.
+
+Initial investment:
+
+₹10 × 100 = ₹1,000
+
+Stock rises by 15%.
+
+Profit percentage:
+
+15% = 0.15
+
+Current stock price:
+
+₹10 × (1 + 0.15)
+= ₹11.50
+
+Profit amount:
+
+₹1,000 × 0.15
+= ₹150
+
+Therefore:
+
+ProfitAmount = ₹150
+
+Assume:
+
+RetentionFactor = 15%
+
+Retention amount:
+
+₹150 × 0.15
+= ₹22.50
+
+This ₹22.50 is the VALUE of the live position.
+
+It is NOT 22.50 shares.
+
+Convert the retained value into shares using the current price:
+
+RetainedQuantity:
+
+₹22.50 / ₹11.50
+≈ 1.9565 shares
+
+Therefore:
+
+Retained shares ≈ 1.96
+
+Shares sold:
+
+100 - 1.9565
+≈ 98.0435 shares
+
+Therefore:
+
+Sell approximately 98.04 shares
+
+Retain approximately 1.96 shares
+
+============================================================
+# 46. TRM V3 — PROFIT EXAMPLE TABLE
+============================================================
+
+| Parameter | Value |
+|---|---:|
+| Entry Price | ₹10.00 |
+| Initial Quantity | 100 |
+| Initial Investment | ₹1,000 |
+| Profit % | 15% |
+| Current Price | ₹11.50 |
+| Profit Amount | ₹150 |
+| Retention Factor | 15% |
+| Retention Amount | ₹22.50 |
+| Retained Quantity | ≈ 1.9565 |
+| Quantity Sold | ≈ 98.0435 |
+
+The implementation must preserve this dimensional relationship:
+
+Currency / Currency-per-share = Shares
+
+============================================================
+# 47. TRM V3 — LOSS FORMULA
+============================================================
+
+Given:
+
+Entry Price = P₀
+
+Quantity = Q
+
+Initial Investment = I
+
+Loss Percentage = l
+
+Where:
+
+I = P₀ × Q
+
+If the stock falls by l:
+
+Current Price:
+
+P₁ = P₀ × (1 - l)
+
+Actual Loss Amount:
+
+LossAmount = I × l
+
+Alternatively, for an existing portfolio:
+
+MarketValue = TotalShares × CurrentPrice
+
+ActualLoss = TotalInvested - MarketValue
+
+The implementation must prefer ACTUAL PORTFOLIO LOSS where portfolio
+state is available.
+
+============================================================
+# 48. TRM V3 — LOSS RECOVERY RULE
+============================================================
+
+After calculating the actual loss amount:
+
+RecoveryAmount =
+LossAmount × RecoveryFactor
+
+This recovery amount is then added to the next normal
+reversal/re-entry investment.
+
+NextReversalInvestment:
+
+NextReversalInvestment =
+BaseReversalInvestment + RecoveryAmount
+
+Therefore:
+
+LOSS FLOW:
+
+Loss %
+→ Actual Loss Amount
+→ Recovery Factor
+→ Recovery Amount
+→ Add to Base Reversal Investment
+→ Next Reversal/Entry
+
+============================================================
+# 49. TRM V3 — EXACT LOSS EXAMPLE
+============================================================
+
+Hypothetical example:
+
+Buy 100 shares at ₹10.
+
+Initial investment:
+
+₹10 × 100 = ₹1,000
+
+Stock falls by 15%.
+
+Loss percentage:
+
+15% = 0.15
+
+Current stock price:
+
+₹10 × (1 - 0.15)
+= ₹8.50
+
+Loss amount:
+
+₹1,000 × 0.15
+= ₹150
+
+Assume:
+
+RecoveryFactor = 15%
+
+Recovery amount:
+
+₹150 × 0.15
+= ₹22.50
+
+Assume the normal next reversal investment is:
+
+₹100
+
+Then:
+
+NextReversalInvestment:
+
+₹100 + ₹22.50
+= ₹122.50
+
+Therefore:
+
+Base Reversal Investment = ₹100
+
+Recovery Addition = ₹22.50
+
+Next Reversal Investment = ₹122.50
+
+============================================================
+# 50. TRM V3 — LOSS EXAMPLE TABLE
+============================================================
+
+| Parameter | Value |
+|---|---:|
+| Entry Price | ₹10.00 |
+| Initial Quantity | 100 |
+| Initial Investment | ₹1,000 |
+| Loss % | 15% |
+| Current Price | ₹8.50 |
+| Loss Amount | ₹150 |
+| Recovery Factor | 15% |
+| Recovery Amount | ₹22.50 |
+| Base Reversal Investment | ₹100 |
+| Next Reversal Investment | ₹122.50 |
+
+============================================================
+# 51. TRM V3 — CRITICAL PERCENTAGE RULE
+============================================================
+
+The implementation must distinguish:
+
+A. Price movement percentage
+
+B. Profit/loss percentage
+
+C. Retention factor
+
+D. Recovery factor
+
+They may have the same numerical value in an example, but they
+represent DIFFERENT concepts.
+
+Example:
+
+Profit = 15%
+
+Retention Factor = 15%
+
+These mean:
+
+ProfitAmount = Investment × 15%
+
+RetentionAmount = ProfitAmount × 15%
+
+Therefore:
+
+₹1,000 × 15% = ₹150
+
+Then:
+
+₹150 × 15% = ₹22.50
+
+Do NOT calculate:
+
+₹1,000 × 15% × 15%
+
+and call the result "15% profit."
+
+Each stage must be explicitly represented.
+
+============================================================
+# 52. TRM V3 — DIMENSIONAL CORRECTNESS
+============================================================
+
+All calculations must remain dimensionally valid.
+
+Examples:
+
+Investment × Percentage = Currency
+
+Currency × Retention Factor = Currency
+
+Currency / Price-per-share = Shares
+
+Shares × Price-per-share = Currency
+
+Examples:
+
+₹1,000 × 0.15 = ₹150
+
+₹150 × 0.15 = ₹22.50
+
+₹22.50 / ₹11.50 = 1.9565 shares
+
+Never perform:
+
+Shares × Percentage = Currency
+
+unless an explicit price conversion is subsequently applied.
+
+Never interpret a currency amount as a quantity of shares.
+
+============================================================
+# 53. TRM V3 — RESET/CYCLE BEHAVIOR
+============================================================
+
+TRM V3 must support cycle-based execution.
+
+PROFIT CYCLE:
+
+Initial position
+→ Profit condition
+→ Calculate profit
+→ Retain configured portion
+→ Sell remaining position
+→ Close current cycle
+→ Reset according to configured base rule
+
+LOSS CYCLE:
+
+Initial position
+→ Loss condition
+→ Calculate actual loss
+→ Calculate recovery amount
+→ Add recovery amount to next reversal investment
+→ Execute reversal/re-entry
+→ Continue recovery process
+
+After the defined successful recovery/exit condition:
+
+RESET TO BASE CONFIGURATION
+
+============================================================
+# 54. TRM V3 — REQUIRED STATE
+============================================================
+
+Maintain:
+
+cycleId
+
+entryPrice
+
+currentPrice
+
+originalQuantity
+
+remainingQuantity
+
+totalInvested
+
+totalShares
+
+averageCost
+
+marketValue
+
+profitPercent
+
+lossPercent
+
+profitAmount
+
+lossAmount
+
+retentionFactor
+
+retentionAmount
+
+retainedQuantity
+
+quantityToSell
+
+recoveryFactor
+
+recoveryAmount
+
+baseReversalInvestment
+
+nextReversalInvestment
+
+cycleStatus
+
+recoveryRound
+
+availableCapital
+
+============================================================
+# 55. TRM V3 — PSEUDOCODE
+============================================================
+
+INPUT:
+
+entryPrice
+quantity
+profitPercent
+lossPercent
+retentionFactor
+recoveryFactor
+baseReversalInvestment
+
+initialInvestment =
+entryPrice × quantity
+
+IF PROFIT CONDITION:
+
+    currentPrice =
+        entryPrice × (1 + profitPercent)
+
+    profitAmount =
+        initialInvestment × profitPercent
+
+    retentionAmount =
+        profitAmount × retentionFactor
+
+    retainedQuantity =
+        retentionAmount / currentPrice
+
+    quantityToSell =
+        quantity - retainedQuantity
+
+    SELL quantityToSell
+
+    KEEP retainedQuantity
+
+    RESET/CONTINUE ACCORDING TO EXIT RULE
+
+
+IF LOSS CONDITION:
+
+    currentPrice =
+        entryPrice × (1 - lossPercent)
+
+    lossAmount =
+        initialInvestment × lossPercent
+
+    recoveryAmount =
+        lossAmount × recoveryFactor
+
+    nextReversalInvestment =
+        baseReversalInvestment + recoveryAmount
+
+    EXECUTE NEXT REVERSAL/RE-ENTRY
+
+    CONTINUE RECOVERY CYCLE
+
+============================================================
+# 56. TRM V3 — DIFFERENCE FROM TRM, V1 AND V2
+============================================================
+
+| Version | Primary Logic |
+|---|---|
+| TRM | Recursive cumulative-capital recovery |
+| TRM V1 | Percentage price decline + cumulative-capital allocation |
+| TRM V2 | Actual portfolio loss + loss-based allocation |
+| TRM V3 | Profit retention + loss recovery on reversal/re-entry |
+
+TRM V3 is therefore not merely another averaging-down variation.
+
+It introduces an EXIT/REVERSAL mechanism.
+
+Profit:
+
+Retain a small live position based on a configurable fraction of
+realized profit.
+
+Loss:
+
+Carry a configurable recovery amount into the next reversal/re-entry.
+
+============================================================
+# 57. TRM V3 — CONFIGURATION EXAMPLES
+============================================================
+
+The system must allow:
+
+Retention Factor:
+
+5%
+10%
+15%
+20%
+25%
+
+Recovery Factor:
+
+5%
+10%
+15%
+20%
+25%
+
+Profit Target:
+
+5%
+10%
+15%
+20%
+
+Loss Trigger:
+
+5%
+10%
+15%
+20%
+30%
+
+Recovery Multiplier:
+
+1.0
+1.5
+2.0
+2.5
+3.0
+
+Do not hardcode these values.
+
+============================================================
+# 58. TRM V3 — RESEARCH QUESTIONS
+============================================================
+
+Research whether the profit-retention mechanism provides benefits such
+as:
+
+- participation in continued upside
+- reduced need to re-enter from zero
+- preservation of a live position
+- lower transaction frequency
+
+Research whether the loss-recovery mechanism provides benefits such as:
+
+- faster recovery after a losing cycle
+- controlled recovery allocation
+- reduced repeated base deployment
+
+Also test whether these mechanisms introduce:
+
+- over-allocation
+- concentration risk
+- prolonged recovery cycles
+- excessive capital requirements
+- increased drawdown
+- transaction costs
+- tax inefficiency
+- opportunity cost
+
+============================================================
+# 59. TRM V3 — BACKTESTING REQUIREMENTS
+============================================================
+
+Backtest TRM V3 using actual historical stock data.
+
+Test different:
+
+- stocks
+- sectors
+- market regimes
+- bull markets
+- bear markets
+- sideways markets
+- high-volatility periods
+- low-volatility periods
+
+Measure:
+
+- number of successful cycles
+- average retained position
+- average realized profit
+- average recovery amount
+- next reversal capital
+- maximum drawdown
+- total return
+- CAGR
+- Sharpe
+- Sortino
+- capital utilization
+- recovery time
+- risk of ruin
+
+Compare:
+
+TRM
+
+TRM V1
+
+TRM V2
+
+TRM V3
+
+using identical market data and fair execution assumptions.
+
+============================================================
+# 60. TRM V3 — RESEARCH WARNING
+============================================================
+
+TRM V3 must NOT be described as:
+
+"guaranteed profit"
+
+"risk-free"
+
+"loss-proof"
+
+"always profitable"
+
+"guaranteed recovery"
+
+The retained position after profit does not guarantee additional
+profit.
+
+The recovery amount after loss does not guarantee recovery.
+
+The purpose of the model is to define a systematic allocation and
+reversal framework that can be tested empirically.
+
+============================================================
+# 61. FINAL TRM V3 RESEARCH OBJECTIVE
+============================================================
+
+The central TRM V3 research question is:
+
+"Can a configurable profit-retention mechanism combined with a
+loss-based recovery allocation on the next reversal improve
+capital efficiency, recovery characteristics, and risk-adjusted
+performance compared with TRM, TRM V1, TRM V2, and conventional
+portfolio-management methods?"
+
+The agent must determine this through:
+
+- mathematical analysis
+- simulation
+- historical backtesting
+- stress testing
+- risk analysis
+- sensitivity analysis
+
+Do not assume the answer in advance.
+
+============================================================
+# 62. TRM V3 TERMINOLOGY
+============================================================
+
+Use these names consistently:
+
+TRM V3
+
+Full description:
+
+Profit Retention and Loss Recovery Reversal Model
+
+Core principles:
+
+PROFIT:
+
+Profit Amount
+→ Retention Factor
+→ Retention Value
+→ Current Price
+→ Retained Shares
+→ Sell Remaining Shares
+
+LOSS:
+
+Actual Loss
+→ Recovery Factor
+→ Recovery Amount
+→ Add to Next Reversal Investment
+
+Cycle completion:
+
+Successful exit/recovery
+→ Reset to Base Configuration
+
+TRM V3 is a PROPOSED research model and must be validated through
+mathematical and empirical testing before any performance or novelty
+claims are made.
+
+The final objective is NOT to prove that TRM works.
+
+The objective is to determine scientifically:
+
+WHEN TRM WORKS,
+WHEN TRM FAILS,
+WHY IT WORKS,
+WHY IT FAILS,
+HOW MUCH CAPITAL IT REQUIRES,
+AND WHETHER ITS RESULTS ARE BETTER THAN EXISTING METHODS AFTER
+ACCOUNTING FOR RISK, DRAWdown, COSTS, AND REAL MARKET CONDITIONS.
+------------------------------------------------------------
+# 39. FINAL OBJECTIVE
+------------------------------------------------------------
+
+The end product should be capable of becoming:
+
+- mathematical research
+- Java implementation
+- Spring Boot backend
+- Angular dashboard
+- historical backtesting system
+- Monte Carlo simulator
+- quantitative research paper
+- GitHub portfolio project
+- literature-review project
+
+
