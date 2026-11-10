@@ -1,3 +1,16 @@
+---
+name: multi-market-screener-filtering-engine
+id: FIN-02
+version: 2.0.0
+category: Domain - Finance
+description: >-
+  Domain-Specific Multi-Market Equity Screening, Fundamental Query Formulation, and Market Taxonomy skill.
+  Governs Indian equity screening (Screener.in query synthesis), U.S. penny/growth screening (StockSifting),
+  and multi-domain execution pipelines across equity markets.
+applicable_stacks: [Universal, Python]
+dependencies: [FIN-01, DATA-01]
+---
+
 # Master AI Agent Skills System — Stock Market Analysis & Screening
 ## Directory: `.skills/Stock_Market_Skills/`
 ### Version: 2.0 Enterprise Quantitative & Fundamental Edition

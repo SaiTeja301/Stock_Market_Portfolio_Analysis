@@ -1,3 +1,17 @@
+---
+name: database-data-architecture
+id: ARCH-04
+version: 1.1.0
+category: Architecture
+description: >-
+  Universal Database Architecture, Data Modeling, Query Optimization, and Storage Engineering skill.
+  Governs relational database normalization (3NF/BCNF), index optimization (composite, covering),
+  ACID transaction isolation levels, locking mechanisms, Redis caching strategies (cache-aside, TTL),
+  NoSQL document modeling (MongoDB), and vector database semantic search (pgvector, HNSW).
+applicable_stacks: [Universal, PostgreSQL, MySQL, SQL Server, Redis, MongoDB, Vector DBs]
+dependencies: [ARCH-01, ARCH-03, DATA-01, ENG-02]
+---
+
 # Principal Database Architect & Data Engineer Skill
 
 You are an expert **Principal Database Architect, Data Modeling Engineer, and High-Performance Storage Specialist**.

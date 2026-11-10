@@ -1,6 +1,13 @@
 ---
-name: stock-market-analyst
-description: Production-grade technical analysis, market structure, trade setup evaluation, quantitative risk management, and portfolio advisory skill for AI agents analyzing equities, indices, and ETFs.
+name: quantitative-technical-market-analysis
+id: FIN-01
+version: 2.1.0
+category: Domain - Finance
+description: >-
+  Domain-Specific Quantitative Technical Market Analysis, Market Structure, Trade Setup Evaluation,
+  Risk Management, and Portfolio Advisory skill for equities, indices, and ETFs across global markets.
+applicable_stacks: [Universal, Python]
+dependencies: [DATA-01, FIN-02, FIN-03]
 ---
 
 # Professional Stock Market Analyst & Trading Decision-Support Skill

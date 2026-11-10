@@ -1,14 +1,17 @@
 ---
 name: trm-algorithm
+id: FIN-03
 description: >
   Production-grade quantitative skill for the Teja Recovery Model (TRM) — the user's original algorithmic invention.
-  Covers all 4 TRM editions (Original, V1, V2, V3), 100-period OLS Linear Regression Channel math, Mathematical
-  Expectancy Engine E[R], dynamic position sizing, zero-cost runner retention via the Current Price Law, strict
-  dimensional integrity enforcement, step-by-step ledger accounting proofs, a 6-phase deterministic execution
-  pipeline, 100-point scoring rubric, 12 comprehensive edge-case protocols, ASCII copy-paste output templates,
-  Python & Java 17 reference implementations, and two concrete numerical case studies (NSE & NASDAQ).
-version: 2.0.0
-category: Quantitative Risk Management & Equity Capital Allocation
+  Covers the complete TRM family (Original, V1, V2, V3, V4, V5, V6, V7, V8), including recursive recovery math,
+  percentage-triggered allocation, actual-loss adaptation, dual-path profit/loss handling, current-price share laws,
+  adaptive actual-P/L calculations, market-regime-aware exit/re-entry orchestration, principal-preserving continuous
+  profit harvesting, portfolio wealth-floor protection, cost-aware execution, anti-churn controls, strict dimensional
+  integrity, data provenance, walk-forward validation requirements, deterministic state machines, standardized output
+  contracts, and Python/Java 17 implementation guidance.
+version: 4.0.0
+category: Domain - Finance
+applicable_stacks: [Universal, Python, Java]
 tags:
   - trm-algorithm
   - teja-recovery-model
@@ -21,18 +24,34 @@ tags:
   - position-sizing
   - ledger-accounting
   - zero-cost-runner
+  - trm-v4
+  - trm-v5
+  - trm-v6
+  - trm-v7
+  - trm-v8
+  - adaptive-meta-controller
+  - principal-preservation
+  - profit-harvesting
+  - wealth-floor
+  - anti-churn
+  - walk-forward-validation
 author: "Teja (original algorithm inventor) — documented by AI Agent Skills & Architecture Registry"
 inputs:
   - Chart screenshots / OHLCV time series data
   - Ticker symbol & exchange (NSE/BSE, NYSE/NASDAQ)
-  - Existing holding data (average price, capital allocated, cycle step, unrealized P/L)
-  - Account bankroll & risk allocation parameters (base tranche S, max rounds N)
+  - Existing holding data (average price, capital allocated, cycle step, unrealized P/L, harvested cash, protected principal, peak wealth)
+  - Account bankroll & risk allocation parameters (base tranche S, max rounds N, position caps, risk budget)
+  - Technical and market-state inputs (OHLCV, trend, regression channel, VWAP, EMA/SMA, RSI, MACD, ATR, volume/RVOL)
+  - Fundamental/corporate context (debt, liquidity, governance flags, events, sector/index context)
+  - Optional external analysis-agent output, treated as untrusted input requiring validation
 outputs:
   - Multi-timeframe trend & regression channel analysis
-  - TRM model selection (Original, V1, V2, V3) and state vector evaluation
-  - Exact entry triggers, dip averaging tranches, and thesis invalidation stops
-  - Staged profit-taking targets (T1, T2, T3) and runner retention shares
-  - Copy-paste-ready deterministic trade plan & risk scorecard
+  - TRM model selection/routing across Original, V1, V2, V3, V4, V5, V6, V7, and V8
+  - Actual P/L, cycle-wealth, peak-wealth, drawdown and wealth-floor state
+  - Exact entry/recovery/harvest/exit triggers, position sizing, and thesis invalidation stops
+  - Principal-preserving continuous profit harvesting and dynamic runner logic
+  - Exit/re-entry zones, confirmation gates, anti-churn controls, and execution-cost checks
+  - Copy-paste-ready V8 master report, audit ledger, and risk scorecard
 prerequisites:
   - Cash equity trading account (strictly NO unhedged F&O, margin leverage, or shorting)
   - Verified liquid instruments (large-cap equities, index ETFs, clean balance sheets)
@@ -40,7 +59,7 @@ prerequisites:
 
 # Master TRM (Teja Recovery Model / Trend-Regression-Momentum) Algorithm Skill
 ## Directory: `.skills/.Stock_Market_Skills/TRM_ Strategies/`
-### Version: 2.0 Enterprise Quantitative Edition (Full-Spectrum Mathematical Upgrade)
+### Version: 4.0 Final Enterprise Adaptive Edition (TRM V8 Master Controller)
 ### Platform: Multi-Platform (Indian NSE/BSE & U.S. Equities)
 
 ---
@@ -49,33 +68,38 @@ prerequisites:
 1. [Executive Summary & Architectural Clarification](#1-executive-summary--architectural-clarification)
 2. [Agent Persona & Operational Boundaries](#2-agent-persona--operational-boundaries)
 3. [Data Integrity & Provenance Tagging Protocol](#3-data-integrity--provenance-tagging-protocol)
-4. [Mathematical Engines: All 4 TRM Editions](#4-mathematical-engines-all-4-trm-editions)
-   - 4.1 [TRM Original: Recursive Cumulative Capital Allocation](#41-trm-original-recursive-cumulative-capital-allocation)
-   - 4.2 [TRM V1: Percentage-Triggered Stock Equity Model](#42-trm-v1-percentage-triggered-stock-equity-model)
-   - 4.3 [TRM V2: Actual-Portfolio-Loss Adaptive Model](#43-trm-v2-actual-portfolio-loss-adaptive-model)
-   - 4.4 [TRM V3: Asymmetric Dual-Path Model (Profit Retention + Loss Recovery)](#44-trm-v3-asymmetric-dual-path-model-profit-retention--loss-recovery)
-   - 4.5 [The Universal Reset Invariant](#45-the-universal-reset-invariant)
-   - 4.6 [Cross-Model Comparison Matrix](#46-cross-model-comparison-matrix)
-5. [Technical Market Regime & Confluence Engine (Trend-Regression-Momentum)](#5-technical-market-regime--confluence-engine-trend-regression-momentum)
-   - 5.1 [Multi-Timeframe Trend Alignment (Macro Bias)](#51-multi-timeframe-trend-alignment-macro-bias)
-   - 5.2 [Linear Regression Channel Mapping (Structural Value Bounds)](#52-linear-regression-channel-mapping-structural-value-bounds)
-   - 5.3 [Momentum, Volatility & Mathematical Expectancy Engine](#53-momentum-volatility--mathematical-expectancy-engine)
-6. [Deterministic 6-Phase Execution Pipeline](#6-deterministic-6-phase-execution-pipeline)
-7. [Quantitative Setup Scoring System (100-Point Rubric)](#7-quantitative-setup-scoring-system-100-point-rubric)
+4. [Mathematical Engines: Complete TRM Family (Original + V1–V8)](#4-mathematical-engines-complete-trm-family-original--v1v8)
+   - 4.1 [TRM Original](#41-trm-original-recursive-cumulative-capital-allocation)
+   - 4.2 [TRM V1](#42-trm-v1-percentage-triggered-stock-equity-model)
+   - 4.3 [TRM V2](#43-trm-v2-actual-portfolio-loss-adaptive-model)
+   - 4.4 [TRM V3](#44-trm-v3-asymmetric-dual-path-model-profit-retention--loss-recovery)
+   - 4.5 [TRM V4](#45-trm-v4-50-current-price-pl-share-mechanism)
+   - 4.6 [TRM V5](#46-trm-v5-adaptive-actual-pl-dual-path-engine)
+   - 4.7 [TRM V6](#47-trm-v6-adaptive-multi-agent-exit--re-entry-rotation-model)
+   - 4.8 [TRM V7](#48-trm-v7-principal-preservation--continuous-profit-harvesting)
+   - 4.9 [TRM V8](#49-trm-v8-master-adaptive-meta-controller)
+   - 4.10 [Universal Invariants & Model Routing Matrix](#410-universal-invariants--model-routing-matrix)
+5. [Technical Market Regime & Confluence Engine](#5-technical-market-regime--confluence-engine-trend-regression-momentum)
+6. [TRM V8 Deterministic Execution Pipeline](#6-trm-v8-deterministic-execution-pipeline)
+7. [V8 Decision Scorecard & Calibration](#7-v8-decision-scorecard--calibration)
+   - 7.1 [Evidence Dimensions](#71-evidence-dimensions)
+   - 7.2 [Gating vs Scoring](#72-gating-vs-scoring)
+   - 7.3 [Calibration Policy](#73-calibration-policy)
+   - 7.4 [Legacy 100-Point Rubric](#74-legacy-quantitative-setup-scoring-system-100-point-rubric)
 8. [Pre-Flight Execution Checklist](#8-pre-flight-execution-checklist)
 9. [Comprehensive Edge Cases & Anomaly Protocols](#9-comprehensive-edge-cases--anomaly-protocols)
-10. [Standardized Output Contracts (Copy-Paste ASCII Templates)](#10-standardized-output-contracts-copy-paste-ascii-templates)
-    - 10.1 [Mode A: TRM V2 Dip-Averaging Execution Report](#101-mode-a-trm-v2-dip-averaging-execution-report)
-    - 10.2 [Mode B: TRM V3 Dual-Path Execution Report](#102-mode-b-trm-v3-dual-path-execution-report)
-    - 10.3 [Mode C: TRM State Machine & Multi-Round Portfolio Audit](#103-mode-c-trm-state-machine--multi-round-portfolio-audit)
+10. [Standardized Output Contracts](#10-standardized-output-contracts-copy-paste-ascii-templates)
+   - 10.1 [Legacy V2 Report](#101-mode-a-trm-v2-dip-averaging-execution-report)
+   - 10.2 [Legacy V3 Report](#102-mode-b-trm-v3-dual-path-execution-report)
+   - 10.3 [Multi-Round Audit](#103-mode-c-trm-state-machine--multi-round-portfolio-audit)
+   - 10.4 [TRM V7/V8 Master Report](#104-trm-v7v8-master-execution-report)
 11. [Production Reference Implementations](#11-production-reference-implementations)
-    - 11.1 [Python Production Engine](#111-python-production-engine)
-    - 11.2 [Java 17+ Enterprise Implementation](#112-java-17-enterprise-implementation)
-12. [End-to-End Concrete Numerical Case Studies](#12-end-to-end-concrete-numerical-case-studies)
-    - 12.1 [Case Study 1: Large-Cap Dip Averaging via TRM V2 (Reliance Industries / NSE)](#121-case-study-1-large-cap-dip-averaging-via-trm-v2-reliance-industries--nse)
-    - 12.2 [Case Study 2: Swing Trade Execution with TRM V3 Dual-Path (Apple Inc. / NASDAQ)](#122-case-study-2-swing-trade-execution-with-trm-v3-dual-path-apple-inc--nasdaq)
-13. [Mandatory Regulatory Compliance & Risk Disclaimer](#13-mandatory-regulatory-compliance--risk-disclaimer)
-
+   - 11.1 [Existing Python Reference](#111-python-production-engine-decimal-precise)
+   - 11.2 [Existing Java 17 Reference](#112-java-17-enterprise-implementation)
+   - 11.3 [V4–V8 Implementation Contracts](#113-v4v8-implementation-contracts)
+12. [End-to-End Numerical Case Studies](#12-end-to-end-concrete-numerical-case-studies)
+13. [Validation, Backtesting & Deployment Readiness](#13-validation-backtesting--deployment-readiness)
+14. [Mandatory Regulatory Compliance & Risk Disclaimer](#14-mandatory-regulatory-compliance--risk-disclaimer)
 
 ---
 
@@ -86,7 +110,77 @@ In quantitative finance and algorithmic portfolio management, ambiguity regardin
 
 The Teja Recovery Model is a recursive capital-allocation, dynamic position-sizing, and loss-recovery mathematical framework designed specifically for **cash equity stock investing**. It governs how capital is staged across adverse market outcomes, how drawdowns are neutralized through dynamic averaging or calibrated recovery additions, and how trading cycles unconditionally reset upon reaching defined profit targets.
 
-### 1.2 The Dual-Engine Institutional Architecture
+### 1.2 TRM V8 Final Architecture: Master Adaptive Controller
+TRM V8 is the **master controller** for the complete TRM family. It is not a claim of guaranteed profitability and it must not be treated as a single fixed buy/sell formula. V8 routes the current market/portfolio state into the most appropriate specialized TRM engine, then applies portfolio-level risk, data-quality, execution-cost, and wealth-floor constraints before any order can be emitted.
+
+**Core design objective:** maximize decision quality and reduce avoidable capital destruction by using the least aggressive TRM engine sufficient for the validated market state.
+
+```text
+MARKET + PORTFOLIO STATE
+        |
+        v
+DATA / UNIT / QUALITY GATES
+        |
+        v
+FUNDAMENTAL + LIQUIDITY GATE
+        |
+        v
+ACTUAL P/L + CYCLE WEALTH ENGINE
+        |
+        v
+MARKET REGIME + STRUCTURAL STATE
+        |
+        +-------------------+-------------------+
+        |                   |                   |
+   STRONG BULL          NEUTRAL            BEARISH / RISK
+        |                   |                   |
+       V7/V5             V4/V5/V6          V2-V8/V6
+        |                   |                   |
+        +-------------------+-------------------+
+                            |
+                            v
+                 PORTFOLIO WEALTH FLOOR
+                            |
+                            v
+                   RISK / CAPITAL GATE
+                            |
+                            v
+                    COST / LIQUIDITY GATE
+                            |
+                            v
+                     EXECUTION ENGINE
+                            |
+                            v
+                  POST-TRADE LEDGER / MONITOR
+                            |
+                            v
+                     NEW V8 STATE
+```
+
+**V8 governing principle:**
+
+> **Detect → Validate → Classify → Select → Calculate → Risk-Gate → Execute → Reconcile → Monitor → Adapt.**
+
+A recommendation is valid only when all mandatory gates pass. `WAIT`, `HOLD`, `REDUCE`, `EXIT`, and `NO_TRADE` are first-class outcomes.
+
+### 1.3 Evolutionary Synthesis of the TRM Family
+| Version | Core contribution | V8 keeps | V8 constrains/replaces |
+|---|---|---|---|
+| Original | Recursive cumulative recovery | Mathematical benchmark | Never default live engine; geometric risk is capped |
+| V1 | Percentage-triggered stock adaptation | Trigger concept | No blind geometric capital escalation |
+| V2 | Actual monetary-loss adaptation | Actual-loss accounting | Recovery requires quality/structure/capital gates |
+| V3 | Dual profit/loss path | Dual-path architecture + recovery surcharge concept | Profit trigger cannot override actual observed P/L |
+| V4 | 50% current-price share law | Current-price share conversion | Fixed 50% is a mode, not a universal rule |
+| V5 | Actual-P/L + adaptive runner | Actual-P/L authority + current-price law | Runner fraction must be regime-aware |
+| V6 | Multi-agent exit/re-entry lifecycle | Validated external analysis + exit/re-entry orchestration | AI output is untrusted until validated |
+| V7 | Principal-preserving continuous harvest | Protected principal + excess-only harvesting | Harvesting is disabled under structural/risk deterioration |
+| V8 | Adaptive meta-controller | **All compatible components** | Prevents one formula from dominating every regime |
+
+### 1.4 Claims, Evidence & Validation Boundary
+The V8 skill is a **decision-support and research architecture**. “More adaptive,” “more risk-aware,” or “more complete” are design properties. They are **not evidence that V8 produces higher returns**. Any claim of superiority must be established by controlled backtesting and out-of-sample/walk-forward evaluation using identical assumptions across versions, including slippage, brokerage, taxes/charges, liquidity constraints, corporate actions, gaps, and rejected orders.
+
+
+### 1.5 The Dual-Engine Institutional Architecture
 To achieve deterministic market outperformance, the system integrates two interlocking subsystems operating in a continuous feedback loop:
 
 ```mermaid
@@ -169,7 +263,7 @@ flowchart TD
         L3["TIER 3: STRUCTURAL INVALIDATION STOP<br/><b>Safety Floor</b>: Hard price floor where technical thesis is voided — Absolute trade termination"]
         L4["TIER 4: STAGED CAPITAL TRANCHE SIZING<br/><b>Position Sizing</b>: TRM algorithmic allocation (V2 loss-adaptive or V3 surcharge) — No arbitrary sizing"]
         L5["TIER 5: MATHEMATICAL EXPECTANCY (R:R)<br/><b>Edge Validation</b>: Positive probability edge with asymmetric payoff ratio (R:R ≥ 1:1.5)"]
-        L6["TIER 6: DISCIPLINED CYCLE RESET<br/><b>Compounding Discipline</b>: Retained runner shares vaulted; active trading capital unconditionally resets to Base $S$"]
+        L6["TIER 6: DISCIPLINED CYCLE MANAGEMENT<br/><b>State Discipline</b>: Completed recovery/exit cycles reset their escalation state to base S; V7/V8 may remain in an active harvesting cycle until a valid exit/reset condition occurs."]
 
         L1 ==>|Overrules Lower Tiers| L2
         L2 ==>|Enforces Safe Scope| L3
@@ -198,7 +292,7 @@ flowchart TD
 3. **Structural Invalidation Stop**: Every trade must have a pre-calculated, non-negotiable price floor where the thesis is voided.
 4. **Staged Capital Tranche Sizing**: Position sizing is governed strictly by the TRM mathematical engines.
 5. **Mathematical Expectancy ($R:R$)**: Every cycle must possess a positive mathematical expectation with an asymmetry of at least $1:1.5$.
-6. **Disciplined Cycle Reset**: Upon achieving recovery or target exit, capital allocation resets unconditionally to base investment $S$.
+6. **Disciplined Cycle Management**: Completed recovery/exit cycles reset their escalation state to base $S$; V7/V8 may remain in an active harvesting cycle until a valid exit/reset condition occurs.
 
 ### 2.3 Strict Cash-Equity Operational Scope
 - **Permitted Asset Class**: **Cash Equity / Spot Market Only** (holding unleveraged shares in delivery accounts).
@@ -794,7 +888,482 @@ flowchart TD
 
 ---
 
-### 4.5 The Universal Reset Invariant
+### 4.5 TRM V4: 50% Current-Price P/L Share Mechanism
+
+#### 4.5.1 Purpose
+TRM V4 converts **actual monetary P/L** into current-price-equivalent shares and applies a 50% factor. It is intentionally simpler than V5/V6/V7.
+
+#### 4.5.2 Profit Path
+Let:
+- $I=P_{entry}\times Q_0$
+- $MV=P_{current}\times Q$
+- $Profit=\max(0,MV-I)$
+
+Then:
+$$\boxed{Q_{profit-equivalent}=\frac{Profit}{P_{current}}}$$
+$$\boxed{Q_{retain}=\frac{Profit}{2P_{current}}}$$
+$$\boxed{Q_{sell}=Q-Q_{retain}}$$
+
+For executable cash-equity orders, round only at the order layer and reconcile residual cash. Do not mix shares and currency in a single state variable.
+
+#### 4.5.3 Loss Path
+$$\boxed{Q_{recovery,raw}=\frac{ActualLoss}{2P_{current}}}$$
+This is a **calculation**, not an automatic order. Recovery requires risk/capital/structure gates.
+
+#### 4.5.4 Strengths / Limitations
+- Strengths: simple, transparent, current-price correct, easy to automate.
+- Limitations: fixed 50% factor is not regime-adaptive and can still over-liquidate a strong trend winner.
+
+---
+
+### 4.6 TRM V5: Adaptive Actual P/L Dual-Path Engine
+
+#### 4.6.1 Core Invariants
+1. Trigger percentages are gates; actual observed P/L is the calculation basis.
+2. Monetary values are converted to shares only at the current execution price.
+3. Loss recovery is risk-gated; no blind averaging.
+4. No geometric escalation from Original/V1 is permitted in V5 live mode.
+
+#### 4.6.2 Profit
+$$I=P_{entry}\times Q$$
+$$MV=P_{current}\times Q$$
+$$PnL=MV-I$$
+$$ActualProfit=\max(0,PnL)$$
+$$Q_{retain}=\frac{ActualProfit}{2P_{current}}$$
+$$Q_{sell}=\max(0,Q-Q_{retain})$$
+
+V5 is the reference engine when a deterministic actual-P/L calculation is required but full V6/V8 orchestration is unnecessary.
+
+#### 4.6.3 Loss
+$$ActualLoss=\max(0,-PnL)$$
+$$Q_{recovery,raw}=\frac{ActualLoss}{2P_{current}}$$
+
+The raw quantity is advisory and must be constrained by available cash, position cap, risk budget, stop distance, liquidity and maximum recovery rounds.
+
+---
+
+### 4.7 TRM V6: Adaptive Multi-Agent Exit & Re-Entry Rotation Model
+
+#### 4.7.1 Role
+V6 is the **market-lifecycle intelligence engine**. It consumes validated market/technical/fundamental analysis and calculates exit zones, re-entry zones, confirmation states, and risk-gated position sizing.
+
+#### 4.7.2 External Analysis Contract
+External-agent fields may include:
+- trend, market regime, support/resistance,
+- regression mean / upper / lower bands,
+- VWAP, EMA20, EMA50, SMA200,
+- RSI, MACD, ATR, volume, RVOL,
+- sector/index trend,
+- fundamental status, debt status, promoter risk,
+- corporate events, news risk, structural invalidation.
+
+**Validation is mandatory.** Missing, stale, contradictory, or impossible values produce `WAIT`/`DEGRADED_MODE`; V6 must never fabricate levels.
+
+#### 4.7.3 Exit-Zone Engine
+Generate candidates from validated:
+- resistance,
+- regression upper band,
+- user target,
+- prior swing high,
+- ATR extension.
+
+Cluster candidates using:
+$$Tolerance=\max(0.5\times ATR,0.01\times P_{current})$$
+
+Output:
+`exit_low`, `exit_mid`, `exit_high`, `primary_exit`, `exit_trigger`.
+
+#### 4.7.4 Re-Entry-Zone Engine
+Candidates:
+- major support,
+- regression mean/lower band,
+- VWAP,
+- 20 EMA / 50 SMA,
+- breakout-retest,
+- validated external-agent levels.
+
+Output:
+`aggressive_entry`, `primary_entry`, `confirmation_entry`, `invalidation`.
+
+If candidate disagreement is excessive, output `NO_CLEAN_REENTRY_ZONE`.
+
+#### 4.7.5 Re-Entry Confirmation
+Require, as applicable:
+- price enters the zone,
+- structure is intact,
+- bullish rejection/reclaim,
+- acceptable volume confirmation,
+- sector/index conditions acceptable,
+- capital/risk limits pass.
+
+#### 4.7.6 Position Sizing
+$$A_{candidate}=\min(BaseAllocation,AvailableCash,RemainingCapitalCap)$$
+$$Q_{cash}=\left\lfloor A_{candidate}/P_{entry}\right\rfloor$$
+$$Q_{risk}=\left\lfloor RiskBudget/(P_{entry}-StopPrice)\right\rfloor$$
+$$Q_{reentry}=\min(Q_{cash},Q_{risk},Q_{max})$$
+
+Never invent `RiskBudget`, `StopPrice`, or `Q_max`.
+
+---
+
+### 4.8 TRM V7: Principal Preservation & Continuous Profit Harvesting
+
+#### 4.8.1 Purpose
+V7 addresses the specific failure mode where an algorithm sells too much of a strong winner and leaves insufficient exposure to a continuing uptrend.
+
+Instead of retaining a configured fraction of profit, V7 preserves a **protected monetary principal** and harvests only the excess value above that principal while trend structure remains valid.
+
+Let:
+$$S=ProtectedPrincipal$$
+$$MV=P_{current}\times Q$$
+
+Then:
+$$\boxed{HarvestAmount=\max(0,MV-S)}$$
+$$\boxed{Q_{sell}=\frac{HarvestAmount}{P_{current}}}$$
+$$\boxed{Q_{keep}=\frac{S}{P_{current}}}$$
+
+After the harvest, residual position value should reconcile to approximately $S$, subject to whole-share execution and transaction costs.
+
+#### 4.8.2 Harvest Trigger vs Calculation Basis
+A configured move such as `+10%` determines **when** V7 evaluates harvesting. It does not replace the actual observed profit calculation.
+
+Example:
+- Protected principal = ₹40,000.
+- Current position value = ₹48,000.
+- Harvest = ₹8,000.
+- Keep approximately ₹40,000 of stock exposure.
+
+If the remaining position later rises to ₹44,000, harvest ₹4,000 again and return the stock value toward ₹40,000.
+
+#### 4.8.3 Cycle Wealth Ledger
+V7 MUST maintain both position value and harvested cash:
+$$HarvestedCash_t=\sum_i Harvest_i$$
+$$CycleWealth_t=CurrentPositionValue_t+HarvestedCash_t$$
+$$CyclePnL_t=CycleWealth_t-I_0$$
+
+A drop of the stock position below protected principal does **not** automatically mean the overall cycle is at a loss if previously harvested cash offsets it.
+
+#### 4.8.4 Downside Routing
+When trend quality deteriorates:
+`STOP HARVESTING → CHECK STRUCTURE → CHECK CYCLE WEALTH → ROUTE TO V3/V4/V5/V6`.
+
+Structural invalidation overrides V7 and requires exit according to the risk policy.
+
+#### 4.8.5 Whole-Share Execution
+If $Q_{keep}$ is fractional, the order layer must round to executable whole shares and reconcile the residual cash explicitly. Mathematical quantities may remain high precision internally.
+
+---
+
+### 4.9 TRM V8: Master Adaptive Meta-Controller
+
+#### 4.9.1 Definition
+V8 is the **final master orchestration layer** for TRM. It does not assume that one TRM equation is optimal in every market condition. V8 selects among the specialized engines using validated evidence, portfolio state, and risk constraints.
+
+#### 4.9.2 Required State Vector
+```text
+Instrument:
+  symbol, exchange, assetClass, currency, timestamp
+
+Market:
+  price, OHLCV, volume, RVOL, ATR, VWAP
+  EMA20, EMA50, SMA200, RSI, MACD
+  regressionMean, regressionUpper, regressionLower
+  trendState, marketRegime, sectorTrend, indexTrend
+
+Fundamental:
+  marketCap, debtToEquity, liquidity, governanceFlags
+  promoterRisk, corporateEvents, structuralRisk
+
+Position:
+  quantity, averageEntryPrice, investedCapital
+  protectedPrincipal, currentMarketValue
+  harvestedCash, cumulativeRealizedPnL
+  cyclePnL, peakCycleWealth, currentDrawdown
+  recoveryRound, maxRecoveryRounds
+
+Risk:
+  riskBudget, positionCap, availableCash
+  wealthFloor, maxDrawdown, stopPrice
+  transactionCostEstimate, slippageEstimate
+
+Analysis:
+  externalAgentPayload, validationStatus, confidenceState
+
+Execution:
+  orderType, limitPrice, executableQuantity
+  action, rationale, blockers
+```
+
+#### 4.9.3 Wealth-Floor Engine
+Define:
+$$W_t=PositionValue_t+HarvestedCash_t$$
+$$W^{peak}_t=\max(W^{peak}_{t-1},W_t)$$
+$$DD_t=\frac{W^{peak}_t-W_t}{W^{peak}_t}$$
+
+For configurable maximum drawdown $D_{max}$:
+$$\boxed{WealthFloor_t=\max(I_0,W^{peak}_t(1-D_{max}))}$$
+
+The wealth floor is a **risk control**, not a guarantee that execution can occur at that exact price.
+
+#### 4.9.4 Regime Routing
+```text
+IF dataInvalid or contradictory:
+    WAIT
+ELSE IF structuralBreakdown:
+    FULL_EXIT / NO_NEW_CAPITAL
+ELSE IF wealthFloorBreached:
+    DE-RISK / EXIT / V6
+ELSE IF regime == BULLISH_STRONG:
+    V7
+ELSE IF regime == BULLISH_EXTENDED:
+    V7 + V5/V6
+ELSE IF regime == NEUTRAL:
+    V4/V5/V6
+ELSE IF regime == BEARISH_CORRECTION:
+    V2-V8 only when recovery gates pass
+ELSE IF regime == BEARISH:
+    V6 / EXIT
+ELSE:
+    WAIT
+```
+
+#### 4.9.5 Adaptive Profit Engine
+V8 may choose among:
+- **V7** when a validated trend is strong and continued exposure is desirable.
+- **V5** when actual P/L management is preferred without full lifecycle complexity.
+- **V4** for simple deterministic 50% P/L-share handling.
+- **V6** when resistance, exhaustion, event risk, or re-entry structure dominates.
+
+#### 4.9.6 Adaptive Loss Engine
+Use the least aggressive valid recovery model:
+- V3 for controlled linear recovery surcharge.
+- V4/V5 for calculated loss-equivalent share sizing under strict gates.
+- V2 for qualified correction accumulation in high-quality assets.
+- V6 for structural exit/re-entry orchestration.
+- Original/V1 remain research/reference modes unless explicitly enabled for simulation.
+
+#### 4.9.7 Recovery Budget Cap
+The V8 recovery allocation MUST satisfy:
+$$\boxed{A_{recovery}\le\min(RiskBudget,AvailableCash,PositionCap,RecoveryBudget)}$$
+
+No recovery rule may create an unbounded capital sequence.
+
+#### 4.9.8 Cost-Aware Harvest Gate
+Do not harvest when the expected benefit is not materially greater than estimated execution friction:
+$$\boxed{HarvestAmount>MinimumEconomicActionValue}$$
+where `MinimumEconomicActionValue` includes configurable brokerage/fees, taxes where relevant, slippage buffer, and a minimum absolute value threshold.
+
+#### 4.9.9 Anti-Churn Hysteresis
+V8 must use separate activation/deactivation thresholds and optional cooldown periods so that minor oscillations around one level do not repeatedly trigger `BUY/SELL/BUY/SELL`.
+
+#### 4.9.10 First-Class Outcomes
+V8 can emit only one primary action per evaluation cycle:
+`NO_TRADE`, `WAIT`, `HOLD`, `HARVEST`, `REDUCE`, `ENTER`, `REENTER`, `RECOVER`, `EXIT`, `EMERGENCY_EXIT`.
+
+#### 4.9.11 Priority Order
+```text
+1. Data integrity
+2. Structural validity
+3. Wealth-floor / portfolio risk
+4. Liquidity / execution feasibility
+5. Capital preservation
+6. Market-regime fit
+7. Profit harvesting
+8. Recovery allocation
+9. Additional exposure
+```
+
+#### 4.9.12 V8 Pseudocode
+```text
+validateInputs()
+validateUnits()
+validateExternalAnalysis()
+
+if dataInvalid:
+    return WAIT
+
+calculateActualPnL()
+calculateCycleWealth()
+calculatePeakWealth()
+calculateDrawdown()
+calculateWealthFloor()
+classifyMarketRegime()
+
+if structuralBreakdown:
+    return EMERGENCY_EXIT
+
+if wealthFloorBreached:
+    return DE_RISK_OR_EXIT
+
+switch regime:
+    BULLISH_STRONG:
+        evaluateV7Harvest()
+    BULLISH_EXTENDED:
+        evaluateV7ThenV6Resistance()
+    NEUTRAL:
+        evaluateV4OrV5OrV6()
+    BEARISH_CORRECTION:
+        evaluateV2OrV3RecoveryGate()
+    BEARISH:
+        evaluateV6Exit()
+    UNKNOWN:
+        return WAIT
+
+applyRiskCaps()
+applyLiquidityGate()
+applyEconomicCostGate()
+applyAntiChurnGate()
+applyWholeShareRounding()
+reconcileLedger()
+return one_primary_action()
+```
+
+---
+
+### 4.10 Universal Invariants & Model Routing Matrix
+
+#### 4.10.1 Non-Negotiable Invariants
+| Invariant | Rule |
+|---|---|
+| Actual-P/L Authority | Actual observed P/L is authoritative once the relevant trigger is reached |
+| Current-Price Law | Monetary profit/loss converted to shares MUST divide by current execution price |
+| Dimensional Separation | Currency, percentage, price/share, and quantity remain separate units |
+| No Blind Averaging | A price decline alone never authorizes additional capital |
+| No Unlimited Recovery | Recovery rounds and dollar exposure are hard capped |
+| Structural Override | Thesis invalidation overrides all recovery/harvest formulas |
+| Cost Awareness | Small uneconomic trades are blocked |
+| Anti-Churn | Hysteresis/cooldown blocks rapid flip-flopping |
+| Principal Protection | V7 keeps protected principal-sized exposure while valid |
+| Wealth Protection | V8 maintains a configurable cycle wealth floor |
+| External-Agent Skepticism | AI analysis is evidence, not authority |
+| No Fabrication | Missing data produces WAIT/DEGRADED_MODE, never invented numbers |
+| Cycle Isolation | Completed cycles must not inherit prior recovery escalation |
+| Whole-Share Execution | Fractional internal math is rounded only at order execution |
+
+#### 4.10.2 Routing Matrix
+| State | Preferred engine | Secondary engine | Automatic capital increase? |
+|---|---|---|---|
+| Strong bullish + valid | V7 | V5/V6 | No, unless sizing gate passes |
+| Bullish extended | V7 | V6 | No |
+| Neutral profitable | V5/V4 | V6 | No |
+| Pullback, thesis valid | V5/V6 | V2-V8 | Only if recovery gates pass |
+| Bearish correction | V2-V8 | V6 | Strictly capped |
+| Structural breakdown | V6 | None | **Never** |
+| Post-exit re-entry | V6 | V5 | Only after confirmation |
+| Invalid/stale data | None | None | **Never** |
+
+#### 4.10.3 Model-selection rationale
+V8 is successful as an architecture only when it **refuses to use an unsuitable engine**. The controller must prefer `WAIT` to an aggressive formula when required evidence is missing or conflicting.
+
+### 4.11 The Universal Reset & Cycle Accounting Invariant
+For **completed recovery/exit cycles**, the allocation escalation state MUST reset to base:
+$$\boxed{\text{Completed Recovery/Exit} \implies \text{Reset Escalation State to Base } S}$$
+
+- Prior tranche sizes, recovery multipliers, and escalation counters are **NEVER** carried into a new independent cycle.
+- V7/V8 profit harvesting can remain within the same active cycle because harvesting is not a completed recovery/exit event.
+- On a true cycle close, reset:
+  $$\text{RoundNumber} \leftarrow 1$$
+  $$\text{CumulativeInvested} \leftarrow 0$$
+  $$\text{RecoveryState} \leftarrow 0$$
+  $$\text{NextAllocation} \leftarrow S$$
+- Harvested cash and long-term vault assets must remain in the ledger according to the configured accounting policy; they must not be silently deleted during reset.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Idle_State: Dedicated Bankroll Established (W)
+
+    Idle_State --> Base_Active_T1: Signal Confirmed (Deploy Tranche 1 = S)
+    
+    state Base_Active_T1 {
+        [*] --> Position_Live
+        Position_Live --> Target_Hit: Price >= Target (T1 / T2)
+        Position_Live --> Adverse_Drop: Price <= Dip Trigger (-10%)
+        Position_Live --> Invalidation_Breach: Price <= Structural Invalidation
+    }
+
+    state Dip_Recovery_Loop {
+        [*] --> Tranche_Calculated: Compute B_next = 2 × ActualLoss
+        Tranche_Calculated --> Capital_Deployed: Buy Additional Shares
+        Capital_Deployed --> Price_Monitoring: Cost Basis Shifted Down
+        Price_Monitoring --> Recovery_Exit: Price >= Break-Even + Margin
+        Price_Monitoring --> Further_Drop: Price drops next 10% (n < 5)
+        Further_Drop --> Tranche_Calculated: Step n = n + 1
+    }
+
+    Base_Active_T1 --> Target_Hit: Standard Win
+    Base_Active_T1 --> Dip_Recovery_Loop: Adverse Pullback (V2 Mode)
+    Base_Active_T1 --> Invalidation_Breach: Stop Loss Triggered (V3 Mode)
+
+    state Profit_Harvest_V3 {
+        [*] --> Retained_Value: R = Profit × r
+        Retained_Value --> Convert_Shares: Q_retain = R / P_current
+        Convert_Shares --> Liquidate_Balance: Cash Credited to Bankroll
+    }
+
+    Target_Hit --> Profit_Harvest_V3: V3 Dual-Path Mode
+    Profit_Harvest_V3 --> Runner_Vault: Transfer Free Runner Shares
+    
+    Recovery_Exit --> Universal_Reset: 100% Cash Liquidated at Profit
+    Runner_Vault --> Universal_Reset: Retained Equity Locked in Vault
+    
+    Invalidation_Breach --> Loss_Recovery_V3: Realized Loss L = I × l
+    Loss_Recovery_V3 --> Universal_Reset: Next Tranche A_next = A_base + (L × f)
+    
+    state Universal_Reset {
+        [*] --> Purge_Cycle_State: Clear Tranche Counter
+        Purge_Cycle_State --> Reset_Variables: RoundNumber = 1, Allocation = S
+        Reset_Variables --> [*]
+    }
+
+    Universal_Reset --> Idle_State: Ready for Next Independent Cycle
+```
+
+> [!IMPORTANT]
+> **Anti-Compounding Principle**:
+> Never carry the allocation size of a completed recovery cycle into the next trade. If Round 4 deployed ₹45,000 to recover a dip, the very next trade must deploy **₹5,000 (Base $S$)**, NOT ₹45,000. Compounding tranche sizes post-recovery is the single most common cause of algorithmic capital destruction.
+
+---
+
+### 4.12 Historical Cross-Model Comparison Matrix (Original–V3)
+> This historical matrix is preserved for auditability. The complete Original–V8 comparison is defined in Section 4.13.
+| Architectural Dimension | TRM Original | TRM V1 (Drop Model) | TRM V2 (Actual Loss) | TRM V3 (Dual-Path) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Domain** | Theoretical Math | Equity Dip Averaging | Equity Dip Averaging | Reversal / Swing Trading |
+| **Trigger Mechanism** | Prior Losing Step | Predefined Price Drop ($L$) | Unrealized Portfolio Loss | Target Gain ($p$) or Stop ($l$) |
+| **Capital Progression** | Geometric ($O(3^n)$) | Geometric ($O(3^n)$) | Sub-Geometric Adaptive | Linear Surcharge ($A_{\text{base}} + \Delta$) |
+| **Mark-to-Market Accounting**| Assumes 100% loss | Ignores Residual Equity | Real-Time Mark-to-Market | Real-Time Mark-to-Market |
+| **Profit Handling** | 100% Exit & Reset | 100% Exit & Reset | 100% Exit & Reset | Partial Retention ($Q_{\text{retain}}$) + Reset |
+| **Capital Required (10 Rounds)**| \$295,245 ($S=5$) | ₹5,904,900 ($S=100$) | **₹18,712** ($S=100$) | Controlled by $A_{\text{base}}$ |
+| **Capital Efficiency** | Zero (Exponential) | Extremely Fragile | **99.68% Savings vs V1** | **Maximum Capital Efficiency** |
+| **Production Suitability**| Educational / Math Only | Not Recommended | **Approved (Max 3-5 Rounds)** | **Approved (Standard Production)**|
+
+---
+
+
+### 4.13 Complete Original–V8 Architecture Matrix
+
+| Dimension | Original | V1 | V2 | V3 | V4 | V5 | V6 | V7 | **V8** |
+|---|---|---|---|---|---|---|---|---|---|
+| Primary role | Recursive recovery | Price-drop allocation | Actual-loss allocation | Dual-path | 50% P/L-share | Adaptive actual P/L | Exit/re-entry lifecycle | Principal-preserving harvest | **Adaptive meta-controller** |
+| Actual P/L authority | No | No | Yes | Yes | Yes | Yes | Yes | Yes | **Yes** |
+| Current-price share law | No | No | Partial | Yes | **Core** | **Core** | **Core** | **Core** | **Mandatory** |
+| Profit handling | Full exit | Full exit | Full exit | Retention factor | 50% rule | 50% actual-P/L rule | Dynamic | Excess-only | **Route by regime** |
+| Loss handling | Geometric | Geometric | Actual loss | Surcharge | Raw loss shares | Actual loss shares | Risk-gated | Delegated | **Adaptive + capped** |
+| Trend/regime awareness | No | No | No | Limited | Limited | Limited | High | High | **High** |
+| Exit/re-entry | No | No | No | Partial | No | Partial | **Core** | Partial | **Core** |
+| Principal preservation | No | No | No | Partial | Partial | Partial | Partial | **Core** | **Core** |
+| Wealth floor | No | No | No | No | No | No | No | No | **Core** |
+| Cost-aware execution | No | No | No | Limited | Limited | Limited | Yes | Needed | **Mandatory** |
+| Anti-churn | No | No | No | No | No | No | Yes | Needed | **Mandatory** |
+| Model routing | No | No | No | No | No | No | Partial | No | **Core** |
+| No-trade / wait | No | No | No | No | No | Partial | Yes | Yes | **Core** |
+| Capital escalation | Unbounded geometric | Geometric | Loss-adaptive | Capped surcharge | None | Capped | Risk-gated | None | **Never unbounded** |
+| Best use | Math research | Historical trigger research | Controlled correction research | Swing dual-path | Simple share law | Deterministic P/L engine | Lifecycle decisions | Strong-winner harvesting | **Master controller** |
+
+**Architecture conclusion:** V8 is the control plane; V1–V7 are specialized engines. No V1–V7 formula is considered universally optimal. V8 must route, constrain, or block the engine based on validated state.
+
+
+### 4.11 The Universal Reset Invariant
 Across every edition of the TRM family, the governing state invariant is:
 $$\boxed{\text{Upon Full Recovery Target Exit or Reversal Completion} \implies \text{UNCONDITIONAL RESET TO BASE } S}$$
 
@@ -860,7 +1429,7 @@ stateDiagram-v2
 
 ---
 
-### 4.6 Cross-Model Comparison Matrix
+### 4.12 Cross-Model Comparison Matrix
 | Architectural Dimension | TRM Original | TRM V1 (Drop Model) | TRM V2 (Actual Loss) | TRM V3 (Dual-Path) |
 | :--- | :--- | :--- | :--- | :--- |
 | **Primary Domain** | Theoretical Math | Equity Dip Averaging | Equity Dip Averaging | Reversal / Swing Trading |
@@ -982,7 +1551,114 @@ $$\mathbf{\mathbb{E}[R] = (W_r \times R_w) - (L_r \times R_l) \ge +0.50 R \quad 
 
 ---
 
-# 6. Deterministic 6-Phase Execution Pipeline
+# 6. TRM V8 Deterministic Execution Pipeline
+
+The V8 pipeline is deterministic **given validated inputs**. Market outcomes themselves are not deterministic.
+
+### Phase 0: Request & Scope Normalization
+- Parse symbol/exchange, position, account, intended holding horizon, and user-specified parameters.
+- Confirm cash-equity-only scope.
+- Reject requests requiring fabricated live data or unsupported instruments.
+
+### Phase 1: Data Integrity & Provenance
+- Validate timestamp freshness.
+- Validate price, OHLCV, volume, ATR, VWAP, moving averages, regression ordering, and corporate-action adjustments.
+- Tag data as `[OBSERVED]`, `[CALCULATED]`, `[USER-PROVIDED]`, or `[ASSUMED]`.
+- If key data is missing: `WAIT` or `DEGRADED_MODE`; never invent values.
+
+### Phase 2: Eligibility & Fundamental Quality Gate
+- Validate liquidity, solvency, governance and event-risk requirements.
+- Ban averaging/recovery when structural or fundamental impairment is present.
+- Apply configured market-cap, debt, pledging, liquidity and bankruptcy-immunity criteria.
+
+### Phase 3: Portfolio State Calculation
+Calculate:
+$$I_0=P_{entry}Q_0$$
+$$MV=P_{current}Q$$
+$$PnL_{position}=MV-I_0$$
+$$W=MV+HarvestedCash$$
+$$PnL_{cycle}=W-I_0$$
+$$W^{peak}=\max(W^{peak}_{previous},W)$$
+$$DD=(W^{peak}-W)/W^{peak}$$
+
+### Phase 4: Market Regime & Structural State
+Classify:
+`BULLISH_STRONG`, `BULLISH`, `BULLISH_EXTENDED`, `NEUTRAL`, `BEARISH_CORRECTION`, `BEARISH`, `STRUCTURAL_BREAKDOWN`, `UNKNOWN`.
+
+Use trend, regression, momentum, volatility, volume, market/sector alignment, and validated external analysis.
+
+### Phase 5: Master Model Router
+Select the least aggressive suitable engine according to Section 4.9.4.
+
+### Phase 6: Mathematical Engine
+Run exactly one primary profit/recovery calculation path per action cycle. Store all intermediate state variables with units.
+
+### Phase 7: Wealth / Risk / Capital Gate
+Require:
+- wealth floor compliance,
+- risk budget compliance,
+- single-stock cap compliance,
+- available cash,
+- maximum recovery rounds,
+- liquidity feasibility,
+- structural stop existence,
+- economic minimum action value.
+
+### Phase 8: Execution Construction
+For cash equities:
+$$Shares=\left\lfloor Allocation/LimitPrice\right\rfloor$$
+$$CommittedCash=Shares\times LimitPrice$$
+$$ResidualCash=Allocation-CommittedCash$$
+
+For V7 harvest:
+round executable sell quantity and reconcile residual position value against protected principal.
+
+### Phase 9: Order & Anti-Churn Gate
+- Prefer limit orders where liquidity/spread requires it.
+- Apply cooldown/hysteresis.
+- Reject duplicate orders for the same state event.
+- Prevent simultaneous contradictory instructions.
+
+### Phase 10: Post-Trade Reconciliation
+Update:
+- holdings,
+- cash,
+- harvested cash,
+- realized P/L,
+- protected principal,
+- cycle wealth,
+- peak wealth,
+- drawdown,
+- recovery round,
+- cycle state.
+
+### Phase 11: Monitoring & State Transition
+Possible transitions:
+```text
+IDLE → ENTRY_CANDIDATE → POSITION_ACTIVE
+POSITION_ACTIVE → V7_HARVEST
+POSITION_ACTIVE → HOLD
+POSITION_ACTIVE → REDUCE
+POSITION_ACTIVE → RECOVERY_REVIEW
+POSITION_ACTIVE → EXIT
+EXIT → REENTRY_WAIT → REENTRY_CONFIRMATION → POSITION_ACTIVE
+ANY_STATE → EMERGENCY_EXIT
+ANY_STATE → WAIT / DATA_DEGRADED
+```
+
+### Phase 12: Audit Trail
+Every action must store:
+- input snapshot,
+- timestamp,
+- model selected,
+- calculations,
+- gates passed/failed,
+- order intent,
+- executed quantity/price if available,
+- resulting ledger state,
+- reason for state transition.
+
+# 6A. Legacy 6-Phase Pipeline Reference (Preserved for Backward Compatibility)
 
 Every trade evaluated under this skill must progress through the structured 6-phase pipeline without omitting any verification stage:
 
@@ -1104,7 +1780,7 @@ Monetary allocations are translated into exact integer share quantities for deli
   - Target 2 (Base Case): Regression Channel Upper Band (+2σ).
   - Target 3 (Runner): Trailing stop via 20 EMA or SuperTrend.
 - Execute profit retention and runner transfer upon Target 2 hit.
-- Reset cycle state unconditionally to base allocation $S$.
+- On completed recovery/exit, reset escalation state to base $S$; V7/V8 active harvesting remains in-cycle until a valid exit/reset event.
 
 ### Phase 6: Invalidation Enforcement & Hard Circuit Breakers
 - If a daily bar closes below the **Structural Invalidation Stop**, execute full market liquidation.
@@ -1113,7 +1789,39 @@ Monetary allocations are translated into exact integer share quantities for deli
 
 ---
 
-# 7. Quantitative Setup Scoring System (100-Point Rubric)
+# 7. V8 Decision Scorecard & Calibration
+
+The legacy 100-point rubric in this file remains available as a research scorecard. V8 must not treat an arbitrary score as a prediction of returns.
+
+### 7.1 Evidence Dimensions
+| Dimension | Suggested maximum | Evidence |
+|---|---:|---|
+| Data integrity | 15 | Freshness, completeness, consistency |
+| Fundamental/solvency quality | 15 | Debt, cash flow, governance, event risk |
+| Macro/market/sector regime | 10 | Index + sector trend alignment |
+| Structural price action | 15 | Support/resistance, swing structure |
+| Regression/valuation location | 10 | Mean/upper/lower channel context |
+| Momentum/volume | 10 | RSI/MACD/ATR/volume/RVOL |
+| Risk/reward & stop validity | 15 | Stop distance, expected payoff, bankroll |
+| Liquidity/execution economics | 10 | Spread, depth, slippage, transaction cost |
+| **Total** | **100** | **Research aid only** |
+
+### 7.2 Gating vs Scoring
+Hard gates are binary and override scores:
+- invalid data,
+- structural breakdown,
+- insufficient cash,
+- maximum position cap breached,
+- prohibited instrument,
+- unrecoverable event/fundamental impairment.
+
+A high score can never override a hard gate.
+
+### 7.3 Calibration Policy
+Initial weights/thresholds are configuration values, not proven optimal constants. They MUST be calibrated through historical walk-forward validation and locked before out-of-sample evaluation to reduce overfitting.
+
+
+### 7.4 Legacy Quantitative Setup Scoring System (100-Point Rubric)
 
 Every trade evaluated under this skill is scored across 8 objective dimensions:
 
@@ -1136,6 +1844,7 @@ Every trade evaluated under this skill is scored across 8 objective dimensions:
 - **< 50 Points (`AVOID / NO TRADE`)**: Setup disqualified. Prohibit trade execution.
 
 ---
+
 
 # 8. Pre-Flight Execution Checklist
 
@@ -1336,6 +2045,90 @@ SYSTEM AUDIT & COMPLIANCE VERIFICATION
 ```
 
 ---
+
+### 10.4 TRM V7/V8 Master Execution Report
+```text
+================================================================================
+TRM V8 MASTER ADAPTIVE EXECUTION REPORT: [SYMBOL] ([EXCHANGE])
+================================================================================
+
+1. INPUT / PROVENANCE
+--------------------------------------------------------------------------------
+• Timestamp / Feed State       : [TIME] [REAL-TIME / DELAYED / EOD] [OBSERVED]
+• Current Price                : [PRICE] [OBSERVED]
+• Quantity Held                : [QTY] [USER-PROVIDED / OBSERVED]
+• Average Entry               : [PRICE] [USER-PROVIDED / CALCULATED]
+• Initial Investment           : [AMOUNT] [CALCULATED]
+• Available Cash               : [AMOUNT] [USER-PROVIDED]
+
+2. ACTUAL P/L + WEALTH LEDGER
+--------------------------------------------------------------------------------
+• Current Market Value         : [AMOUNT] [CALCULATED]
+• Position P/L                 : [AMOUNT] [CALCULATED]
+• Position P/L %               : [%] [CALCULATED]
+• Harvested Cash               : [AMOUNT] [CALCULATED]
+• Cycle Wealth                 : [AMOUNT] [CALCULATED]
+• Cycle P/L                    : [AMOUNT] [CALCULATED]
+• Peak Cycle Wealth            : [AMOUNT] [CALCULATED]
+• Current Drawdown             : [%] [CALCULATED]
+• Wealth Floor                 : [AMOUNT] [CALCULATED]
+
+3. MARKET / STRUCTURAL STATE
+--------------------------------------------------------------------------------
+• Regime                       : [BULLISH_STRONG / ...]
+• Trend State                  : [STATE]
+• Support / Resistance         : [LEVELS] [OBSERVED]
+• Regression Channel           : [MEAN / UPPER / LOWER] [CALCULATED]
+• RSI / MACD / ATR / RVOL      : [VALUES] [OBSERVED/CALCULATED]
+• Sector / Index Alignment     : [STATE]
+• Structural Invalidation      : [PRICE]
+
+4. V8 MODEL ROUTING
+--------------------------------------------------------------------------------
+• Selected Engine              : [V7 / V5 / V6 / V4 / V3 / V2 / WAIT]
+• Routing Reason               : [FACTUAL EVIDENCE]
+• External Analysis Validity   : [PASS / DEGRADED / FAIL]
+• Hard Gate Status             : [PASS / BLOCKED]
+
+5. V7 HARVEST (WHEN APPLICABLE)
+--------------------------------------------------------------------------------
+• Protected Principal          : [AMOUNT]
+• Current Position Value       : [AMOUNT]
+• Excess Above Principal       : [AMOUNT]
+• Shares To Sell               : [QTY]
+• Shares To Keep               : [QTY]
+• Expected Residual Value      : [AMOUNT]
+• Estimated Costs              : [AMOUNT]
+• Economic Action Gate         : [PASS / BLOCKED]
+
+6. LOSS / RECOVERY (WHEN APPLICABLE)
+--------------------------------------------------------------------------------
+• Actual Cycle Loss            : [AMOUNT]
+• Recovery Engine              : [V2 / V3 / V4 / V5 / V6 / NONE]
+• Risk Budget                  : [AMOUNT]
+• Max Position Cap             : [AMOUNT]
+• Candidate Allocation         : [AMOUNT]
+• Final Approved Allocation    : [AMOUNT]
+• Recovery Round               : [N / MAX]
+
+7. EXECUTION DECISION
+--------------------------------------------------------------------------------
+ACTION : [NO_TRADE / WAIT / HOLD / HARVEST / REDUCE / ENTER / REENTER / RECOVER / EXIT / EMERGENCY_EXIT]
+LIMIT PRICE                  : [PRICE]
+QUANTITY                     : [INTEGER SHARES]
+CAPITAL / CASH FLOW          : [AMOUNT]
+STOP / INVALIDATION          : [PRICE]
+COOLDOWN / HYSTERESIS        : [STATE]
+
+8. AUDIT REASON
+--------------------------------------------------------------------------------
+[ONE-PARAGRAPH FACTUAL RATIONALE]
+
+================================================================================
+V8 SAFETY INVARIANTS: DATA • STRUCTURE • WEALTH FLOOR • COST • CAPITAL CAP
+================================================================================
+```
+
 
 # 11. Production Reference Implementations
 
@@ -1627,6 +2420,90 @@ public final class TRMEngine {
 
 ---
 
+### 11.3 V4–V8 Implementation Contracts
+
+#### 11.3.1 Canonical domain model
+Implement immutable calculation inputs and explicit state transitions. Recommended Java 17 types:
+```text
+record MarketSnapshot(...)
+record PositionState(...)
+record WealthLedger(...)
+record RiskLimits(...)
+record AnalysisSnapshot(...)
+record V8Decision(...)
+record ExecutionIntent(...)
+```
+Use `BigDecimal` for money, prices, percentages and share quantities that require high precision. Never use `double` for ledger reconciliation.
+
+#### 11.3.2 Engine interface
+```java
+interface TrmEngine {
+    TrmDecision evaluate(TrmContext context);
+}
+```
+Recommended implementations:
+```text
+OriginalRecoveryEngine
+V1PercentageTriggerEngine
+V2ActualLossEngine
+V3DualPathEngine
+V4CurrentPriceShareEngine
+V5AdaptivePnLEngine
+V6ExitReentryEngine
+V7PrincipalHarvestEngine
+V8AdaptiveMetaController
+```
+
+#### 11.3.3 V8 controller contract
+```java
+V8Decision evaluate(V8Context context) {
+    validate(context);
+    if (context.hasHardDataFailure()) return WAIT;
+    if (context.isStructurallyInvalid()) return EXIT;
+
+    calculateActualPnL(context);
+    calculateCycleWealth(context);
+    calculateWealthFloor(context);
+    classifyRegime(context);
+
+    TrmEngine engine = routeToLeastAggressiveValidEngine(context);
+    TrmDecision decision = engine.evaluate(context);
+
+    decision = applyRiskCaps(decision, context);
+    decision = applyLiquidityAndCostGate(decision, context);
+    decision = applyAntiChurnGate(decision, context);
+    decision = reconcileWholeShareQuantity(decision, context);
+
+    return decision;
+}
+```
+
+#### 11.3.4 Testing requirements
+Mandatory unit/property tests:
+- Original recurrence and closed forms.
+- V1 price-trigger sequence.
+- V2 actual-loss calculation.
+- V3 actual observed P/L correction.
+- V4 current-price share conversion.
+- V5 actual P/L authority.
+- V6 validation, clustering and re-entry confirmation.
+- V7 principal preservation invariant.
+- V8 wealth-floor invariant.
+- No currency/share/percentage unit mixing.
+- Whole-share rounding and residual reconciliation.
+- No order when hard gates fail.
+- No duplicate orders under anti-churn conditions.
+- Cycle reset isolation.
+
+#### 11.3.5 V7 invariant property test
+For a successful harvest before costs/whole-share rounding:
+$$Q_{keep}\times P_{current}=ProtectedPrincipal$$
+Within execution tolerance, after order rounding and charges the residual difference must be recorded rather than silently discarded.
+
+#### 11.3.6 V8 routing property test
+Given identical validated inputs, routing MUST be deterministic. If input quality changes from valid to invalid, the decision must not become more aggressive; it must remain or move toward `WAIT`/`EXIT`.
+
+
 # 12. End-to-End Concrete Numerical Case Studies
 
 ### 12.1 Case Study 1: Large-Cap Dip Averaging via TRM V2 (Reliance Industries / NSE)
@@ -1690,7 +2567,80 @@ public final class TRMEngine {
 
 ---
 
-# 13. Mandatory Regulatory Compliance & Risk Disclaimer
+# 13. Validation, Backtesting & Deployment Readiness
+
+### 13.1 Required Validation Order
+1. **Unit validation:** verify every equation independently.
+2. **Ledger reconciliation:** ensure cash + position + realized/harvested values reconcile.
+3. **Scenario tests:** trend, pullback, gap, circuit, split/bonus, dividend, illiquidity, stale data, structural break.
+4. **Historical backtest:** same instruments, timestamps, costs and position limits for every TRM version.
+5. **Walk-forward test:** re-fit/choose parameters only on the training window; evaluate on the next unseen window.
+6. **Out-of-sample holdout:** do not tune on the final test segment.
+7. **Stress test:** prolonged decline, repeated gaps, no-fill orders, spread blowout, missing data, multi-stock correlation.
+8. **Paper-trading/shadow mode:** verify live feed handling before live routing.
+
+### 13.2 Cross-Version Benchmark Metrics
+Compare Original/V1/V2/V3/V4/V5/V6/V7/V8 using the same definition of:
+- cumulative return,
+- maximum drawdown,
+- downside deviation,
+- realized win/loss distribution,
+- profit factor,
+- recovery time,
+- capital utilization,
+- turnover,
+- transaction-cost drag,
+- tail loss,
+- concentration,
+- number of forced exits,
+- number of blocked/WAIT decisions,
+- slippage and fill rate.
+
+Do not select parameters because they maximize only one metric. The comparison must preserve the user's chosen risk constraints.
+
+### 13.3 Avoiding Look-Ahead Bias
+- Only use data available at the timestamp of the simulated decision.
+- Do not use future high/low, revised fundamentals unavailable at the time, or future corporate-action information.
+- External AI/agent signals in historical tests must be represented by timestamped historical outputs, not today's retrospective analysis.
+
+### 13.4 Deployment Readiness Gate
+V8 is not live-ready merely because it compiles. Minimum readiness requires:
+```text
+All unit tests PASS
+        AND
+Ledger reconciliation PASS
+        AND
+Walk-forward test completed
+        AND
+Out-of-sample holdout completed
+        AND
+Cost/slippage model enabled
+        AND
+Risk limits enforced in code
+        AND
+Paper/shadow trading completed
+```
+
+If any item fails, output `NOT_PRODUCTION_READY`.
+
+### 13.5 Configuration Governance
+The following MUST be externally configurable and versioned:
+- trigger thresholds,
+- protected principal policy,
+- wealth-floor drawdown,
+- maximum recovery rounds,
+- risk budget,
+- single-stock cap,
+- transaction-cost assumptions,
+- slippage assumptions,
+- cooldown/hysteresis,
+- liquidity thresholds,
+- indicator windows.
+
+Never silently change a parameter after a backtest without incrementing the strategy/configuration version.
+
+
+# 14. Mandatory Regulatory Compliance & Risk Disclaimer
 
 > **⚠️ STATUTORY REGULATORY COMPLIANCE & RISK DISCLAIMER**:
 > 

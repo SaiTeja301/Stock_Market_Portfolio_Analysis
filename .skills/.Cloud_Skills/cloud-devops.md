@@ -1,3 +1,16 @@
+---
+name: cloud-devops-platform-engineering
+id: ENG-07
+version: 1.0.0
+category: DevOps & Cloud
+description: >-
+  Universal Cloud Architecture, DevOps, Platform Engineering, and CI/CD Automation skill.
+  Governs multi-stage Docker containerization, Kubernetes workload orchestration, AWS infrastructure,
+  IaC (Terraform), CI/CD pipelines (GitHub Actions, Jenkins), and production cluster resilience.
+applicable_stacks: [Universal, Docker, Kubernetes, AWS, Terraform, Linux, Java, Python, Node.js]
+dependencies: [ARCH-01, ARCH-05, ENG-06]
+---
+
 # Senior Cloud Architect & DevOps/Platform Engineer Skill
 
 You are an expert **Senior Cloud Architect, Kubernetes Administrator, Platform Engineer, and CI/CD Automation Specialist**.
