@@ -1,0 +1,935 @@
+========================================================================================================================
+                      NSE MARKET GATEWAY MICROSERVICE - AUTHORITATIVE API SPECIFICATION
+========================================================================================================================
+Base URL    : http://localhost:8081
+Service Name: nse-market-gateway-service
+Environment : Java 17/19+, Spring Boot 3.2.5, Spring AI, LangChain4j, Caffeine Caching, Resilience4j
+Components  : Real-Time NSE Market Data, Spring AI Advisory, LangChain4j Agent, TRM Quantitative Algorithms (Classic, V1, V2, V3)
+Generated   : 2026-09-15
+
+========================================================================================================================
+                                             SUMMARY API MASTER TABLE
+========================================================================================================================
+
++-----+--------+------------------------------------------+-------------------------------------------------------------+
+| #   | METHOD | ENDPOINT                                 | PURPOSE / FUNCTION                                          |
++-----+--------+------------------------------------------+-------------------------------------------------------------+
+| 1   | GET    | /api/v1/market/quote/{symbol}            | Live quote, LTP, VWAP, 52W range, circuit limits & orderbook|
+| 2   | GET    | /api/v1/market/charts/{symbol}?days=1D   | Intraday & historical time-series price chart data          |
+| 3   | GET    | /api/v1/market/announcements/{symbol}    | Recent corporate announcements, filings, board meetings     |
+| 4   | GET    | /api/v1/market/top-ten                   | Top 10 advances, declines, and most active NSE stocks       |
+| 5   | GET    | /api/v1/market/yearwise/{symbol}         | Multi-period performance (1D, 1W, 1M, 1Y, 3Y, 5Y) vs Nifty  |
+| 6   | GET    | /api/v1/market/indices/{symbol}          | List of sectoral/benchmark indices containing the stock     |
+| 7   | GET    | /api/v1/market/search?query={query}      | Fast fuzzy equity search by ticker, company name, or ISIN   |
+| 8   | GET    | /api/v1/ai/models                        | List available local Ollama LLMs with tier & specialization |
+| 9   | POST   | /api/v1/ai/analyze-stock                 | Spring AI advisory analysis (auto-routes or uses body model)|
+| 10  | POST   | /api/v1/ai/analyze-stock/{model}         | Spring AI advisory analysis pinned to a specific URL model  |
+| 11  | GET    | /api/v1/ai/catalyst-check/{symbol}       | 48-hour binary event risk embargo check via Spring AI       |
+| 12  | POST   | /api/v1/ai/langchain4j/analyze-stock     | LangChain4j autonomous agent with declarative @Tool calling |
+| 13  | POST   | /api/v1/ai/langchain4j/analyze-templated | Injection-safe template analysis via @UserMessage & @V      |
+| 14  | POST   | /api/v1/ai/langchain4j/chat/{sessionId}  | Stateful multi-turn conversational chat with @MemoryId      |
+| 15  | POST   | /api/v1/ai/langchain4j/analyze-structured| Strongly-typed structured JSON extraction to Java Record    |
+| 16  | GET    | /api/v1/ai/langchain4j/token-metadata/   | Result<T> telemetry: token counts & finish reason           |
+|     |        | {symbol}                                 |                                                             |
+| 17  | GET    | /api/v1/ai/langchain4j/catalyst-check/   | Binary event risk verification via LangChain4j agent        |
+|     |        | {symbol}                                 |                                                             |
+| 18  | POST   | /api/v1/trm/classic                      | TRM Classic: Recursive cumulative capital allocation        |
+| 19  | GET    | /api/v1/trm/classic/{symbol}             | TRM Classic calculated from live stock quote                |
+| 20  | POST   | /api/v1/trm/v1                           | TRM V1: Percentage-triggered stock equity model             |
+| 21  | GET    | /api/v1/trm/v1/{symbol}                  | TRM V1 calculated from live stock quote                     |
+| 22  | POST   | /api/v1/trm/v2                           | TRM V2: Actual-portfolio-loss adaptive model (99.68% save)  |
+| 23  | GET    | /api/v1/trm/v2/{symbol}                  | TRM V2 calculated from live stock quote                     |
+| 24  | POST   | /api/v1/trm/v3                           | TRM V3: Asymmetric Dual-Path (Profit Runner + Loss Recovery)|
+| 25  | GET    | /api/v1/trm/v3/{symbol}                  | TRM V3 calculated from live stock quote                     |
+| 26  | POST   | /api/v1/trm/evaluate-all                 | Evaluates all 4 TRM algorithms with custom request payload  |
+| 27  | GET    | /api/v1/trm/evaluate/{symbol}            | Live 360° Evaluation: All 4 TRMs + 100-bar OLS Reg. Channel |
+| 28  | GET    | /actuator/health                         | Spring Boot Actuator health status & subsystem indicators   |
+| 29  | GET    | /actuator/info                           | Application metadata, version, and build info               |
+| 30  | GET    | /actuator/metrics                        | JVM, HTTP request latency, and Caffeine cache metrics       |
++-----+--------+------------------------------------------+-------------------------------------------------------------+
+
+
+========================================================================================================================
+                                   SECTION 1: REAL-TIME NSE MARKET DATA APIS
+========================================================================================================================
+
+------------------------------------------------------------------------------------------------------------------------
+[API 01] GET /api/v1/market/quote/{symbol}
+------------------------------------------------------------------------------------------------------------------------
+Purpose       : Fetches real-time sanitized quote from NSE with DOM depth (5-level order book), circuits, and VWAP.
+HTTP Method   : GET
+URL           : http://localhost:8081/api/v1/market/quote/RELIANCE
+Path Variable : symbol = Equity ticker (e.g. RELIANCE, TCS, INFY, SYNCOMF)
+Request Body  : None
+cURL Example  :
+  curl -X GET "http://localhost:8081/api/v1/market/quote/RELIANCE"
+
+Sample Response JSON:
+{
+  "symbol": "RELIANCE",
+  "series": "EQ",
+  "lastPrice": 2985.40,
+  "change": 18.20,
+  "pChange": 0.61,
+  "previousClose": 2967.20,
+  "openPrice": 2970.00,
+  "closePrice": 2985.40,
+  "vwap": 2978.15,
+  "lowerCircuit": 2670.50,
+  "upperCircuit": 3263.90,
+  "week52High": 3217.90,
+  "week52Low": 2220.30,
+  "orderBook": {
+    "totalBuyQuantity": 384500,
+    "totalSellQuantity": 295100
+  }
+}
+
+------------------------------------------------------------------------------------------------------------------------
+[API 02] GET /api/v1/market/charts/{symbol}
+------------------------------------------------------------------------------------------------------------------------
+Purpose       : Fetches timestamped chart data points for candlestick and regression channel construction.
+HTTP Method   : GET
+URL           : http://localhost:8081/api/v1/market/charts/TCS?days=1M
+Path Variable : symbol = Equity ticker (e.g. TCS, RELIANCE)
+Query Param   : days = 1D (default), 1W, 1M, 1Y
+Request Body  : None
+cURL Example  :
+  curl -X GET "http://localhost:8081/api/v1/market/charts/TCS?days=1M"
+
+Sample Response JSON:
+{
+  "identifier": "TCS",
+  "name": "Tata Consultancy Services Limited",
+  "closePrice": 4215.50,
+  "points": [
+    {
+      "timestampMs": 1726372800000,
+      "price": 4195.00,
+      "tradeState": "NORMAL",
+      "change": 12.50,
+      "pChange": 0.30
+    },
+    {
+      "timestampMs": 1726376400000,
+      "price": 4215.50,
+      "tradeState": "NORMAL",
+      "change": 33.00,
+      "pChange": 0.79
+    }
+  ]
+}
+
+------------------------------------------------------------------------------------------------------------------------
+[API 03] GET /api/v1/market/announcements/{symbol}
+------------------------------------------------------------------------------------------------------------------------
+Purpose       : Fetches corporate announcements, board meetings, dividend declarations, and SEBI filings.
+HTTP Method   : GET
+URL           : http://localhost:8081/api/v1/market/announcements/INFY?limit=5
+Path Variable : symbol = Equity ticker (e.g. INFY)
+Query Param   : limit = Number of records to return (default: 5)
+Request Body  : None
+cURL Example  :
+  curl -X GET "http://localhost:8081/api/v1/market/announcements/INFY?limit=5"
+
+Sample Response JSON:
+[
+  {
+    "symbol": "INFY",
+    "description": "Board Meeting scheduled on 17-Oct-2026 for Q2 Financial Results and Interim Dividend",
+    "announcementDate": "14-Sep-2026 18:30:00",
+    "attachmentUrl": "https://nsearchives.nseindia.com/corporate/INFY_14092026.pdf"
+  }
+]
+
+------------------------------------------------------------------------------------------------------------------------
+[API 04] GET /api/v1/market/top-ten
+------------------------------------------------------------------------------------------------------------------------
+Purpose       : Fetches market-wide top ten advances, declines, and most active stocks.
+HTTP Method   : GET
+URL           : http://localhost:8081/api/v1/market/top-ten
+Request Body  : None
+cURL Example  :
+  curl -X GET "http://localhost:8081/api/v1/market/top-ten"
+
+------------------------------------------------------------------------------------------------------------------------
+[API 05] GET /api/v1/market/yearwise/{symbol}
+------------------------------------------------------------------------------------------------------------------------
+Purpose       : Fetches multi-period historical returns (1D, 1W, 1M, 1Y, 3Y, 5Y) alongside benchmark index performance.
+HTTP Method   : GET
+URL           : http://localhost:8081/api/v1/market/yearwise/BHARTIARTL
+Request Body  : None
+cURL Example  :
+  curl -X GET "http://localhost:8081/api/v1/market/yearwise/BHARTIARTL"
+
+Sample Response JSON:
+{
+  "symbol": "BHARTIARTL",
+  "yesterdayChngPer": 1.25,
+  "oneWeekChngPer": 3.40,
+  "oneMonthChngPer": 7.80,
+  "oneYearChngPer": 62.40,
+  "indexName": "NIFTY 50",
+  "indexOneYearChngPer": 24.15
+}
+
+------------------------------------------------------------------------------------------------------------------------
+[API 06] GET /api/v1/market/indices/{symbol}
+------------------------------------------------------------------------------------------------------------------------
+Purpose       : Fetches index constituent memberships for a given stock.
+HTTP Method   : GET
+URL           : http://localhost:8081/api/v1/market/indices/RELIANCE
+Request Body  : None
+cURL Example  :
+  curl -X GET "http://localhost:8081/api/v1/market/indices/RELIANCE"
+
+Sample Response JSON:
+[
+  "NIFTY 50",
+  "NIFTY 100",
+  "NIFTY 500",
+  "NIFTY OIL & GAS",
+  "NIFTY COMMODITIES"
+]
+
+------------------------------------------------------------------------------------------------------------------------
+[API 07] GET /api/v1/market/search
+------------------------------------------------------------------------------------------------------------------------
+Purpose       : Fast fuzzy equity search by ticker or company name.
+HTTP Method   : GET
+URL           : http://localhost:8081/api/v1/market/search?query=TATA
+Query Param   : query = Search term (e.g. TATA, REL, HDFC)
+Request Body  : None
+cURL Example  :
+  curl -X GET "http://localhost:8081/api/v1/market/search?query=TATA"
+
+
+========================================================================================================================
+                                SECTION 2: SPRING AI & LANGCHAIN4J ADVISORY APIS
+========================================================================================================================
+
+------------------------------------------------------------------------------------------------------------------------
+[API 08] GET /api/v1/ai/models
+------------------------------------------------------------------------------------------------------------------------
+Purpose       : Returns list of available local Ollama LLMs, their active operational tier, and specialization role.
+HTTP Method   : GET
+URL           : http://localhost:8081/api/v1/ai/models
+Request Body  : None
+cURL Example  :
+  curl -X GET "http://localhost:8081/api/v1/ai/models"
+
+Sample Response JSON:
+[
+  {
+    "modelName": "deepseek-r1:1.5b",
+    "tier": "THINKING_REASONING",
+    "specialization": "Deep CoT Mathematical Reasoning & Formal Proofs",
+    "isAvailable": true
+  },
+  {
+    "modelName": "qwen2.5:3b",
+    "tier": "DEFAULT_QUANTITATIVE_TRM",
+    "specialization": "High-Precision TRM Sizing & Mathematical Rigor",
+    "isAvailable": true
+  },
+  {
+    "modelName": "llama3.2:3b",
+    "tier": "FAST_CONVERSATIONAL",
+    "specialization": "Fast Tactical Assessment & Narrative Summary",
+    "isAvailable": true
+  },
+  {
+    "modelName": "gemma2:2b",
+    "tier": "LIGHTWEIGHT_SPEED",
+    "specialization": "Ultra-Low Latency Filtering & Fast Status",
+    "isAvailable": true
+  }
+]
+
+------------------------------------------------------------------------------------------------------------------------
+[API 09] POST /api/v1/ai/analyze-stock
+------------------------------------------------------------------------------------------------------------------------
+Purpose       : Spring AI advisory analysis. If `preferredModel` is omitted, the service intelligently routes based on
+                user context (e.g. "think" -> deepseek-r1:1.5b, "speed" -> gemma2:2b, default -> qwen2.5:3b).
+HTTP Method   : POST
+URL           : http://localhost:8081/api/v1/ai/analyze-stock
+Headers       : Content-Type: application/json
+cURL Example  :
+  curl -X POST "http://localhost:8081/api/v1/ai/analyze-stock" \
+       -H "Content-Type: application/json" \
+       -d '{
+         "symbol": "RELIANCE",
+         "analysisType": "FULL_QUANTITATIVE_TRM",
+         "preferredModel": "qwen2.5:3b",
+         "userContext": "I have 50 shares bought at 3050. Currently in paper loss. Should I trigger TRM V2 averaging?"
+       }'
+
+Valid Request Body:
+{
+  "symbol": "RELIANCE",
+  "analysisType": "FULL_QUANTITATIVE_TRM",
+  "preferredModel": "qwen2.5:3b",
+  "userContext": "Evaluate dip entry setup using 100-period regression channel"
+}
+
+Sample Response JSON:
+{
+  "symbol": "RELIANCE",
+  "selectedModel": "qwen2.5:3b",
+  "modelTier": "DEFAULT_QUANTITATIVE_TRM",
+  "trmSetupScore": 84,
+  "recommendation": "EXECUTE_TRM_V2",
+  "binaryEventEmbargo": false,
+  "fullAnalysisMarkdown": "### TRM Quantitative Assessment for RELIANCE\n- LTP: ₹2,985.40 [OBSERVED]...",
+  "timestamp": "2026-09-15T01:50:00Z"
+}
+
+------------------------------------------------------------------------------------------------------------------------
+[API 10] POST /api/v1/ai/analyze-stock/{model}
+------------------------------------------------------------------------------------------------------------------------
+Purpose       : Spring AI advisory analysis with forced model selection via path variable.
+HTTP Method   : POST
+URL           : http://localhost:8081/api/v1/ai/analyze-stock/deepseek-r1:1.5b
+Path Variable : model = deepseek-r1:1.5b, qwen2.5:3b, llama3.2:3b, gemma2:2b
+Headers       : Content-Type: application/json
+cURL Example  :
+  curl -X POST "http://localhost:8081/api/v1/ai/analyze-stock/deepseek-r1:1.5b" \
+       -H "Content-Type: application/json" \
+       -d '{
+         "symbol": "TCS",
+         "analysisType": "FULL_QUANTITATIVE_TRM",
+         "userContext": "Need formal mathematical chain of thought on break-even shift"
+       }'
+
+Valid Request Body:
+{
+  "symbol": "TCS",
+  "analysisType": "FULL_QUANTITATIVE_TRM",
+  "userContext": "Need formal mathematical chain of thought on break-even shift"
+}
+
+------------------------------------------------------------------------------------------------------------------------
+[API 11] GET /api/v1/ai/catalyst-check/{symbol}
+------------------------------------------------------------------------------------------------------------------------
+Purpose       : Checks whether the ticker is subject to the mandatory 48-hour binary event embargo (board meeting,
+                quarterly financial results, stock split, regulatory inquiry).
+HTTP Method   : GET
+URL           : http://localhost:8081/api/v1/ai/catalyst-check/INFY
+Path Variable : symbol = Equity ticker (e.g. INFY, RELIANCE)
+Request Body  : None
+cURL Example  :
+  curl -X GET "http://localhost:8081/api/v1/ai/catalyst-check/INFY"
+
+Sample Response JSON:
+{
+  "symbol": "INFY",
+  "catalystRiskReport": "NO_EMBARGO: No earnings or board meetings scheduled in the next 48 hours."
+}
+
+------------------------------------------------------------------------------------------------------------------------
+[API 12] POST /api/v1/ai/langchain4j/analyze-stock
+------------------------------------------------------------------------------------------------------------------------
+Purpose       : LangChain4j Autonomous Agent execution. Utilizes declarative @AiService and @Tool callbacks to fetch
+                live quotes, announcements, and performance before synthesizing recommendation.
+HTTP Method   : POST
+URL           : http://localhost:8081/api/v1/ai/langchain4j/analyze-stock
+Headers       : Content-Type: application/json
+cURL Example  :
+  curl -X POST "http://localhost:8081/api/v1/ai/langchain4j/analyze-stock" \
+       -H "Content-Type: application/json" \
+       -d '{
+         "symbol": "BHARTIARTL",
+         "analysisType": "FULL_QUANTITATIVE_TRM",
+         "userContext": "Evaluate multi-timeframe trend alignment and 52W breakout"
+       }'
+
+Valid Request Body:
+{
+  "symbol": "BHARTIARTL",
+  "analysisType": "FULL_QUANTITATIVE_TRM",
+  "userContext": "Evaluate multi-timeframe trend alignment and 52W breakout"
+}
+
+Sample Response JSON:
+{
+  "symbol": "BHARTIARTL",
+  "agentFramework": "LangChain4j (@AiService + @Tool)",
+  "analysis": "Autonomous Agent Tool Calling Trajectory:\n1. Invoked getLiveStockQuote(BHARTIARTL)\n2. Invoked checkCircuitStatus(BHARTIARTL)...",
+  "timestamp": "2026-09-15T01:52:00Z"
+}
+
+------------------------------------------------------------------------------------------------------------------------
+[API 13] POST /api/v1/ai/langchain4j/analyze-templated
+------------------------------------------------------------------------------------------------------------------------
+Purpose       : Executes parameterized stock analysis using LangChain4j's Handlebars-style template interpolation (@V).
+                Safely binds ticker symbol and user position context to template slots, mitigating prompt injection.
+HTTP Method   : POST
+URL           : http://localhost:8081/api/v1/ai/langchain4j/analyze-templated
+Headers       : Content-Type: application/json
+cURL Example  :
+  curl -X POST "http://localhost:8081/api/v1/ai/langchain4j/analyze-templated" \
+       -H "Content-Type: application/json" \
+       -d '{
+         "symbol": "TCS",
+         "userContext": "Hold 100 shares at 4100. Evaluate 100-period regression channel position."
+       }'
+
+Valid Request Body:
+{
+  "symbol": "TCS",
+  "userContext": "Hold 100 shares at 4100. Evaluate 100-period regression channel position."
+}
+
+Sample Response JSON:
+{
+  "symbol": "TCS",
+  "agentFramework": "LangChain4j (@AiService + @UserMessage template + @V)",
+  "analysis": "### Quantitative Templated Evaluation for TCS\n- Current Price: ₹4,215.50 [OBSERVED]...",
+  "timestamp": "2026-09-15T02:00:00Z"
+}
+
+------------------------------------------------------------------------------------------------------------------------
+[API 14] POST /api/v1/ai/langchain4j/chat/{sessionId}
+------------------------------------------------------------------------------------------------------------------------
+Purpose       : Conducts stateful multi-turn conversational advisory with session-isolated chat memory (@MemoryId).
+                Maintains a rolling window of the last 10 messages per sessionId via ChatMemoryProvider.
+HTTP Method   : POST
+URL           : http://localhost:8081/api/v1/ai/langchain4j/chat/desk-101
+Path Variable : sessionId = Unique session or trader identifier (e.g. desk-101, trader-john-uuid)
+Headers       : Content-Type: application/json
+cURL Example  :
+  curl -X POST "http://localhost:8081/api/v1/ai/langchain4j/chat/desk-101" \
+       -H "Content-Type: application/json" \
+       -d '{
+         "message": "What was the invalidation stop loss we calculated for Reliance?"
+       }'
+
+Valid Request Body:
+{
+  "message": "What was the invalidation stop loss we calculated for Reliance?"
+}
+
+Sample Response JSON:
+{
+  "sessionId": "desk-101",
+  "agentFramework": "LangChain4j (@MemoryId + ChatMemoryProvider)",
+  "response": "For RELIANCE, the calculated TRM invalidation stop loss is ₹2,860.00, which sits 4.2% below the lower channel boundary.",
+  "timestamp": "2026-09-15T02:01:00Z"
+}
+
+------------------------------------------------------------------------------------------------------------------------
+[API 15] POST /api/v1/ai/langchain4j/analyze-structured
+------------------------------------------------------------------------------------------------------------------------
+Purpose       : Extracts strongly-typed structured JSON directly into a Java Record (TrmStructuredAdvisory).
+                Forces the LLM into JSON Schema mode without markdown, providing exact numeric floats for
+                programmatic execution engines (OMS / algo order routers).
+HTTP Method   : POST
+URL           : http://localhost:8081/api/v1/ai/langchain4j/analyze-structured
+Headers       : Content-Type: application/json
+cURL Example  :
+  curl -X POST "http://localhost:8081/api/v1/ai/langchain4j/analyze-structured" \
+       -H "Content-Type: application/json" \
+       -d '{
+         "symbol": "TCS",
+         "userContext": "Evaluate fresh swing entry"
+       }'
+
+Valid Request Body:
+{
+  "symbol": "TCS",
+  "userContext": "Evaluate fresh swing entry"
+}
+
+Sample Response JSON:
+{
+  "symbol": "TCS",
+  "lastTradedPrice": 4215.50,
+  "trmStopLoss": 4050.00,
+  "trmTarget1": 4420.00,
+  "trmTarget2": 4630.00,
+  "setupScore": 88,
+  "recommendation": "STRONG_BUY",
+  "keyRationale": "Confluence of Mean-Reversion and Bullish Momentum",
+  "binaryEventEmbargoClear": true
+}
+
+------------------------------------------------------------------------------------------------------------------------
+[API 16] GET /api/v1/ai/langchain4j/token-metadata/{symbol}
+------------------------------------------------------------------------------------------------------------------------
+Purpose       : Returns rapid analysis wrapped in LangChain4j Result<T> alongside execution telemetry,
+                including prompt token count, completion token count, total token count, and finish reason.
+HTTP Method   : GET
+URL           : http://localhost:8081/api/v1/ai/langchain4j/token-metadata/TCS
+Path Variable : symbol = Equity ticker (e.g. TCS, RELIANCE)
+Request Body  : None
+cURL Example  :
+  curl -X GET "http://localhost:8081/api/v1/ai/langchain4j/token-metadata/TCS"
+
+Sample Response JSON:
+{
+  "symbol": "TCS",
+  "agentFramework": "LangChain4j (Result<T> Telemetry)",
+  "content": "Rapid TRM status overview: TCS is trading in the upper quartile of its 100-period regression channel...",
+  "inputTokenCount": 120,
+  "outputTokenCount": 85,
+  "totalTokenCount": 205,
+  "finishReason": "STOP",
+  "timestamp": "2026-09-15T02:02:00Z"
+}
+
+------------------------------------------------------------------------------------------------------------------------
+[API 17] GET /api/v1/ai/langchain4j/catalyst-check/{symbol}
+------------------------------------------------------------------------------------------------------------------------
+Purpose       : Verifies binary event risks using LangChain4j agentic tool calls (auditing corporate filings).
+HTTP Method   : GET
+URL           : http://localhost:8081/api/v1/ai/langchain4j/catalyst-check/BHARTIARTL
+Path Variable : symbol = Equity ticker (e.g. BHARTIARTL, INFY)
+Request Body  : None
+cURL Example  :
+  curl -X GET "http://localhost:8081/api/v1/ai/langchain4j/catalyst-check/BHARTIARTL"
+
+Sample Response JSON:
+{
+  "symbol": "BHARTIARTL",
+  "agentFramework": "LangChain4j (@AiService + @Tool)",
+  "catalystRiskReport": "NO_EMBARGO: No earnings or board meetings scheduled in the next 48 hours."
+}
+
+
+========================================================================================================================
+                          SECTION 3: TEJA RECOVERY MODEL (TRM) ALGORITHMIC SUITE APIS
+========================================================================================================================
+
+------------------------------------------------------------------------------------------------------------------------
+[API 18] POST /api/v1/trm/classic
+------------------------------------------------------------------------------------------------------------------------
+Purpose       : Evaluates TRM Classic: Recursive cumulative capital allocation (B_{n+1} = 2*T_n, T_n = S*3^(n-1)).
+                Validates the tripling invariant and computes max surviving loss streak for a given bankroll.
+HTTP Method   : POST
+URL           : http://localhost:8081/api/v1/trm/classic
+Headers       : Content-Type: application/json
+cURL Example  :
+  curl -X POST "http://localhost:8081/api/v1/trm/classic" \
+       -H "Content-Type: application/json" \
+       -d '{
+         "baseCapital": 5.00,
+         "maxRounds": 10,
+         "bankroll": 405.00
+       }'
+
+Valid Request Body:
+{
+  "baseCapital": 100.00,
+  "maxRounds": 5,
+  "bankroll": 50000.00
+}
+
+Sample Response JSON:
+{
+  "modelName": "TRM Classic / Base TRM",
+  "baseInvestment": 100.00,
+  "maxRounds": 5,
+  "sequence": [
+    100.00,
+    200.00,
+    600.00,
+    1800.00,
+    5400.00
+  ],
+  "totalInvested": 8100.00,
+  "nextInvestment": 16200.00,
+  "bankrollRequired": 24300.00,
+  "maxSurvivingStreak": 5,
+  "triplingInvariantVerified": true,
+  "formulaDescription": "B_1 = S; B_{n+1} = 2 * T_n; T_n = S * 3^(n-1); Cumulative capital triples every round",
+  "tranches": [
+    {
+      "round": 1,
+      "trancheInvestment": 100.00,
+      "totalInvested": 100.00,
+      "nextInvestment": 200.00
+    },
+    {
+      "round": 2,
+      "trancheInvestment": 200.00,
+      "totalInvested": 300.00,
+      "nextInvestment": 600.00
+    },
+    {
+      "round": 3,
+      "trancheInvestment": 600.00,
+      "totalInvested": 900.00,
+      "nextInvestment": 1800.00
+    },
+    {
+      "round": 4,
+      "trancheInvestment": 1800.00,
+      "totalInvested": 2700.00,
+      "nextInvestment": 5400.00
+    },
+    {
+      "round": 5,
+      "trancheInvestment": 5400.00,
+      "totalInvested": 8100.00,
+      "nextInvestment": 16200.00
+    }
+  ]
+}
+
+------------------------------------------------------------------------------------------------------------------------
+[API 19] GET /api/v1/trm/classic/{symbol}
+------------------------------------------------------------------------------------------------------------------------
+Purpose       : Evaluates TRM Classic for a specific equity symbol by using the stock's current market quote as baseline.
+HTTP Method   : GET
+URL           : http://localhost:8081/api/v1/trm/classic/RELIANCE
+Path Variable : symbol = Equity ticker (e.g. RELIANCE)
+Request Body  : None
+cURL Example  :
+  curl -X GET "http://localhost:8081/api/v1/trm/classic/RELIANCE"
+
+------------------------------------------------------------------------------------------------------------------------
+[API 20] POST /api/v1/trm/v1
+------------------------------------------------------------------------------------------------------------------------
+Purpose       : Evaluates TRM V1: Percentage-Triggered Stock Equity Model.
+                Price triggers at discrete declines P_n = P_0 * (1 - L)^n with geometric tranches B_{n+1} = m * T_n.
+HTTP Method   : POST
+URL           : http://localhost:8081/api/v1/trm/v1
+Headers       : Content-Type: application/json
+cURL Example  :
+  curl -X POST "http://localhost:8081/api/v1/trm/v1" \
+       -H "Content-Type: application/json" \
+       -d '{
+         "entryPrice": 18.00,
+         "baseCapital": 100.00,
+         "dropPercentage": 0.20,
+         "maxRounds": 5,
+         "multiplier": 2.0
+       }'
+
+Valid Request Body:
+{
+  "entryPrice": 18.00,
+  "baseCapital": 100.00,
+  "dropPercentage": 0.20,
+  "maxRounds": 10,
+  "multiplier": 2.0
+}
+
+Sample Response JSON:
+{
+  "modelName": "TRM V1 - Percentage-Triggered Model",
+  "initialPrice": 18.00,
+  "dropPercentage": 0.20,
+  "multiplier": 2.0,
+  "maxRounds": 10,
+  "totalInvested": 5904900.00,
+  "totalShares": 2777458.419620,
+  "averageCost": 2.13,
+  "currentPrice": 1.93,
+  "marketValue": 5368091.89,
+  "unrealizedPnL": -536808.11,
+  "nextInvestment": 11809800.00,
+  "commentary": "TRM V1 drives average cost down rapidly but assumes 100% loss of prior capital, requiring O(3^n) exponential capital escalation."
+}
+
+------------------------------------------------------------------------------------------------------------------------
+[API 21] GET /api/v1/trm/v1/{symbol}
+------------------------------------------------------------------------------------------------------------------------
+Purpose       : Evaluates TRM V1 for a given stock symbol using its current market price as P_0.
+HTTP Method   : GET
+URL           : http://localhost:8081/api/v1/trm/v1/TCS
+Path Variable : symbol = Equity ticker (e.g. TCS)
+Request Body  : None
+cURL Example  :
+  curl -X GET "http://localhost:8081/api/v1/trm/v1/TCS"
+
+------------------------------------------------------------------------------------------------------------------------
+[API 22] POST /api/v1/trm/v2
+------------------------------------------------------------------------------------------------------------------------
+Purpose       : Evaluates TRM V2: Actual-Portfolio-Loss Adaptive Model.
+                Dynamically sizes tranches from actual portfolio loss (B_{next} = m * max(0, T - MV)),
+                achieving ~99.68% capital savings over TRM V1 while enforcing a 15% bankroll cap.
+HTTP Method   : POST
+URL           : http://localhost:8081/api/v1/trm/v2
+Headers       : Content-Type: application/json
+cURL Example  :
+  curl -X POST "http://localhost:8081/api/v1/trm/v2" \
+       -H "Content-Type: application/json" \
+       -d '{
+         "entryPrice": 18.00,
+         "baseCapital": 100.00,
+         "dropPercentage": 0.20,
+         "maxRounds": 10,
+         "multiplier": 2.0,
+         "bankroll": 50000.00
+       }'
+
+Valid Request Body:
+{
+  "entryPrice": 18.00,
+  "baseCapital": 100.00,
+  "dropPercentage": 0.20,
+  "maxRounds": 5,
+  "multiplier": 2.0,
+  "bankroll": 100000.00
+}
+
+Sample Response JSON:
+{
+  "modelName": "TRM V2 - Actual-Loss Adaptive Model",
+  "initialPrice": 18.00,
+  "currentPrice": 5.90,
+  "lossMultiplier": 2.0,
+  "marketValue": 923.71,
+  "actualLoss": 248.99,
+  "nextInvestment": 497.98,
+  "totalInvested": 1172.70,
+  "totalShares": 156.602263,
+  "averageCost": 7.49,
+  "unrealizedPnL": -248.99,
+  "recoveryTargetPrice": 7.86,
+  "capitalSavingsVsV1Percent": 99.68,
+  "bankrollCapBreached": false,
+  "maxRoundsCapBreached": false,
+  "actionDirective": "EXECUTE V2 PLAN: Dynamic tranches compress cost basis without exponential bankroll ruin."
+}
+
+------------------------------------------------------------------------------------------------------------------------
+[API 23] GET /api/v1/trm/v2/{symbol}
+------------------------------------------------------------------------------------------------------------------------
+Purpose       : Evaluates TRM V2 for a given stock symbol using real-time market price.
+HTTP Method   : GET
+URL           : http://localhost:8081/api/v1/trm/v2/RELIANCE
+Path Variable : symbol = Equity ticker (e.g. RELIANCE)
+Request Body  : None
+cURL Example  :
+  curl -X GET "http://localhost:8081/api/v1/trm/v2/RELIANCE"
+
+------------------------------------------------------------------------------------------------------------------------
+[API 24] POST /api/v1/trm/v3
+------------------------------------------------------------------------------------------------------------------------
+Purpose       : Evaluates TRM V3: Asymmetric Dual-Path Model.
+                Path A (Profit Target): Enforces Current Price Law (Q_retain = R / P_curr). Extracts 100% of principal
+                plus cash profit and vaults runner shares at $0.00 basis. Unconditionally resets active trade to S.
+                Path B (Stop-Loss Exit): Liquidates at stop, preserves cash, and computes calibrated recovery surcharge:
+                A_{next} = A_{base} + (Loss * f).
+HTTP Method   : POST
+URL           : http://localhost:8081/api/v1/trm/v3
+Headers       : Content-Type: application/json
+cURL Example  :
+  curl -X POST "http://localhost:8081/api/v1/trm/v3" \
+       -H "Content-Type: application/json" \
+       -d '{
+         "entryPrice": 200.00,
+         "quantity": 10.00,
+         "profitTargetPercentage": 0.10,
+         "stopLossPercentage": 0.05,
+         "retentionFactor": 0.20,
+         "recoveryFactor": 0.20,
+         "baseReversalInvestment": 1000.00,
+         "bankroll": 50000.00
+       }'
+
+Valid Request Body:
+{
+  "entryPrice": 200.00,
+  "quantity": 10.00,
+  "profitTargetPercentage": 0.10,
+  "stopLossPercentage": 0.05,
+  "retentionFactor": 0.20,
+  "recoveryFactor": 0.20,
+  "baseReversalInvestment": 1000.00,
+  "bankroll": 50000.00
+}
+
+Sample Response JSON:
+{
+  "modelName": "TRM V3 - Asymmetric Dual-Path Model",
+  "profitScenario": {
+    "entryPrice": 200.00,
+    "currentPrice": 220.00,
+    "originalQuantity": 10.000000,
+    "initialInvestment": 2000.00,
+    "profitPercent": 0.10,
+    "profitAmount": 200.00,
+    "retentionFactor": 0.20,
+    "retainedProfitValue": 40.00,
+    "retainedQuantity": 0.181818,
+    "quantityToSell": 9.818182,
+    "cashRealized": 2160.00,
+    "initialCapitalReturned": 2000.00,
+    "netCashProfit": 160.00,
+    "runnerEquityValue": 40.00,
+    "effectiveCostBasis": 0.00,
+    "reconciliationReconciled": true,
+    "actionMandate": "HARVEST PROFIT: Sell 9.818182 shares to recover 2160.00 cash (100% principal + 160.00 cash profit). Transfer 0.181818 runner shares to Compounding Vault at $0.00 basis. Reset active trading cycle to Base S."
+  },
+  "lossScenario": {
+    "entryPrice": 200.00,
+    "stopPrice": 190.00,
+    "originalQuantity": 10.000000,
+    "initialInvestment": 2000.00,
+    "lossPercent": 0.05,
+    "lossAmount": 100.00,
+    "preservedCash": 1900.00,
+    "recoveryFactor": 0.20,
+    "recoveryAmount": 20.00,
+    "baseReversalInvestment": 1000.00,
+    "nextReversalInvestment": 1020.00,
+    "bankrollCapPassed": true,
+    "actionMandate": "EXECUTE HARD STOP: Liquidate 100% position at stop price 190.00 to preserve 1900.00 cash. Add 20.00 surcharge to Base 1000.00. Next qualified reversal trade allocation: 1020.00."
+  },
+  "universalResetRule": "Upon target fill or recovery cycle completion, active allocation unconditionally resets to Base S.",
+  "currentPriceLawVerified": true
+}
+
+------------------------------------------------------------------------------------------------------------------------
+[API 25] GET /api/v1/trm/v3/{symbol}
+------------------------------------------------------------------------------------------------------------------------
+Purpose       : Evaluates TRM V3 for a given stock symbol using real-time market quote.
+HTTP Method   : GET
+URL           : http://localhost:8081/api/v1/trm/v3/AAPL
+Path Variable : symbol = Equity ticker (e.g. AAPL, RELIANCE)
+Request Body  : None
+cURL Example  :
+  curl -X GET "http://localhost:8081/api/v1/trm/v3/AAPL"
+
+------------------------------------------------------------------------------------------------------------------------
+[API 26] POST /api/v1/trm/evaluate-all
+------------------------------------------------------------------------------------------------------------------------
+Purpose       : Comprehensive multi-model evaluation: Runs all 4 TRM models (Classic, V1, V2, V3) concurrently
+                alongside 100-period OLS Linear Regression Channel and produces a consolidated executive directive.
+HTTP Method   : POST
+URL           : http://localhost:8081/api/v1/trm/evaluate-all
+Headers       : Content-Type: application/json
+cURL Example  :
+  curl -X POST "http://localhost:8081/api/v1/trm/evaluate-all" \
+       -H "Content-Type: application/json" \
+       -d '{
+         "symbol": "RELIANCE",
+         "entryPrice": 2950.00,
+         "quantity": 25.00,
+         "maxRounds": 5,
+         "bankroll": 500000.00
+       }'
+
+Valid Request Body:
+{
+  "symbol": "RELIANCE",
+  "entryPrice": 2950.00,
+  "quantity": 25.00,
+  "maxRounds": 5,
+  "dropPercentage": 0.10,
+  "multiplier": 2.0,
+  "profitTargetPercentage": 0.10,
+  "stopLossPercentage": 0.05,
+  "retentionFactor": 0.15,
+  "recoveryFactor": 0.15,
+  "baseReversalInvestment": 25000.00,
+  "bankroll": 500000.00
+}
+
+Sample Response JSON:
+{
+  "symbol": "RELIANCE",
+  "timestamp": "2026-09-15T01:55:00Z",
+  "technicalConfluence": {
+    "symbol": "RELIANCE",
+    "lastTradedPrice": 2985.40,
+    "vwap": 2978.15,
+    "regressionSlope": 3.4215,
+    "regressionIntercept": 2650.00,
+    "regressionMean": 2992.15,
+    "standardError": 45.20,
+    "upperBand2Sigma": 3082.55,
+    "lowerBand2Sigma": 2901.75,
+    "channelPosition": "EQUILIBRIUM_CHANNEL (Mean Reversion Zone)",
+    "setupScore": 84,
+    "setupClassification": "GOOD (Acceptable Setup)",
+    "preFlightChecklist": [
+      "1. Instrument Eligibility: Large-Cap Cash Equity verified.",
+      "2. Scope: Strictly 100% unleveraged spot equity (NO F&O / NO Margin).",
+      "3. Model Designation: TRM V2 / V3 algorithmic allocation.",
+      "4. Dimensional Arithmetic: Currency -> % -> Currency -> Shares enforced via Current Price Law.",
+      "5. Bankroll Cap: Single-asset exposure capped at <= 15% of total bankroll.",
+      "6. Round Limit: Max averaging rounds hard-capped at <= 5.",
+      "7. Structural Invalidation Stop: Anchor stop-loss below support swing floor.",
+      "8. Universal Reset Invariant: Reset to Base S immediately upon recovery fill."
+    ]
+  },
+  "trmClassic": { ... },
+  "trmV1": { ... },
+  "trmV2": { ... },
+  "trmV3": { ... },
+  "comparisonSummary": "TRM Comparison for RELIANCE: TRM Classic cumulative bankroll required after 5 rounds: 597080.00. TRM V1 requires 597080.00 in capital for 5 drops. TRM V2 requires only 13842.15 (delivering 97.68% capital savings vs V1)...",
+  "executiveDirective": "ACTION: EQUILIBRIUM REGIME on RELIANCE at 2985.40. Score: 84/100 (GOOD (Acceptable Setup)). Standard swing execution authorized with structural stop at 2901.75."
+}
+
+------------------------------------------------------------------------------------------------------------------------
+[API 27] GET /api/v1/trm/evaluate/{symbol}
+------------------------------------------------------------------------------------------------------------------------
+Purpose       : Live 360° Evaluation Shortcut. Ingests real-time NSE quote, 100-period regression channel,
+                evaluates all four TRM algorithms (Classic, V1, V2, V3), and outputs institutional execution directives.
+HTTP Method   : GET
+URL           : http://localhost:8081/api/v1/trm/evaluate/RELIANCE
+Path Variable : symbol = Equity ticker (e.g. RELIANCE, TCS, INFY)
+Request Body  : None
+cURL Example  :
+  curl -X GET "http://localhost:8081/api/v1/trm/evaluate/RELIANCE"
+
+========================================================================================================================
+                              SECTION 4: SYSTEM HEALTH, METRICS & ACTUATOR APIS
+========================================================================================================================
+
+------------------------------------------------------------------------------------------------------------------------
+[API 28] GET /actuator/health
+------------------------------------------------------------------------------------------------------------------------
+Purpose       : Checks overall microservice health status, including disk space, JVM, and Caffeine cache status.
+HTTP Method   : GET
+URL           : http://localhost:8081/actuator/health
+Request Body  : None
+cURL Example  :
+  curl -X GET "http://localhost:8081/actuator/health"
+
+Sample Response JSON:
+{
+  "status": "UP",
+  "components": {
+    "diskSpace": {
+      "status": "UP",
+      "details": {
+        "total": 511099678720,
+        "free": 248901234688,
+        "threshold": 10485760,
+        "exists": true
+      }
+    },
+    "ping": {
+      "status": "UP"
+    }
+  }
+}
+
+------------------------------------------------------------------------------------------------------------------------
+[API 29] GET /actuator/info
+------------------------------------------------------------------------------------------------------------------------
+Purpose       : Displays application build metadata, service name, and version info.
+HTTP Method   : GET
+URL           : http://localhost:8081/actuator/info
+Request Body  : None
+cURL Example  :
+  curl -X GET "http://localhost:8081/actuator/info"
+
+------------------------------------------------------------------------------------------------------------------------
+[API 30] GET /actuator/metrics
+------------------------------------------------------------------------------------------------------------------------
+Purpose       : Lists all published JVM, garbage collection, HTTP request, and cache metrics.
+HTTP Method   : GET
+URL           : http://localhost:8081/actuator/metrics
+Request Body  : None
+cURL Example  :
+  curl -X GET "http://localhost:8081/actuator/metrics"
+
+========================================================================================================================
+                                      END OF SERVICE API SPECIFICATION
+========================================================================================================================

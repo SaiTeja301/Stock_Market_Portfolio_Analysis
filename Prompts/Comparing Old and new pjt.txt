@@ -1,0 +1,37 @@
+# Task: Compare TradingAgents Projects and Generate a Feature Update Plan
+
+Analyze and compare these two codebases:
+
+- **Original reference project:** `@Orginal_TradingAgents\`
+- **Our project:** `@TRM Trading WEB Agents\`
+
+## Objective
+The original TradingAgents repository may contain new features, improvements, bug fixes, and architectural changes that are not yet available in our TRM Trading WEB Agents project. Perform a thorough, code-level comparison to identify these differences and prepare a practical plan to incorporate the relevant improvements into our version.
+
+## Instructions
+1. Analyze both projects’ source code, directory structures, dependencies, configurations, APIs, UI components, agents, trading workflows, and tests.
+2. Identify features available in the original project that are missing, partially implemented, outdated, or implemented differently in our version.
+3. Verify each finding against the actual code. Reference relevant files, functions, and classes wherever possible. Do not classify a feature as missing without checking for equivalent implementations under different names.
+4. Assess the compatibility, dependencies, implementation complexity, potential breaking changes, and relevance of each identified feature to our existing TRM architecture.
+5. Prioritize the recommended updates as **P0 (Critical), P1 (High), P2 (Medium), and P3 (Low)**. Explain the value and implementation approach for each feature.
+6. Preserve our existing TRM-specific functionality, custom trading logic, integrations, and web application behavior. Do not blindly overwrite our code with the original project’s implementation.
+7. Do not modify either project during this analysis. This task is strictly for comparison and planning.
+
+## Required Deliverables
+Create the following output files under:
+
+`E:\Stock Market\TRM Trading WEB Agents\Features_Updates Plans`
+
+- **`Feature_Comparison_Report.md`** — Feature-by-feature comparison, implementation status, supporting file references, and identified gaps.
+- **`Implementation_Roadmap.md`** — Prioritized update plan, dependencies, affected files, implementation steps, risks, and validation/testing strategy.
+
+Include a summary table with these columns:
+
+`Feature | Original Project Status | Our Project Status | Gap Analysis | Priority | Recommended Action`
+
+Distinguish genuinely new features from refactoring, bug fixes, dependency upgrades, and architectural changes.
+
+## Final Validation
+Ensure every recommendation is supported by code-level evidence, avoid duplicate recommendations, and identify any changes that could conflict with our TRM-specific behavior. If a feature cannot be verified, explicitly mark it as requiring further investigation.
+
+**Expected outcome:** A clear, evidence-based roadmap that enables us to selectively integrate valuable improvements from the latest original TradingAgents project into our TRM Trading WEB Agents project without breaking existing functionality.

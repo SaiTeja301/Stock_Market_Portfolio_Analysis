@@ -1,0 +1,25 @@
+Important Apis Thats Need To use as Micro Servicess In Our Application Building...!
+
+https://www.nseindia.com/api/NextApi/apiClient/GetQuoteApi?functionName=getCorporateAnnouncement&symbol=TMCV&marketApiType=equities&noOfRecords=3
+
+https://www.nseindia.com/api/NextApi/apiClient/GetQuoteApi?functionName=getSymbolData&marketType=N&series=EQ&symbol=BHARTIARTL
+
+https://www.nseindia.com/api/NextApi/apiClient/GetQuoteApi?functionName=getSymbolChartData&symbol=BHARTIARTLEQN&days=1D
+
+https://www.nseindia.com/api/NextApi/apiClient/GetQuoteApi?functionName=getYearwiseData&symbol=BHARTIARTLEQN
+
+https://www.nseindia.com/api/NextApi/apiClient/GetQuoteApi?functionName=getIndexList&symbol=BHARTIARTL
+https://www.nseindia.com/api/NextApi/apiClient/GetQuoteApi?functionName=getIndexList&symbol=RELIANCE
+
+
+
+https://www.nseindia.com/api/NextApi/apiClient/GetQuoteApi?functionName=getSymbolData&marketType=N&series=EQ&symbol=BHARTIARTL
+
+https://www.nseindia.com/api/NextApi/apiClient/GetQuoteApi?functionName=getSymbolChartData&symbol=BHARTIARTLEQN&days=1D
+
+https://www.nseindia.com/api/NextApi/apiClient/GetQuoteApi?functionName=getIndexList&symbol=SYNCOMF
+
+https://www.nseindia.com/api/NextApi/apiClient/GetQuoteApi?functionName=getTopTenStock
+
+
+https://www.nseindia.com/api/NextApi/globalSearch/equity?symbol=

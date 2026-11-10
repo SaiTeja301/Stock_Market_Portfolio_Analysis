@@ -1,0 +1,47 @@
+# Build output and dependencies
+target/
+**/target/
+build/
+**/build/
+bin/
+**/bin/
+out/
+**/out/
+*.class
+
+# IDE and Editor configurations
+.idea/
+**/.idea/
+.vscode/
+**/.vscode/
+*.iml
+**/*.iml
+.classpath
+.project
+.settings/
+
+# Reports, run outputs, and temporary audit dumps
+reports/
+**/reports/
+
+# Python cache and virtual environments
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+
+# Logs and test runtime dumps
+*.log
+**/*.log
+*.tmp
+**/*.tmp
+*.dumpstream
+surefire-reports/
+**/surefire-reports/
+
+# OS generated files
+.DS_Store
+Thumbs.db

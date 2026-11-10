@@ -1,0 +1,70 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: nse-market-gateway-service
+  cache:
+    type: caffeine
+    cache-names:
+      - quotes
+      - charts
+      - announcements
+      - yearwise
+      - indices
+      - topten
+      - search
+    caffeine:
+      spec: maximumSize=1000,expireAfterWrite=60s
+  ai:
+    ollama:
+      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+      chat:
+        options:
+          model: ${OLLAMA_MODEL:qwen2.5:3b}
+          temperature: 0.2
+          num-predict: 500
+
+langchain4j:
+  ollama:
+    chat-model:
+      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+      model-name: ${OLLAMA_MODEL:qwen2.5:3b}
+      temperature: 0.2
+      timeout: 60s
+
+nse:
+  api:
+    base-url: "https://www.nseindia.com"
+    connect-timeout-ms: 6000
+    read-timeout-ms: 6000
+    session-refresh-interval-ms: 600000
+
+resilience4j:
+  ratelimiter:
+    instances:
+      nseApiRateLimiter:
+        limitForPeriod: 3
+        limitRefreshPeriod: 1s
+        timeoutDuration: 5s
+  circuitbreaker:
+    instances:
+      nseApiCircuitBreaker:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 4
+        failureRateThreshold: 50.0
+        slowCallRateThreshold: 50.0
+        slowCallDurationThreshold: 5s
+        waitDurationInOpenState: 15s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
